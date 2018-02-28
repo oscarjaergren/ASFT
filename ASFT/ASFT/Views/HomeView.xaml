@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:ASFT.ViewModels;assembly=ASFT"
+             x:Class="ASFT.Views.HomeView" Padding="4,20,4,4">
+    <StackLayout Orientation="Vertical" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Spacing="10">
+        <StackLayout.BindingContext>
+            <viewModels:HomeViewModel />
+        </StackLayout.BindingContext>
+
+        <StackLayout VerticalOptions="Start" HorizontalOptions="FillAndExpand" >
+            <Label Text="ASFT Event Manager" FontSize="Large" />
+            <BoxView HeightRequest="5" Color="Gray"/>
+            <Label  Text="{Binding CurrentUsername}" FontSize="Small"/>
+            <Label  Text="{Binding CurrentLocation}" FontSize="Small"/>
+            <BoxView HeightRequest="5" Color="Gray"/>
+        </StackLayout>
+
+        <StackLayout VerticalOptions="CenterAndExpand" HorizontalOptions="FillAndExpand" >
+            <Button  Text="{Binding LoginLogOutText}" HorizontalOptions="Center" Command="{Binding LoginLogOutCommand}" FontSize="Medium" WidthRequest="250"/>
+            <Button   Text="New Issue" VerticalOptions="Center" HorizontalOptions="Center" Command="{Binding ViewIssuesCommand}" FontSize="Medium" WidthRequest="250"/>
+            <Button Text="Change Location" VerticalOptions="Center" HorizontalOptions="Center" Command="{Binding ViewIssuesCommand}" FontSize="Medium" WidthRequest="250"/>
+        </StackLayout>
+
+    </StackLayout>
+</ContentPage>

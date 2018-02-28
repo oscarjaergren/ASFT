@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dateTextConverter="clr-namespace:ASFT.Converters;assembly=ASFT"
+             xmlns:viewModel="clr-namespace:ASFT.ViewModels;assembly=ASFT"
+             xmlns:imageGallery="clr-namespace:ASFT.Controls;assembly=ASFT"
+             xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
+             x:Class="ASFT.Views.IssueView" x:Name="IssuePage" Padding="4,40,4,4">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="Labelfont" TargetType="Label">
+                <Setter Property="FontSize" Value="Medium" />
+            </Style>
+            <dateTextConverter:DateTextConverter x:Key="DateToTextConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="Black">
+        <Grid.BindingContext>
+            <viewModel:IssueViewModel />
+        </Grid.BindingContext>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        <!--Top Navigation Bar RETURN TO EVENTS-->
+        <Grid Grid.Row="0" RowSpacing="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+            <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" BackgroundColor="#FBB040">
+                <Label Text="    &lt;   EVENTS" TextColor="White" FontSize="Large" HorizontalOptions="StartAndExpand"
+                       VerticalOptions="CenterAndExpand">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OnGoToListCommand}" NumberOfTapsRequired="1" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </StackLayout>
+        </Grid>
+
+
+        <ScrollView Grid.Column="0" Grid.Row="1" Orientation="Vertical" VerticalOptions="FillAndExpand">
+            <StackLayout Orientation="Vertical" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"
+                         Spacing="15" Padding="0,30,0,0">
+
+                <!--Category-->
+                <Label Text="CATEGORY"  HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                       Style="{StaticResource Labelfont}" TextColor="White" />
+                <Frame OutlineColor="#FBB040" Padding="2" HeightRequest="40">
+                    <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="FillAndExpand"
+                                 Spacing="6" HeightRequest="40">
+                        <Entry Text="{Binding TitleEx}" TextColor="White" VerticalOptions="Center"
+                               HorizontalOptions="FillAndExpand" Style="{StaticResource Labelfont}" HeightRequest="40"
+                               BackgroundColor="Black" />
+                    </StackLayout>
+                </Frame>
+
+                <!--Title-->
+                <Label Text="TITLE" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                       Style="{StaticResource Labelfont}" TextColor="White" />
+                <Frame OutlineColor="#FBB040" Padding="2" HeightRequest="40">
+                    <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="FillAndExpand"
+                                 Spacing="6" HeightRequest="40">
+                        <Entry Text="{Binding TitleEx}" TextColor="White" VerticalOptions="Center"
+                               HorizontalOptions="FillAndExpand" Style="{StaticResource Labelfont}" HeightRequest="40"
+                               BackgroundColor="Black" />
+                    </StackLayout>
+                </Frame>
+
+                <!--PictureGallery-->
+                <!--<Label Text="IMAGES" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                       Style="{StaticResource Labelfont}" TextColor="White" />
+                <Grid>
+                    <Grid.BindingContext>
+                        <viewModel:ImageGalleryViewModel />
+                    </Grid.BindingContext>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="128" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Image Source="{Binding PreviewImage}" Grid.Row="2" BackgroundColor="#F4F1EE"
+                           VerticalOptions="StartAndExpand" />
+                    <imageGallery:ImageGalleryControl Grid.Row="0" ItemsSource="{Binding Images}">
+                        <imageGallery:ImageGalleryControl.ItemTemplate>
+                            <DataTemplate>
+                                <Image Source="{Binding Source}" Aspect="AspectFit">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Path=BindingContext.PreviewImageCommand, Source={x:Reference EditIssue}}"
+                                            CommandParameter="{Binding ImageId}" />
+                                    </Image.GestureRecognizers>
+                                </Image>
+                            </DataTemplate>
+                        </imageGallery:ImageGalleryControl.ItemTemplate>
+                    </imageGallery:ImageGalleryControl>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Text="Add photo" Command="{Binding CameraCommand}" />
+                        <Button Grid.Column="1" Text="Pick photo" Command="{Binding PickCommand}" />
+                    </Grid>
+                </Grid>
+                <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" BindingContext="" Text=""
+                       HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White" />-->
+
+                <!--Description-->
+                <Label Text="DESCRIPTION" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Style="{StaticResource Labelfont}" TextColor="White" />
+                <Frame Padding="2" OutlineColor="#FBB040">
+                    <Editor Text="{Binding DescriptionEx}" HeightRequest="100" BackgroundColor="Black" TextColor="White" />
+                </Frame>
+
+                <!--Grid for Status and Severity-->
+                <Grid HorizontalOptions="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <!--Severity-->
+                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="SEVERITY" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Style="{StaticResource Labelfont}" TextColor="White" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="" VerticalTextAlignment="Center"
+                           HorizontalOptions="StartAndExpand" Style="{StaticResource Labelfont}"  />
+
+                    <StackLayout Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalOptions="Center">
+                        <Image Source="severity_5.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </StackLayout>
+
+                    <StackLayout Grid.Row="1" Grid.Column="1">
+                        <Image Source="severity_4.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </StackLayout>
+
+                    <StackLayout Grid.Row="1" Grid.Column="2">
+                        <Image Source="severity_3.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </StackLayout>
+
+                    <StackLayout Grid.Row="1" Grid.Column="3">
+                        <Image Source="severity_2.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </StackLayout>
+
+                    <StackLayout Grid.Row="1" Grid.Column="4">
+                        <Image Source="severity_1.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </StackLayout>
+
+
+                    <!--Status-->
+                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="STATUS" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" TextColor="White" Style="{StaticResource Labelfont}" />
+                    <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" FontSize="Micro" Text="STATUS" HorizontalTextAlignment="End" VerticalTextAlignment="Center" TextColor="White"
+                           Style="{StaticResource Labelfont}" IsVisible="True" />
+                    <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="0">
+                        <Image Source="statusUnresolved.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="0.6">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </StackLayout>
+                    <StackLayout Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                        <Image Source="statusInProgress.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="0.6">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </StackLayout>
+                    <StackLayout Grid.Row="3" Grid.Column="3" Orientation="Horizontal" Spacing="4">
+                        <Image Source="statusDone.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="1">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </StackLayout>
+                </Grid>
+
+
+                <!--Date Created-->
+                <Label Text="TIME AND DATE: " Style="{StaticResource Labelfont}" TextColor="White" />
+                <Frame OutlineColor="#FBB040" BackgroundColor="Black" Padding="2">
+                    <StackLayout Orientation="Horizontal" VerticalOptions="Center"
+                                 HorizontalOptions="FillAndExpand" Spacing="0" Margin="0" Padding="0"
+                                 BackgroundColor="Black" HeightRequest="40">
+                        <Label Text=" " Style="{StaticResource Labelfont}" TextColor="White" BackgroundColor="Black"
+                               Margin="1" />
+                        <Label Text="{Binding Created, Converter={StaticResource DateToTextConverter}}"
+                               Style="{StaticResource Labelfont}" TextColor="White" BackgroundColor="Black"
+                               VerticalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+
+                <!--REPORTED BY-->
+                <Label Text="REPORTED BY: " Style="{StaticResource Labelfont}" TextColor="White" />
+                <Frame OutlineColor="#FBB040" BackgroundColor="Black" Padding="2">
+                    <StackLayout Orientation="Horizontal" VerticalOptions="Center"
+                                 HorizontalOptions="FillAndExpand" Spacing="0" Padding="1" BackgroundColor="Black"
+                                 HeightRequest="40">
+                        <Label Text=" " Style="{StaticResource Labelfont}" TextColor="White" BackgroundColor="Black" />
+                        <Label Text="{Binding CreatedByEx}" Style="{StaticResource Labelfont}"
+                               TextColor="White" BackgroundColor="Black" VerticalOptions="Center" />
+                    </StackLayout>
+                </Frame>
+
+
+                <!--Map View-->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="50" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="20" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="20" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="1" Grid.Row="0" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                           Text="Tap and hold on map to set/move pin" Font="Large" />
+                    <StackLayout Grid.Column="1" Grid.Row="1" VerticalOptions="FillAndExpand">
+                        <maps:Map WidthRequest="960" HeightRequest="300"
+                                  x:Name="Map"
+                                  IsShowingUser="true"
+                                  MapType="Hybrid" />
+                    </StackLayout>
+                    <StackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Vertical" Spacing="0">
+                        <Label Text="" VerticalOptions="Center" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" TextColor="White" />
+                        <ActivityIndicator IsRunning="{Binding IsProcessing}" WidthRequest="40"
+                                           IsVisible="{Binding IsProcessing}" VerticalOptions="FillAndExpand"
+                                           HorizontalOptions="FillAndExpand" />
+                    </StackLayout>
+                    <StackLayout Grid.Column="1" Grid.Row="3" Spacing="0" Orientation="Horizontal" />
+                </Grid>
+
+                <Button Text="Submit"
+                        HorizontalOptions="FillAndExpand" VerticalOptions="EndAndExpand" Command="{Binding SubmitCommand}"
+                        BackgroundColor="#FBB040" />
+            </StackLayout>
+        </ScrollView>
+
+        <!--Bottom Navigation Bar-->
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="40" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="20" />
+            </Grid.ColumnDefinitions>
+
+            <StackLayout Grid.ColumnSpan="3" Grid.Row="1" Orientation="Horizontal"
+                         HorizontalOptions="FillAndExpand" Spacing="5" BackgroundColor="White">
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" BackgroundColor="#FBB040">
+                    <Image Source="photo2.png" WidthRequest="100" HeightRequest="100" HorizontalOptions="FillAndExpand"
+                           VerticalOptions="Center">
+                    </Image>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" BackgroundColor="#FBB040">
+                    <Image Source="photo2.png" WidthRequest="100" HeightRequest="100" HorizontalOptions="FillAndExpand"
+                           VerticalOptions="Center">
+                    </Image>
+                </StackLayout>
+
+                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" BackgroundColor="#FBB040">
+                    <Image Source="showmap.png" WidthRequest="100" HeightRequest="60" HorizontalOptions="FillAndExpand"
+                           VerticalOptions="CenterAndExpand">
+                    </Image>
+                </StackLayout>
+
+            </StackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

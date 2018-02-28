@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:ASFT.ViewModels;assembly=ASFT"
+             x:Class="ASFT.Views.FilterView">
+    <ContentPage.Content>
+        <StackLayout Orientation="Vertical">
+            <StackLayout.BindingContext>
+                <viewModels:FilterViewModel />
+            </StackLayout.BindingContext>
+            <Label Text="Sorting and Filtering" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" ></Label>
+            <TableView Intent="Form">
+                <TableView.Root>
+
+                    <TableSection Title="Sorting" >
+                        <ViewCell>
+                            <Button Text="{Binding SortByText}" Command="{Binding OnClickSortByCommand}"/>
+                        </ViewCell>
+                        <ViewCell>
+                            <Button Text="{Binding SortByOrderText}" Command="{Binding OnClickSortOrderCommand}"/>
+                        </ViewCell>
+                    </TableSection>
+
+
+                    <TableSection Title="View Filter - Status">
+                        <SwitchCell Text="Show Unresolved" On="{Binding ShowUnresolved}" />
+                        <SwitchCell Text="Show In Progress" On="{Binding ShowInProgress}" />
+                        <SwitchCell Text="Show Resolved" On="{Binding ShowResolved}" />
+                    </TableSection>
+
+                    <TableSection Title="View Filter - Severity">
+                        <SwitchCell Text="Show Severity Highest" On="{Binding ShowSeverityHighest}"/>
+                        <SwitchCell Text="Show Severity High" On="{Binding ShowSeverityHigh}" />
+                        <SwitchCell Text="Show Severity Medium" On="{Binding ShowSeverityMedium}" />
+                        <SwitchCell Text="Show Severity Low" On="{Binding ShowSeverityLow}" />
+                        <SwitchCell Text="Show Severity Lowest" On="{Binding ShowSeverityLowest}" />
+                    </TableSection>
+
+                </TableView.Root>
+            </TableView>
+        </StackLayout>
+</ContentPage.Content>
+</ContentPage>

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModel="clr-namespace:ASFT.ViewModels;assembly=ASFT"
+             x:Class="ASFT.Views.LoginView">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="Labelfont" TargetType="Label">
+                <Setter Property="FontSize" Value="Small" />
+            </Style>
+            <Style x:Key="Titlefont" TargetType="Label">
+                <Setter Property="FontSize" Value="Large" />
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <StackLayout Orientation="Vertical" VerticalOptions="Center" HorizontalOptions="FillAndExpand" Spacing="10">
+        <StackLayout.BindingContext>
+            <viewModel:LoginViewModel />
+        </StackLayout.BindingContext>
+        <StackLayout Orientation="Vertical" VerticalOptions="Start" HorizontalOptions="Center" Spacing="10"
+                     WidthRequest="350">
+            <Image Source="icon.png" HeightRequest="200" WidthRequest="200" HorizontalOptions="Center"
+                   VerticalOptions="Start" />
+            <Label Text="ASFT EVENT REPORT" VerticalOptions="Start" HorizontalOptions="Center"
+                   Style="{StaticResource Titlefont}" />
+            <Label Text="USERNAME" VerticalOptions="Center" HorizontalOptions="Start"
+                   Style="{StaticResource Labelfont}" />
+            <Frame OutlineColor="#FBB040" Padding="1,1,1,1">
+                <Entry Placeholder="User name / Account" Text="{Binding Username}" />
+            </Frame>
+            <Label Text="PASSWORD" VerticalOptions="Center" HorizontalOptions="Start"
+                   Style="{StaticResource Labelfont}" />
+            <Frame OutlineColor="#FBB040" Padding="1,1,1,1">
+                <Entry Placeholder="Password" IsPassword="true" Text="{Binding Password}" />
+            </Frame>
+            <Button x:Name="BtnLogin" Text="SUBMIT" HorizontalOptions="FillAndExpand" Command="OnButtonLogin"
+                    WidthRequest="100" BorderColor="Yellow" />
+        </StackLayout>
+    </StackLayout>
+</ContentPage>
