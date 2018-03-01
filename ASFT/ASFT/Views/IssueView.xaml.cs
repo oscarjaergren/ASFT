@@ -4,15 +4,14 @@ using Xamarin.Forms.Xaml;
 namespace ASFT.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class IssueView
+    public partial class IssueView 
     {
-        private IssueViewModel viewModel;
 
         public IssueView()
         {
             InitializeComponent();
-            viewModel = new IssueViewModel();
-            BindingContext = viewModel;
+            //viewModel = new IssueViewModel();
+            //BindingContext = viewModel;
         }
 
         public IssueView(int issueId = 0)
@@ -23,10 +22,7 @@ namespace ASFT.Views
 
         public void LoadViewModel(int issueId = 0)
         {
-            if (viewModel != null) return;
 
-            viewModel = new IssueViewModel();
-            BindingContext = viewModel;
         }
     }
 }

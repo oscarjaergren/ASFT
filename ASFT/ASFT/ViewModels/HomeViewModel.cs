@@ -13,7 +13,7 @@ namespace ASFT.ViewModels
 {
     public class HomeViewModel : ContentPage, INotifyPropertyChanged
     {
-        public INavigation Navigation;
+        public new INavigation Navigation;
         private readonly int nCurrentLocation = -1;
         public HomeViewModel()
         {

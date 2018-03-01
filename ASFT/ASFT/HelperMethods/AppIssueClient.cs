@@ -142,7 +142,7 @@ namespace ASFT.HelperMethods
             return new GeoLocation(State.LocationLatitude, State.LocationLongitude);
         }
 
-        public LoginViewModel GetCurrentLoginModel()
+        public LoginModel GetCurrentLoginModel()
         {
             // DEBUG
             if (State.Username.Length == 0)
@@ -153,7 +153,7 @@ namespace ASFT.HelperMethods
             // VERY DEBUG. - REMOVE 
             const string password = "mudemo";
 
-            return new LoginViewModel
+            return new LoginModel()
             {
                 // default debug account
                 Host = State.Host,
@@ -192,16 +192,16 @@ namespace ASFT.HelperMethods
             return ApiClient.GetLocations();
         }
 
-        public List<IssueViewModel> GetIssues(int locationId, bool bUseFilter = true)
+        public List<IssueModel> GetIssues(int locationId, bool bUseFilter = true)
         {
-            var uiIssues = new List<IssueViewModel>();
+            var uiIssues = new List<IssueModel>();
             var issues = ApiClient.GetAllIssuesAtLocation(locationId);
             foreach (IssueModel item in issues)
             {
                 if (bUseFilter)
                     if (Filtering.IncludeItem(item) == false)
                         continue;
-                uiIssues.Add(new IssueViewModel(item));
+                uiIssues.Add(new IssueModel());
             }
 
             if (!bUseFilter) return uiIssues;

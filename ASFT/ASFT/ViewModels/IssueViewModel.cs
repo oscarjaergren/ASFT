@@ -19,18 +19,13 @@ using Xamarin.Forms;
 
 namespace ASFT.ViewModels
 {
-    public class IssueViewModel : IssueModel, INotifyPropertyChanged
+    public class IssueViewModel : FreshBasePageModel, INotifyPropertyChanged
     {
         public static INavigation Navigation;
-        private bool bMapCtrlReady = false;
-
-        private bool isGettingLocation = false;
 
 
-        private ExtendedMap map;
-
-        private ImageGalleryViewModel imageGalleryViewModel = new ImageGalleryViewModel();
-
+        private readonly ImageGalleryViewModel imageGalleryViewModel = new ImageGalleryViewModel();
+        
         #region Model
         private bool AbortGettingImages { get; set; }
         private bool IsGettingsImages { get; set; }
@@ -44,15 +39,19 @@ namespace ASFT.ViewModels
 
         public int Opacity { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public new event PropertyChangedEventHandler PropertyChanged;
+
+        private bool isProcessing;
+
+        #region Model
 
         public bool IsProcessing
         {
-            get { return IsProcessing; }
+            get { return isProcessing; }
             set
             {
-                if (IsProcessing == value) return;
-                IsProcessing = value;
+                if (isProcessing == value) return;
+                isProcessing = value;
                 NotifyPropertyChanged();
                 Changed = true;
             }
@@ -74,10 +73,10 @@ namespace ASFT.ViewModels
 
         public IssueSeverity SeverityEx
         {
-            get { return Severity; }
+            get { return Issue.Severity; }
             set
             {
-                Severity = value;
+                Issue.Severity = value;
                 NotifyPropertyChanged("SeverityImagePath");
                 Changed = true;
             }
@@ -85,10 +84,10 @@ namespace ASFT.ViewModels
 
         public IssueStatus StatusEx
         {
-            get { return Status; }
+            get { return Issue.Status; }
             set
             {
-                Status = value;
+                Issue.Status = value;
                 NotifyPropertyChanged($"StatusImagePath");
                 Changed = true;
             }
@@ -96,11 +95,11 @@ namespace ASFT.ViewModels
 
         public string TitleEx
         {
-            get { return Title; }
+            get { return Issue.Title; }
             set
             {
-                if (Title == value) return;
-                Title = value;
+                if (Issue.Title == value) return;
+                Issue.Title = value;
                 NotifyPropertyChanged();
                 Changed = true;
             }
@@ -108,11 +107,23 @@ namespace ASFT.ViewModels
 
         public string CreatedByEx
         {
-            get { return CreatedBy; }
+            get { return Issue.CreatedBy; }
             set
             {
-                if (CreatedBy == value) return;
-                CreatedBy = value;
+                if (Issue.CreatedBy == value) return;
+                Issue.CreatedBy = value;
+                NotifyPropertyChanged();
+                Changed = true;
+            }
+        }
+
+        public DateTime CreatedEx
+        {
+            get { return Issue.Created; }
+            set
+            {
+                if (Issue.Created == value) return;
+                Issue.Created = value;
                 NotifyPropertyChanged();
                 Changed = true;
             }
@@ -120,11 +131,11 @@ namespace ASFT.ViewModels
 
         public string DescriptionEx
         {
-            get { return Description; }
+            get { return Issue.Description; }
             set
             {
-                if (Description == value) return;
-                Description = value;
+                if (Issue.Description == value) return;
+                Issue.Description = value;
                 NotifyPropertyChanged();
                 Changed = true;
             }
@@ -133,12 +144,12 @@ namespace ASFT.ViewModels
 
         public string SeverityImagePath
         {
-            get { return GetSeverityImage(Severity); }
+            get { return GetSeverityImage(Issue.Severity); }
         }
 
         public string StatusImagePath
         {
-            get { return GetStatusImage(Status); }
+            get { return GetStatusImage(Issue.Status); }
         }
 
         public string GetSeverityImage(IssueSeverity severity)
@@ -174,15 +185,15 @@ namespace ASFT.ViewModels
 
         public bool Changed
         {
-            get { return IssueChanged; }
+            get { return Issue.IssueChanged; }
             set
             {
-                IssueChanged = value;
+                Issue.IssueChanged = value;
                 NotifyPropertyChanged();
             }
         }
 
-     
+
 
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
@@ -194,95 +205,65 @@ namespace ASFT.ViewModels
         #endregion
 
 
+        #endregion
+        public IssueModel CreateIssueModel()
+        {
+            return new IssueModel()
+            {
+                LocationId = 0,
+                Id = 0,
+                Title = "",
+                Description = "",
+                CreatedBy = App.Client.GetCurrentUsername(),
+                Created = DateTime.Now,
+                Edited = DateTime.Now,
+            };
+        }
+
         public IssueViewModel()
         {
+            Issue = CreateIssueModel();
 
-            //Id = 0;
-            //Description = "";
-            //Created = DateTime.Now;
-            //Edited = DateTime.Now;
-            //RefreshImageList(Issue.Id);
+            if (App.Client.Initilized == false) App.Client.Init();
+
+
+            IGeolocator locator = CrossGeolocator.Current;
+            if (locator.DesiredAccuracy != 100)
+                locator.DesiredAccuracy = 100;
 
             GeoLocation location = App.Client.GetCurrentGeoLocation();
 
+            if (!Issue.IsNewIssue) return;
+            Issue.Title = "New Event";
+            Issue.Severity = IssueSeverity.Medium;
+            Issue.Status = IssueStatus.Done;
+            Issue.CreatedBy = App.Client.GetCurrentUsername();
 
         }
 
-    
+
+        protected override void ViewIsAppearing(object sender, EventArgs e)
+        {
+            CoreMethods.DisplayAlert("Page is appearing", "", "Ok");
+            base.ViewIsAppearing(sender, e);
+        }
 
         public IssueViewModel(IssueModel issue, GeoLocation location)
         {
+
+            if (Issue.IsNewIssue) return;
             AllowPinMovment = false;
-            Issue = Issue;
+            Issue = issue;
             Location = location;
 
             IGeolocator locator = CrossGeolocator.Current;
             if (locator.DesiredAccuracy != 100)
                 locator.DesiredAccuracy = 100;
 
-
             Issue = issue;
             StatusValues = Issue.PossibleStatusValues;
             SeverityValues = Issue.PossibleSeverityValues;
-
-
-            if (App.Client.Initilized == false) App.Client.Init();
-
-            if (App.Client.LoggedIn != true) ShowLoginPage();
-
-            if (IsNewIssue) 
-            {
-                Title = "New Event";
-                Issue.Severity = IssueSeverity.Medium;
-                Issue.Status = IssueStatus.Done;
-                Issue.CreatedBy = App.Client.GetCurrentUsername();
-            }
         }
-
-
-      
-
-        public IssueViewModel(bool bIsNew)
-        {
-            IsNewIssue = true;
-
-            Id = 0;
-            Title = "";
-            Description = "";
-            CreatedBy = App.Client.GetCurrentUsername();
-            Created = DateTime.Now;
-            Edited = DateTime.Now;
-        }
-
-        public IssueViewModel(IssueModel issue)
-        {
-            LocationId = issue.LocationId;
-            Id = issue.Id;
-            Title = issue.Title;
-            Description = issue.Description;
-            Longitude = issue.Longitude;
-            Latitude = issue.Latitude;
-            Status = issue.Status;
-            Severity = issue.Severity;
-            Created = issue.Created;
-            Edited = issue.Edited;
-            CreatedBy = issue.CreatedBy;
-        }
-
-        public IssueViewModel(int locationId, int id, string title, string desc, double longitude, double latitude,
-            IssueStatus status, IssueSeverity severity)
-        {
-            LocationId = locationId;
-            Id = id;
-            Title = title;
-            Description = desc;
-            Longitude = longitude;
-            Latitude = latitude;
-            Status = status;
-            Severity = severity;
-        }
-
-    
 
         private async Task ShowLoginPage()
         {
@@ -292,11 +273,8 @@ namespace ASFT.ViewModels
 
                 if (App.Client.LoggedIn == false) Issues.Clear();
             });
-            await Navigation.PushModalAsync(new LoginView());
+            await CoreMethods.PushPageModel<LoginViewModel>(null, true, true);
         }
-
-      
-
 
         private readonly ICommand onGoToListCommand = null;
         private readonly ICommand onStatusTappedCommand = null;
@@ -316,6 +294,16 @@ namespace ASFT.ViewModels
         {
             get { return submitCommand ?? new Command(OnSubmit); }
         }
+
+        public override async void Init(object initData)
+        {
+            if (App.Client.LoggedIn != true)
+            {
+                await CoreMethods.DisplayAlert("Page is appearing", "", "Ok");
+                await ShowLoginPage();
+            }
+        }
+
 
         private async void OnSubmit()
         {
@@ -391,14 +379,12 @@ namespace ASFT.ViewModels
         }
         public ObservableCollection<ImageViewModel> Items = new ObservableCollection<ImageViewModel>();
 
-     
+
 
         protected void RefreshImageList(int issueId)
         {
-
             try
             {
-
                 imageGalleryViewModel.Images.Clear();
 
                 var ImageList = App.Client.GetImages(issueId);

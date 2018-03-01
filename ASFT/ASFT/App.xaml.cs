@@ -1,4 +1,5 @@
 ﻿using ASFT.HelperMethods;
+using ASFT.ViewModels;
 using ASFT.Views;
 using FreshMvvm;
 using Xamarin.Forms;
@@ -16,20 +17,22 @@ namespace ASFT
         public App()
         {
             Client = new AppIssueClient();
-            // The root page of your application
+
+
+
             MainPage = GetMainPage();
+
+
+            //var page = FreshPageModelResolver.ResolvePageModel<IssueViewModel>();
+            //var container = new FreshNavigationContainer(page);
+            //MainPage = container;
         }
 
-        
-        void SetupIOC()
-        {
-            //FreshIOC.Container.Register<DataTemplate>();
-        }
         public static Page GetMainPage()
         {
             return new NavigationPage(new IssueView());
         }
-       
+
         protected override void OnStart()
         {
             // Handle when your app starts

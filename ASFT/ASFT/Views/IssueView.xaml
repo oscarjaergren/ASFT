@@ -227,7 +227,7 @@
                                  BackgroundColor="Black" HeightRequest="40">
                         <Label Text=" " Style="{StaticResource Labelfont}" TextColor="White" BackgroundColor="Black"
                                Margin="1" />
-                        <Label Text="{Binding Created, Converter={StaticResource DateToTextConverter}}"
+                        <Label Text="{Binding CreatedEx, Converter={StaticResource DateToTextConverter}}"
                                Style="{StaticResource Labelfont}" TextColor="White" BackgroundColor="Black"
                                VerticalOptions="Center" />
                     </StackLayout>

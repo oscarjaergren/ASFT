@@ -1,4 +1,5 @@
 ﻿using System;
+using Android.Content;
 using Android.Gms.Maps;
 using Android.Runtime;
 using ASFT.HelperMethods;
@@ -11,18 +12,15 @@ namespace ASFT.Droid
 
     public class ExtendedMapRenderer : MapRenderer, IOnMapReadyCallback
     {
+
+
         private GoogleMap _map;
-
-        public ExtendedMapRenderer()
+        public ExtendedMapRenderer(Context context) : base(context)
         {
+            AutoPackage = false;
         }
 
-        public ExtendedMapRenderer(IntPtr javaReference, JniHandleOwnership jniHandleOwnership)
-        {
 
-            int x = 0;
-            x++;
-        }
 
         private void InvokeOnMapReadyBaseClassHack(GoogleMap googleMap)
         {
@@ -67,8 +65,8 @@ namespace ASFT.Droid
             {
                 _map = googleMap;
                 this.NativeMap = googleMap;
-                _map.MapClick += googleMap_MapClick;
-                _map.MapLongClick += googleMap_MapLongClick;
+                _map.MapClick += GoogleMap_MapClick;
+                _map.MapLongClick += GoogleMap_MapLongClick;
 
                 ((ExtendedMap)Element).OnReady();
             }
@@ -76,19 +74,19 @@ namespace ASFT.Droid
         protected override void OnElementChanged(ElementChangedEventArgs<Map> e)
         {
             if (_map != null)
-                _map.MapClick -= googleMap_MapClick;
+                _map.MapClick -= GoogleMap_MapClick;
             base.OnElementChanged(e);
             if (Control != null)
                 ((MapView)Control).GetMapAsync(this);
         }
 
-        private void googleMap_MapClick(object sender, GoogleMap.MapClickEventArgs e)
+        private void GoogleMap_MapClick(object sender, GoogleMap.MapClickEventArgs e)
         {
             ((ExtendedMap)Element).OnTap(new Position(e.Point.Latitude, e.Point.Longitude));
         }
 
 
-        private void googleMap_MapLongClick(object sender, GoogleMap.MapLongClickEventArgs e)
+        private void GoogleMap_MapLongClick(object sender, GoogleMap.MapLongClickEventArgs e)
         {
             ((ExtendedMap)Element).OnLongTap(new Position(e.Point.Latitude, e.Point.Longitude));
         }

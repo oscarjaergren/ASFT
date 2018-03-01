@@ -23,6 +23,44 @@ namespace IssueBase.Issue
         public bool IssueNeedSync = true; // Issue is saved localy, But not sent to server. Need syncing
         public bool IsNewIssue;
         public bool IssueChanged;
+      
+
+        public IssueModel()
+        {
+            //Id = 0;
+            //Description = "";
+            //Created = DateTime.Now;
+            //Edited = DateTime.Now;
+            //RefreshImageList(Issue.Id);
+        }
+
+        public IssueModel(IssueModel issue)
+        {
+            LocationId = issue.LocationId;
+            Id = issue.Id;
+            Title = issue.Title;
+            Description = issue.Description;
+            Longitude = issue.Longitude;
+            Latitude = issue.Latitude;
+            Status = issue.Status;
+            Severity = issue.Severity;
+            Created = issue.Created;
+            Edited = issue.Edited;
+            CreatedBy = issue.CreatedBy;
+        }
+
+        public IssueModel(int locationId, int id, string title, string desc, double longitude, double latitude,
+            IssueStatus status, IssueSeverity severity)
+        {
+            LocationId = locationId;
+            Id = id;
+            Title = title;
+            Description = desc;
+            Longitude = longitude;
+            Latitude = latitude;
+            Status = status;
+            Severity = severity;
+        }
 
         public NewIssueModel CreateNewIssueModel()
         {
@@ -54,6 +92,7 @@ namespace IssueBase.Issue
             issue.CreatedBy = issue.CreatedBy;
             return issue;
         }
+
 
         public List<IssueStatusModel> PossibleStatusValues
         {

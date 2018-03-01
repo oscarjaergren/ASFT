@@ -3,12 +3,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ASFT.Models;
 using DataTypes;
+using FreshMvvm;
 using Xamarin.Forms;
 
 namespace ASFT.ViewModels
 {
-    public class LoginViewModel : ViewModelBase, INotifyPropertyChanged
+    public class LoginViewModel : FreshBasePageModel, INotifyPropertyChanged
     {
         private readonly ICommand loginCommand = null;
 
@@ -23,7 +25,7 @@ namespace ASFT.ViewModels
             Data = App.Client.GetCurrentLoginModel();
         }
 
-        public LoginViewModel Data { get; }
+        public LoginModel Data { get; }
 
         public ICommand LoginCommand
         {
@@ -95,11 +97,11 @@ namespace ASFT.ViewModels
 
             if (bSuccess)
             {
-                await NavigateBack();
+                //await ();
             }
         }
 
-        protected void RaisePropertyChanged(string propertyName)
+        protected new void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
