@@ -6,9 +6,10 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using ASFT.HelperMethods;
 using ASFT.IServices;
 using ASFT.Models;
+using ASFT.Pages;
+using ASFT.ViewModels;
 using ASFT.Views;
 using DataTypes.Enums;
 using FreshMvvm;
@@ -17,15 +18,16 @@ using Plugin.Geolocator;
 using Plugin.Geolocator.Abstractions;
 using Xamarin.Forms;
 
-namespace ASFT.ViewModels
+namespace ASFT.PageModels
 {
-    public class IssueViewModel : FreshBasePageModel, INotifyPropertyChanged
+    public class IssuePageModel : FreshBasePageModel
     {
+
         public static INavigation Navigation;
 
 
         private readonly ImageGalleryViewModel imageGalleryViewModel = new ImageGalleryViewModel();
-        
+
         #region Model
         private bool AbortGettingImages { get; set; }
         private bool IsGettingsImages { get; set; }
@@ -33,7 +35,7 @@ namespace ASFT.ViewModels
         public IssueModel Issue { get; set; }
         public bool AllowPinMovment { get; set; }
         public GeoLocation Location { get; set; }
-        public ObservableCollection<IssueViewModel> Issues { get; set; }
+        public ObservableCollection<IssueModel> Issues { get; set; }
         private List<IssueStatusModel> StatusValues { get; }
         private List<IssueSeverityModel> SeverityValues { get; }
 
@@ -220,60 +222,53 @@ namespace ASFT.ViewModels
             };
         }
 
-        public IssueViewModel()
+        public IssuePageModel()
         {
-            Issue = CreateIssueModel();
-
             if (App.Client.Initilized == false) App.Client.Init();
 
+            Issue = CreateIssueModel();
 
             IGeolocator locator = CrossGeolocator.Current;
             if (locator.DesiredAccuracy != 100)
                 locator.DesiredAccuracy = 100;
 
             GeoLocation location = App.Client.GetCurrentGeoLocation();
-
-            if (!Issue.IsNewIssue) return;
-            Issue.Title = "New Event";
-            Issue.Severity = IssueSeverity.Medium;
-            Issue.Status = IssueStatus.Done;
-            Issue.CreatedBy = App.Client.GetCurrentUsername();
-
-        }
-
-
-        protected override void ViewIsAppearing(object sender, EventArgs e)
-        {
-            CoreMethods.DisplayAlert("Page is appearing", "", "Ok");
-            base.ViewIsAppearing(sender, e);
-        }
-
-        public IssueViewModel(IssueModel issue, GeoLocation location)
-        {
-
-            if (Issue.IsNewIssue) return;
-            AllowPinMovment = false;
-            Issue = issue;
-            Location = location;
-
-            IGeolocator locator = CrossGeolocator.Current;
-            if (locator.DesiredAccuracy != 100)
-                locator.DesiredAccuracy = 100;
-
-            Issue = issue;
             StatusValues = Issue.PossibleStatusValues;
             SeverityValues = Issue.PossibleSeverityValues;
+            if (!Issue.IsNewIssue) return;
+            TitleEx = "New Event";
+            SeverityEx = IssueSeverity.Medium;
+            StatusEx = IssueStatus.Done;
+            CreatedByEx = App.Client.GetCurrentUsername();
+
+        }
+        public override async void Init(object initData)
+        {
+            await CoreMethods.DisplayAlert("InitsAppearing", "", "Ok");
+            if (App.Client.LoggedIn != true)
+            {
+                await ShowLoginPage();
+            }
+        }
+
+
+        protected override async void ViewIsAppearing(object sender, EventArgs e)
+        {
+            if (App.Client.LoggedIn != true)
+            {
+                await ShowLoginPage();
+            }
         }
 
         private async Task ShowLoginPage()
         {
-            MessagingCenter.Subscribe<LoginView>(this, "OnLoginPageClosed", sender =>
+            MessagingCenter.Subscribe<LoginPage>(this, "OnLoginPageClosed", sender =>
             {
-                MessagingCenter.Unsubscribe<LoginView>(this, "OnLoggedIn");
+                MessagingCenter.Unsubscribe<LoginPage>(this, "OnLoggedIn");
 
                 if (App.Client.LoggedIn == false) Issues.Clear();
             });
-            await CoreMethods.PushPageModel<LoginViewModel>(null, true, true);
+            await CoreMethods.PushPageModel<LoginPageModel>();
         }
 
         private readonly ICommand onGoToListCommand = null;
@@ -295,20 +290,12 @@ namespace ASFT.ViewModels
             get { return submitCommand ?? new Command(OnSubmit); }
         }
 
-        public override async void Init(object initData)
-        {
-            if (App.Client.LoggedIn != true)
-            {
-                await CoreMethods.DisplayAlert("Page is appearing", "", "Ok");
-                await ShowLoginPage();
-            }
-        }
 
 
         private async void OnSubmit()
         {
-            bool Saved = await SaveChanges();
-            if (Saved)
+            bool saved = await SaveChanges();
+            if (saved)
             {
                 MessagingCenter.Send(this, "refresh");
 
@@ -470,15 +457,15 @@ namespace ASFT.ViewModels
         }
 
 
-        private async void OnGoToList()
+        private void OnGoToList()
         {
-            MessagingCenter.Subscribe<LoginView>(this, "OnLoginPageClosed", sender =>
+            MessagingCenter.Subscribe<LoginPage>(this, "OnLoginPageClosed", sender =>
             {
-                MessagingCenter.Unsubscribe<LoginView>(this, "OnLoggedIn");
+                MessagingCenter.Unsubscribe<LoginPage>(this, "OnLoggedIn");
 
                 if (App.Client.LoggedIn == false) Issues.Clear();
             });
-            await Navigation.PushModalAsync(new LoginView());
+            //await Navigation.PushModalAsync(new LoginPage());
         }
 
 

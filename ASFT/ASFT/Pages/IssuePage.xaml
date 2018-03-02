@@ -1,25 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<freshMvvm:FreshBaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:dateTextConverter="clr-namespace:ASFT.Converters;assembly=ASFT"
-             xmlns:viewModel="clr-namespace:ASFT.ViewModels;assembly=ASFT"
-             xmlns:imageGallery="clr-namespace:ASFT.Controls;assembly=ASFT"
+             xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
+             xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
              xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
-             x:Class="ASFT.Views.IssueView" x:Name="IssuePage" Padding="4,40,4,4">
+             x:Class="ASFT.Pages.IssuePage">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="Labelfont" TargetType="Label">
                 <Setter Property="FontSize" Value="Medium" />
             </Style>
-            <dateTextConverter:DateTextConverter x:Key="DateToTextConverter" />
+            <converters:DateTextConverter x:Key="DateToTextConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
     <Grid BackgroundColor="Black">
-        <Grid.BindingContext>
-            <viewModel:IssueViewModel />
-        </Grid.BindingContext>
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
             <RowDefinition Height="*" />
@@ -318,4 +313,4 @@
             </StackLayout>
         </Grid>
     </Grid>
-</ContentPage>
+</freshMvvm:FreshBaseContentPage>

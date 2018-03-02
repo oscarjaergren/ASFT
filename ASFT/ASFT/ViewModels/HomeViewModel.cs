@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.UserDialogs;
+using ASFT.Pages;
 using ASFT.Views;
 using IssueBase.Location;
 using IssueManagerApiClient;
@@ -132,13 +133,13 @@ namespace ASFT.ViewModels
 
         private async void OnShowLoginUpdate()
         {
-            MessagingCenter.Subscribe<LoginView>(this, "OnLoginPageClosed", (sender) =>
+            MessagingCenter.Subscribe<LoginPage>(this, "OnLoginPageClosed", (sender) =>
             {
-                MessagingCenter.Unsubscribe<LoginView>(this, "OnLoginPageClosed");
+                MessagingCenter.Unsubscribe<LoginPage>(this, "OnLoginPageClosed");
                 UpdateUi();
             });
 
-            await this.Navigation.PushModalAsync(new LoginView());
+            await this.Navigation.PushModalAsync(new LoginPage());
         }
 
         private List<LocationModel> GetLocations()
@@ -209,7 +210,7 @@ namespace ASFT.ViewModels
                 // URLY..  HATE ASYNC !
                 if (App.Client.LoggedIn == false)
                 {
-                    await this.Navigation.PushModalAsync(new LoginView());
+                    await this.Navigation.PushModalAsync(new LoginPage());
                 }
 
                 if (App.Client.LoggedIn == false)
@@ -220,8 +221,8 @@ namespace ASFT.ViewModels
                 if (App.Client.GetCurrentLocationId() == -1)
                     return;
 
-                IssueView page = new IssueView(App.Client.GetCurrentLocationId());
-                await Navigation.PushModalAsync(page, true);
+                //IssuePage page = new IssueViewModel(App.Client.GetCurrentLocationId());
+                //await Navigation.PushModalAsync(page, true);
             }
             catch (Exception)
             {

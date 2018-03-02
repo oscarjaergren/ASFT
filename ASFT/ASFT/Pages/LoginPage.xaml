@@ -1,9 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<freshMvvm:FreshBaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewModel="clr-namespace:ASFT.ViewModels;assembly=ASFT"
-             x:Class="ASFT.Views.LoginView">
+             xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
+             x:Class="ASFT.Pages.LoginPage">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="Labelfont" TargetType="Label">
@@ -15,9 +14,6 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     <StackLayout Orientation="Vertical" VerticalOptions="Center" HorizontalOptions="FillAndExpand" Spacing="10">
-        <StackLayout.BindingContext>
-            <viewModel:LoginViewModel />
-        </StackLayout.BindingContext>
         <StackLayout Orientation="Vertical" VerticalOptions="Start" HorizontalOptions="Center" Spacing="10"
                      WidthRequest="350">
             <Image Source="icon.png" HeightRequest="200" WidthRequest="200" HorizontalOptions="Center"
@@ -34,8 +30,8 @@
             <Frame OutlineColor="#FBB040" Padding="1,1,1,1">
                 <Entry Placeholder="Password" IsPassword="true" Text="{Binding Password}" />
             </Frame>
-            <Button x:Name="BtnLogin" Text="SUBMIT" HorizontalOptions="FillAndExpand" Command="OnButtonLogin"
+            <Button Text="SUBMIT" HorizontalOptions="FillAndExpand" Command="{Binding LoginCommand}"
                     WidthRequest="100" BorderColor="Yellow" />
         </StackLayout>
     </StackLayout>
-</ContentPage>
+</freshMvvm:FreshBaseContentPage>

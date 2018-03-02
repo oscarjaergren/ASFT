@@ -1,4 +1,5 @@
 ﻿using ASFT.HelperMethods;
+using ASFT.PageModels;
 using ASFT.ViewModels;
 using ASFT.Views;
 using FreshMvvm;
@@ -18,20 +19,11 @@ namespace ASFT
         {
             Client = new AppIssueClient();
 
-
-
-            MainPage = GetMainPage();
-
-
-            //var page = FreshPageModelResolver.ResolvePageModel<IssueViewModel>();
-            //var container = new FreshNavigationContainer(page);
-            //MainPage = container;
+            var page = FreshPageModelResolver.ResolvePageModel<IssuePageModel>();
+            var container = new FreshNavigationContainer(page);
+            MainPage = container;
         }
 
-        public static Page GetMainPage()
-        {
-            return new NavigationPage(new IssueView());
-        }
 
         protected override void OnStart()
         {

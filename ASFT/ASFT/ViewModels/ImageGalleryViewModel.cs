@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ASFT.IServices;
 using ASFT.Models;
+using ASFT.PageModels;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
 using Xamarin.Forms;
@@ -19,7 +20,7 @@ namespace ASFT.ViewModels
         private readonly ICommand previewImageCommand = null;
         private ObservableCollection<ImageViewModel> images = new ObservableCollection<ImageViewModel>();
 
-        public ImageGalleryViewModel(ObservableCollection<IssueViewModel> issueImage, int imageLoadSize)
+        public ImageGalleryViewModel(ObservableCollection<IssuePageModel> issueImage, int imageLoadSize)
         {
             ImageLoadSize = imageLoadSize;
             AbortGettingImages = false;

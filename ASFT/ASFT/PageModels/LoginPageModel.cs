@@ -8,9 +8,9 @@ using DataTypes;
 using FreshMvvm;
 using Xamarin.Forms;
 
-namespace ASFT.ViewModels
+namespace ASFT.PageModels
 {
-    public class LoginViewModel : FreshBasePageModel, INotifyPropertyChanged
+    public class LoginPageModel : FreshBasePageModel, INotifyPropertyChanged
     {
         private readonly ICommand loginCommand = null;
 
@@ -20,9 +20,12 @@ namespace ASFT.ViewModels
 
         private string username;
 
-        public LoginViewModel()
+        public LoginPageModel()
         {
             Data = App.Client.GetCurrentLoginModel();
+            Username = Data.Username;
+            Password = Data.Password;
+            Host = Data.Host;
         }
 
         public LoginModel Data { get; }
@@ -97,7 +100,7 @@ namespace ASFT.ViewModels
 
             if (bSuccess)
             {
-                //await ();
+                await CoreMethods.PopPageModel();
             }
         }
 
