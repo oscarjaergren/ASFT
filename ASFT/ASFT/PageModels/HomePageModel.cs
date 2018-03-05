@@ -4,19 +4,18 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.UserDialogs;
-using ASFT.Pages;
-using ASFT.Views;
+using FreshMvvm;
 using IssueBase.Location;
 using IssueManagerApiClient;
 using Xamarin.Forms;
+using LoginPage = ASFT.Pages.LoginPage;
 
-namespace ASFT.ViewModels
+namespace ASFT.PageModels
 {
-    public class HomeViewModel : ContentPage, INotifyPropertyChanged
+    public class HomePageModel : FreshBasePageModel, INotifyPropertyChanged
     {
-        public new INavigation Navigation;
         private readonly int nCurrentLocation = -1;
-        public HomeViewModel()
+        public HomePageModel()
         {
             nCurrentLocation = App.Client.GetCurrentLocationId();
         }
@@ -92,31 +91,22 @@ namespace ASFT.ViewModels
             }
         }
 
-        protected void RaisePropertyChanged(string propertyName)
+        protected new void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public new event PropertyChangedEventHandler PropertyChanged;
 
-        //protected override async void OnAppearing()
-        //{
-        //    if (App.Client.Initilized == false)
-        //    {
-        //        await App.Client.Init();
-        //    }
+        public override async void Init(object initData)
+        {
+            if (App.Client.Initilized == false)
+            {
+                await App.Client.Init();
+            }
+            UpdateUi();
+        }
 
-        //    UpdateUi();
-        //}
-
-        //protected override void OnDisappearing()
-        //{
-        //    if (nCurrentLocation != App.Client.GetCurrentLocationId())
-        //    {
-        //        MessagingCenter.Send<HomePage>(this, "LocationChanged");
-        //    }
-        //    base.OnDisappearing();
-        //}
 
         private void LoginLogOut()
         {
@@ -139,7 +129,7 @@ namespace ASFT.ViewModels
                 UpdateUi();
             });
 
-            await this.Navigation.PushModalAsync(new LoginPage());
+            await CoreMethods.PushPageModel<LoginPageModel>();
         }
 
         private List<LocationModel> GetLocations()
@@ -150,17 +140,18 @@ namespace ASFT.ViewModels
             }
             catch (ServerNotFoundException)
             {
-                DisplayAlert("Failed", "Failed to connect to server", "Continue");
+                CoreMethods.PopPageModel();
+                CoreMethods.DisplayAlert("Failed", "Failed to connect to server", "Continue");
                 return null;
             }
             catch (NotLoggedInException /*ex*/)
             {
-                DisplayAlert("Failed", "Failed. Not logged in", "Continue");
+                CoreMethods.DisplayAlert("Failed", "Failed. Not logged in", "Continue");
                 return null;
             }
             catch (Exception /*ex*/)
             {
-                DisplayAlert("Failed", "Unexpected error", "Quit");
+                CoreMethods.DisplayAlert("Failed", "Unexpected error", "Quit");
                 throw;
             }
         }
@@ -210,7 +201,7 @@ namespace ASFT.ViewModels
                 // URLY..  HATE ASYNC !
                 if (App.Client.LoggedIn == false)
                 {
-                    await this.Navigation.PushModalAsync(new LoginPage());
+                    await CoreMethods.PushPageModel<LoginPageModel>();
                 }
 
                 if (App.Client.LoggedIn == false)
@@ -248,7 +239,7 @@ namespace ASFT.ViewModels
                     buttons[n] = locations[n].Id + " - " + locations[n].Name;
                 }
 
-                string res = await this.DisplayActionSheet("Pick Location", "Cancel", "", buttons);
+                string res = await CoreMethods.DisplayActionSheet("Pick Location", "Cancel", "", buttons);
                 if (res == "Cancel")
                     return;
 

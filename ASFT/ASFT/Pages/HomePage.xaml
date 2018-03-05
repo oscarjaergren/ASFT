@@ -1,13 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<freshMvvm:FreshBaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewModels="clr-namespace:ASFT.ViewModels;assembly=ASFT"
-             x:Class="ASFT.Views.HomeView" Padding="4,20,4,4">
+             xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
+             x:Class="ASFT.Pages.HomePage" Padding="4,20,4,4">
     <StackLayout Orientation="Vertical" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Spacing="10">
-        <StackLayout.BindingContext>
-            <viewModels:HomeViewModel />
-        </StackLayout.BindingContext>
-
         <StackLayout VerticalOptions="Start" HorizontalOptions="FillAndExpand" >
             <Label Text="ASFT Event Manager" FontSize="Large" />
             <BoxView HeightRequest="5" Color="Gray"/>
@@ -23,4 +19,4 @@
         </StackLayout>
 
     </StackLayout>
-</ContentPage>
+</freshMvvm:FreshBaseContentPage>

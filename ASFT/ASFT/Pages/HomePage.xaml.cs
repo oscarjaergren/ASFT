@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using FreshMvvm;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace ASFT.Views
+namespace ASFT.Pages
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class HomeView : ContentPage
+	public partial class HomePage : FreshBaseContentPage
 	{
-		public HomeView ()
+		public HomePage ()
 		{
 			InitializeComponent ();
 		}

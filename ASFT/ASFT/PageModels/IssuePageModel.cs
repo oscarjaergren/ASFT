@@ -20,7 +20,7 @@ using Xamarin.Forms;
 
 namespace ASFT.PageModels
 {
-    public class IssuePageModel : FreshBasePageModel
+    public class IssuePageModel : FreshBasePageModel, INotifyPropertyChanged
     {
 
         public static INavigation Navigation;
@@ -36,8 +36,8 @@ namespace ASFT.PageModels
         public bool AllowPinMovment { get; set; }
         public GeoLocation Location { get; set; }
         public ObservableCollection<IssueModel> Issues { get; set; }
-        private List<IssueStatusModel> StatusValues { get; }
-        private List<IssueSeverityModel> SeverityValues { get; }
+        private List<IssueStatusModel> StatusValues { get; set; }
+        private List<IssueSeverityModel> SeverityValues { get; set; }
 
         public int Opacity { get; set; }
 
@@ -217,6 +217,7 @@ namespace ASFT.PageModels
                 Title = "",
                 Description = "",
                 CreatedBy = App.Client.GetCurrentUsername(),
+                IsNewIssue = true,
                 Created = DateTime.Now,
                 Edited = DateTime.Now,
             };
@@ -239,17 +240,15 @@ namespace ASFT.PageModels
             TitleEx = "New Event";
             SeverityEx = IssueSeverity.Medium;
             StatusEx = IssueStatus.Done;
-            CreatedByEx = App.Client.GetCurrentUsername();
 
         }
-        public override async void Init(object initData)
-        {
-            await CoreMethods.DisplayAlert("InitsAppearing", "", "Ok");
-            if (App.Client.LoggedIn != true)
-            {
-                await ShowLoginPage();
-            }
-        }
+        //public override async void Init(object initData)
+        //{
+        //    if (App.Client.LoggedIn != true)
+        //    {
+        //        await ShowLoginPage();
+        //    }
+        //}
 
 
         protected override async void ViewIsAppearing(object sender, EventArgs e)
@@ -258,6 +257,7 @@ namespace ASFT.PageModels
             {
                 await ShowLoginPage();
             }
+            CreatedByEx = App.Client.GetCurrentUsername();
         }
 
         private async Task ShowLoginPage()
