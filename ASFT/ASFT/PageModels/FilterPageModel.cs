@@ -1,18 +1,16 @@
-﻿using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Acr.UserDialogs;
 using ASFT.Client;
 using Xamarin.Forms;
 
-namespace ASFT.ViewModels
+namespace ASFT.PageModels
 {
-    public partial class FilterViewModel : FilteringAndSorting
+    public class FilterPageModel : FilteringAndSorting
     {
-
-        private readonly string sortAscending = "Ascending (A-Z)";
-        private readonly string sortDescending = "Descending (Z-A)";
+        private const string SortAscending = "Ascending (A-Z)";
+        private const string SortDescending = "Descending (Z-A)";
         public FilteringAndSorting Filtering { get; set; }
-        public FilterViewModel()
+        public FilterPageModel()
         {
             Filtering = new FilteringAndSorting(App.Client.GetFilteringAndSorting());
             BindingContext = Filtering;
@@ -46,9 +44,9 @@ namespace ASFT.ViewModels
         protected void UpdateSortOrderButton()
         {
             if (Filtering.SortAscending)
-                SortByOrderText = "Order : " + sortAscending;
+                SortByOrderText = "Order : " + SortAscending;
             else
-                SortByOrderText = "Order : " + sortDescending;
+                SortByOrderText = "Order : " + SortDescending;
         }
 
         public async void OnClickSortBy()
@@ -65,9 +63,9 @@ namespace ASFT.ViewModels
         public async void OnClickSortOrder()
         {
             System.Threading.CancellationToken token = new System.Threading.CancellationToken();
-            string res = await UserDialogs.Instance.ActionSheetAsync("Sort Order", "Cancel", "", token, sortAscending, sortDescending);
+            string res = await UserDialogs.Instance.ActionSheetAsync("Sort Order", "Cancel", "", token, SortAscending, SortDescending);
             if (res.Length <= 0 || res == "Cancel") return;
-            Filtering.SortAscending = res == sortAscending;
+            Filtering.SortAscending = res == SortAscending;
 
             UpdateSortOrderButton();
         }

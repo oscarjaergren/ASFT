@@ -5,9 +5,9 @@ using ASFT.HelperMethods;
 using Xamarin.Forms;
 using Xamarin.Forms.Maps;
 
-namespace ASFT.ViewModels
+namespace ASFT.PageModels
 {
-    public class MapViewModel : ExtendedMap
+    public class MapPageModel : ExtendedMap
     {
         public class BindableMap : Map
         {

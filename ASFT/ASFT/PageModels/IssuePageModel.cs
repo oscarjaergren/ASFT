@@ -9,8 +9,6 @@ using System.Windows.Input;
 using ASFT.IServices;
 using ASFT.Models;
 using ASFT.Pages;
-using ASFT.ViewModels;
-using ASFT.Views;
 using DataTypes.Enums;
 using FreshMvvm;
 using IssueBase.Issue;
@@ -26,7 +24,7 @@ namespace ASFT.PageModels
         public static INavigation Navigation;
 
 
-        private readonly ImageGalleryViewModel imageGalleryViewModel = new ImageGalleryViewModel();
+        private readonly ImageGalleryPageModel imageGalleryViewModel = new ImageGalleryPageModel();
 
         #region Model
         private bool AbortGettingImages { get; set; }
@@ -300,7 +298,7 @@ namespace ASFT.PageModels
                 MessagingCenter.Send(this, "refresh");
 
 
-                ObservableCollection<ImageViewModel> uiIssues = imageGalleryViewModel.Images;
+                ObservableCollection<ImageModel> uiIssues = imageGalleryViewModel.Images;
 
                 foreach (var image in uiIssues)
                 {
@@ -354,7 +352,7 @@ namespace ASFT.PageModels
                     });
                     break;
                 case UploadImageEvent.ImageUploadSucess:
-                    ImageViewModel newimage = App.Client.GetImageInfo(ImageId);
+                    ImageModel newimage = App.Client.GetImageInfo(ImageId);
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         ImageText = "Image Uploaded successful";
@@ -364,7 +362,7 @@ namespace ASFT.PageModels
                     break;
             }
         }
-        public ObservableCollection<ImageViewModel> Items = new ObservableCollection<ImageViewModel>();
+        public ObservableCollection<ImageModel> Items = new ObservableCollection<ImageModel>();
 
 
 
@@ -387,7 +385,7 @@ namespace ASFT.PageModels
                         imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
 
                         var imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
-                        Items.Add(new ImageViewModel() { Source = imageSource, OrgImage = imageAsBytes });
+                        Items.Add(new ImageModel() { Source = imageSource, OrgImage = imageAsBytes });
                         imageGalleryViewModel.LoadImages(Items);
 
                     }
@@ -417,7 +415,7 @@ namespace ASFT.PageModels
 
             IsGettingsImages = true;
 
-            foreach (ImageViewModel item in Items)
+            foreach (ImageModel item in Items)
             {
                 if (AbortGettingImages)
                 {

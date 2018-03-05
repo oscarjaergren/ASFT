@@ -8,7 +8,8 @@ using Acr.UserDialogs;
 using ASFT.Client;
 using ASFT.IServices;
 using ASFT.Models;
-using ASFT.ViewModels;
+using ASFT.PageModels;
+using ASFT.Pages;
 using DataTypes.Enums;
 using IssueBase.Issue;
 using IssueBase.Location;
@@ -228,19 +229,19 @@ namespace ASFT.HelperMethods
             return uiIssues;
         }
 
-        public ObservableCollection<ImageViewModel> GetImages(int issueId)
+        public ObservableCollection<ImageModel> GetImages(int issueId)
         {
-            var uiIssues = new ObservableCollection<ImageViewModel>();
+            var uiIssues = new ObservableCollection<ImageModel>();
             var issues = ApiClient.GetImages(issueId);
-            foreach (ImageModel item in issues) uiIssues.Add(new ImageViewModel(item));
+            foreach (ImageModel item in issues) uiIssues.Add(new ImageModel(item));
 
             return uiIssues;
         }
 
-        public ImageViewModel GetImageInfo(int imageId)
+        public ImageModel GetImageInfo(int imageId)
         {
             ImageModel item = ApiClient.GetImageInfo(imageId);
-            return new ImageViewModel(item);
+            return new ImageModel(item);
         }
 
         public Tuple<byte[], string> GetImage(int imageId)

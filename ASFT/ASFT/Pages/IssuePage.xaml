@@ -4,7 +4,9 @@
              xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
              xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
              xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
-             x:Class="ASFT.Pages.IssuePage" Padding="4,25,4,4">
+             xmlns:controls="clr-namespace:ASFT.Controls;assembly=ASFT"
+             xmlns:pageModels="clr-namespace:ASFT.PageModels;assembly=ASFT"
+             x:Class="ASFT.Pages.IssuePage" Padding="4,25,4,4" x:Name="IssuePages">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="Labelfont" TargetType="Label">
@@ -71,11 +73,11 @@
                 </Frame>
 
                 <!--PictureGallery-->
-                <!--<Label Text="IMAGES" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
+                <Label Text="IMAGES" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
                        Style="{StaticResource Labelfont}" TextColor="White" />
                 <Grid>
                     <Grid.BindingContext>
-                        <viewModel:ImageGalleryViewModel />
+                        <pageModels:ImageGalleryPageModel />
                     </Grid.BindingContext>
 
                     <Grid.RowDefinitions>
@@ -85,19 +87,19 @@
                     </Grid.RowDefinitions>
                     <Image Source="{Binding PreviewImage}" Grid.Row="2" BackgroundColor="#F4F1EE"
                            VerticalOptions="StartAndExpand" />
-                    <imageGallery:ImageGalleryControl Grid.Row="0" ItemsSource="{Binding Images}">
-                        <imageGallery:ImageGalleryControl.ItemTemplate>
+                    <controls:ImageGalleryControl Grid.Row="0" ItemsSource="{Binding Images}">
+                        <controls:ImageGalleryControl.ItemTemplate>
                             <DataTemplate>
                                 <Image Source="{Binding Source}" Aspect="AspectFit">
                                     <Image.GestureRecognizers>
                                         <TapGestureRecognizer
-                                            Command="{Binding Path=BindingContext.PreviewImageCommand, Source={x:Reference EditIssue}}"
+                                            Command="{Binding Path=BindingContext.PreviewImageCommand, Source={x:Reference IssuePages}}"
                                             CommandParameter="{Binding ImageId}" />
                                     </Image.GestureRecognizers>
                                 </Image>
                             </DataTemplate>
-                        </imageGallery:ImageGalleryControl.ItemTemplate>
-                    </imageGallery:ImageGalleryControl>
+                        </controls:ImageGalleryControl.ItemTemplate>
+                    </controls:ImageGalleryControl>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -108,8 +110,8 @@
                         <Button Grid.Column="1" Text="Pick photo" Command="{Binding PickCommand}" />
                     </Grid>
                 </Grid>
-                <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" BindingContext="" Text=""
-                       HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White" />-->
+                <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Text=""
+                       HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White" />
 
                 <!--Description-->
                 <Label Text="DESCRIPTION" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Style="{StaticResource Labelfont}" TextColor="White" />
@@ -139,7 +141,7 @@
                            HorizontalOptions="StartAndExpand" Style="{StaticResource Labelfont}"  />
 
                     <StackLayout Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalOptions="Center">
-                        <Image HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                        <Image Source="severity_5.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
                             </Image.GestureRecognizers>
@@ -147,7 +149,7 @@
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="1">
-                        <Image  HorizontalOptions="Center"
+                        <Image Source="severity_4.png" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
@@ -156,7 +158,7 @@
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="2">
-                        <Image  HorizontalOptions="Center"
+                        <Image Source="severity_3.png" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
@@ -165,7 +167,7 @@
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="3">
-                        <Image  HorizontalOptions="Center"
+                        <Image Source="severity_2.png" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
@@ -174,7 +176,7 @@
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="4">
-                        <Image  HorizontalOptions="Center"
+                        <Image Source="severity_1.png" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" />
@@ -188,7 +190,7 @@
                     <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" FontSize="Micro" Text="STATUS" HorizontalTextAlignment="End" VerticalTextAlignment="Center" TextColor="White"
                            Style="{StaticResource Labelfont}" IsVisible="True" />
                     <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="0">
-                        <Image HorizontalOptions="Center"
+                        <Image Source="statusUnresolved.png" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="0.6">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
@@ -196,7 +198,7 @@
                         </Image>
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                        <Image HorizontalOptions="Center"
+                        <Image Source="statusInProgress.png" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="0.6">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
@@ -204,15 +206,14 @@
                         </Image>
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="3" Orientation="Horizontal" Spacing="4">
-                        <Image  HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="0.6">
+                        <Image Source="statusDone.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="1">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
                 </Grid>
-
 
                 <!--Date Created-->
                 <Label Text="TIME AND DATE: " Style="{StaticResource Labelfont}" TextColor="White" />

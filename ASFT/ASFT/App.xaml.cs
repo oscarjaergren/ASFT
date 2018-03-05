@@ -1,7 +1,5 @@
 ﻿using ASFT.HelperMethods;
 using ASFT.PageModels;
-using ASFT.ViewModels;
-using ASFT.Views;
 using FreshMvvm;
 using Xamarin.Forms;
 
@@ -19,8 +17,8 @@ namespace ASFT
         {
             Client = new AppIssueClient();
 
-            var page = FreshPageModelResolver.ResolvePageModel<IssuePageModel>();
-            var container = new FreshNavigationContainer(page);
+            Page page = FreshPageModelResolver.ResolvePageModel<IssuePageModel>();
+            FreshNavigationContainer container = new FreshNavigationContainer(page);
             MainPage = container;
         }
 

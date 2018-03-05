@@ -9,7 +9,6 @@
     <Import_RootNamespace>ASFT.IssueManager.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Client\CameraHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Client\DirectoryService.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Client\FileHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Client\ImageHelper.cs" />

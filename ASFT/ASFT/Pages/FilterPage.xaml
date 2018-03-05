@@ -1,12 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+<freshMvvm:FreshBaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewModels="clr-namespace:ASFT.ViewModels;assembly=ASFT"
-             x:Class="ASFT.Views.FilterView">
+             xmlns:pageModels="clr-namespace:ASFT.PageModels;assembly=ASFT"
+             xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
+             x:Class="ASFT.Pages.FilterPage">
     <ContentPage.Content>
         <StackLayout Orientation="Vertical">
             <StackLayout.BindingContext>
-                <viewModels:FilterViewModel />
+                <pageModels:FilterPageModel />
             </StackLayout.BindingContext>
             <Label Text="Sorting and Filtering" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" ></Label>
             <TableView Intent="Form">
@@ -40,4 +41,4 @@
             </TableView>
         </StackLayout>
 </ContentPage.Content>
-</ContentPage>
+</freshMvvm:FreshBaseContentPage>
