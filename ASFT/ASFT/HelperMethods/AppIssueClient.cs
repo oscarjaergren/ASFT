@@ -48,9 +48,9 @@ namespace ASFT.HelperMethods
         public string LastErrorText { get; set; }
 
 
-        public Task<bool> Init()
+        public async Task<bool> Init()
         {
-            return Task.Run(async () =>
+           await Task.Run(async () =>
             {
                 IFileHelper service = DependencyService.Get<IFileHelper>();
 
@@ -73,8 +73,10 @@ namespace ASFT.HelperMethods
                 }
 
                 Initilized = true;
+                SaveState();
                 return true;
             });
+            return false;
         }
 
         public FilteringAndSorting GetFilteringAndSorting()

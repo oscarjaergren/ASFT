@@ -7,7 +7,7 @@ namespace ASFT.PageModels
 {
     public class FilterPageModel : FilteringAndSorting
     {
-        private const string SortAscending = "Ascending (A-Z)";
+        private new const string SortAscending = "Ascending (A-Z)";
         private const string SortDescending = "Descending (Z-A)";
         public FilteringAndSorting Filtering { get; set; }
         public FilterPageModel()

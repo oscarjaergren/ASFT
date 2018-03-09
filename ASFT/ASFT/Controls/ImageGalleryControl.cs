@@ -22,7 +22,7 @@ namespace ASFT.Controls
             this.Content = imageStack;
         }
 
-        public IList<View> Children
+        public new IList<View> Children
         {
             get
             {
@@ -57,42 +57,38 @@ namespace ASFT.Controls
 
         #region Events
         public delegate void LoadingImagesHandler(object sender, LoadingEventArgs e);
-        public event LoadingImagesHandler LoadingImages;
         #endregion
 
-        void ItemsSourceChanging()
+        private void ItemsSourceChanging()
         {
             if (ItemsSource == null)
                 return;
         }
 
-        void CreateNewItem(IList newItem)
+        private void CreateNewItem(IList newItem)
         {
-            var view = (View)ItemTemplate.CreateContent();
-            var bindableObject = view as BindableObject;
-            if (bindableObject != null)
+            View view = (View)ItemTemplate.CreateContent();
+            if (view is BindableObject bindableObject)
                 bindableObject.BindingContext = newItem;
             imageStack.Children.Add(view);
         }
 
-        void ItemsSourceChanged(BindableObject bindable, IList oldValue, IList newValue)
+        private void ItemsSourceChanged(BindableObject bindable, IList oldValue, IList newValue)
         {
             if (ItemsSource == null)
                 return;
 
-            var notifyCollection = newValue as INotifyCollectionChanged;
-            if (notifyCollection != null)
+            if (newValue is INotifyCollectionChanged notifyCollection)
             {
                 notifyCollection.CollectionChanged += (sender, args) => {
                     if (args.NewItems != null)
                     {
                         if (args.NewItems.Count > 0)
                         {
-                            foreach (var newItem in args.NewItems)
+                            foreach (object newItem in args.NewItems)
                             {
-                                var view = (View)ItemTemplate.CreateContent();
-                                var bindableObject = view as BindableObject;
-                                if (bindableObject != null)
+                                View view = (View)ItemTemplate.CreateContent();
+                                if (view is BindableObject bindableObject)
                                     bindableObject.BindingContext = newItem;
                                 imageStack.Children.Add(view);
                             }
@@ -101,10 +97,10 @@ namespace ASFT.Controls
                     else
                     {
                         imageStack.Children.Clear();
-                        foreach (var Item in ItemsSource)
+                        foreach (object Item in ItemsSource)
                         {
-                            var view = (View)ItemTemplate.CreateContent();
-                            var bindableObject = view as BindableObject;
+                            View view = (View)ItemTemplate.CreateContent();
+                            BindableObject bindableObject = (BindableObject) view;
                             if (bindableObject != null)
                                 bindableObject.BindingContext = Item;
                             imageStack.Children.Add(view);

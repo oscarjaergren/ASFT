@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Android.Graphics;
 using ASFT.Droid;
 using ASFT.IServices;
@@ -9,7 +8,7 @@ using ASFT.IServices;
 
 namespace ASFT.Droid
 {
-    public class ImageResizer : IImageResize
+    public class ImageResizer : IImageResizer
     {
             public byte[] ResizeImage(byte[] imageData)
             {

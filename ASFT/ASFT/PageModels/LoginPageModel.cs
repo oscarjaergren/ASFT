@@ -79,6 +79,7 @@ namespace ASFT.PageModels
                 catch (InvalidCredentialsException)
                 {
                     errorMsg = "Invalid Credentials";
+                    Debug.WriteLine(errorMsg);
                     return false;
                 }
                 catch (Exception ex)

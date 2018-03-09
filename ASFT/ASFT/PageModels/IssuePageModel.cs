@@ -20,18 +20,16 @@ namespace ASFT.PageModels
 {
     public class IssuePageModel : FreshBasePageModel, INotifyPropertyChanged
     {
+        #region Model
 
+        public ObservableCollection<ImageModel> Items = new ObservableCollection<ImageModel>();
         public static INavigation Navigation;
-
-
         private readonly ImageGalleryPageModel imageGalleryViewModel = new ImageGalleryPageModel();
 
-        #region Model
-        private bool AbortGettingImages { get; set; }
-        private bool IsGettingsImages { get; set; }
         private int ImageLoadSize { get; set; }
         public IssueModel Issue { get; set; }
         public bool AllowPinMovment { get; set; }
+
         public GeoLocation Location { get; set; }
         public ObservableCollection<IssueModel> Issues { get; set; }
         private List<IssueStatusModel> StatusValues { get; set; }
@@ -41,23 +39,23 @@ namespace ASFT.PageModels
 
         public new event PropertyChangedEventHandler PropertyChanged;
 
-        private bool isProcessing;
 
-        #region Model
 
-        public bool IsProcessing
+        public bool IsBusy
         {
-            get { return isProcessing; }
+            get { return isBusy; }
             set
             {
-                if (isProcessing == value) return;
-                isProcessing = value;
+                if (isBusy == value) return;
+                isBusy = value;
                 NotifyPropertyChanged();
                 Changed = true;
             }
         }
 
         private string imageText;
+        private double statusUnresolvedOpacity;
+
         public string ImageText
         {
             get { return imageText; }
@@ -202,10 +200,91 @@ namespace ASFT.PageModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        #endregion
+        public double StatusUnresolvedOpacity
+        {
+            get { return statusUnresolvedOpacity; }
+            set
+            {
+                if (statusUnresolvedOpacity != value)
+                {
+                    statusUnresolvedOpacity = value;
+                    NotifyPropertyChanged(nameof(StatusUnresolvedOpacity));
+                }
+            }
+        }
+
+        public double StatusInProgressOpacity
+        {
+            get { return statusInProgressOpacity; }
+            set
+            {
+                if (statusInProgressOpacity != value)
+                {
+                    statusInProgressOpacity = value;
+                    NotifyPropertyChanged(nameof(StatusUnresolvedOpacity));
+                }
+            }
+        }
+
+        public double StatusDoneOpacity
+        {
+            get { return statusDoneOpacity; }
+            set
+            {
+                if (statusDoneOpacity != value)
+                {
+                    statusDoneOpacity = value;
+                    NotifyPropertyChanged(nameof(StatusUnresolvedOpacity));
+                }
+            }
+        }
+
+        public string StatusDone
+        {
+            get { return "statusDone.png"; }
+        }
+
+        public string StatusInProgress
+        {
+            get { return "statusInProgress.png"; }
+        }
+
+        public string StatusUnresolved
+        {
+            get { return "statusUnresolved.png"; }
+        }
 
 
+        private readonly ICommand onGoToListCommand = null;
+        private readonly ICommand submitCommand = null;
+        private readonly ICommand onStatusTappedCommand = null;
+        private double statusDoneOpacity;
+        private double statusInProgressOpacity;
+        private bool isBusy;
+
+        public bool IsStatusUnresolvedActive { get; set; }
+
+        public ICommand OnStatusTappedCommand
+        {
+            get { return onStatusTappedCommand ?? new Command<string>(OnStatusTapped); }
+        }
+
+        public ICommand OnGoToListCommand
+        {
+            get { return onGoToListCommand ?? new Command(OnGoToList); }
+        }
+
+        public ICommand SubmitCommand
+        {
+            get { return submitCommand ?? new Command(OnSubmit); }
+        }
+
+        public string StatusText { get; set; }
+
         #endregion
+
+        #region Onstart
+
         public IssueModel CreateIssueModel()
         {
             return new IssueModel()
@@ -238,7 +317,6 @@ namespace ASFT.PageModels
             TitleEx = "New Event";
             SeverityEx = IssueSeverity.Medium;
             StatusEx = IssueStatus.Done;
-
         }
         //public override async void Init(object initData)
         //{
@@ -255,40 +333,60 @@ namespace ASFT.PageModels
             {
                 await ShowLoginPage();
             }
+
             CreatedByEx = App.Client.GetCurrentUsername();
         }
 
         private async Task ShowLoginPage()
         {
-            MessagingCenter.Subscribe<LoginPage>(this, "OnLoginPageClosed", sender =>
-            {
-                MessagingCenter.Unsubscribe<LoginPage>(this, "OnLoggedIn");
-
-                if (App.Client.LoggedIn == false) Issues.Clear();
-            });
+            //if (App.Client.LoggedIn == false) Issues.Clear();
             await CoreMethods.PushPageModel<LoginPageModel>();
         }
 
-        private readonly ICommand onGoToListCommand = null;
-        private readonly ICommand onStatusTappedCommand = null;
-        private readonly ICommand submitCommand = null;
+        #endregion
 
-
-        public ICommand OnStatusTappedCommand
+        private void StatusChecker()
         {
-            get { return onStatusTappedCommand ?? new Command(OnGoToList); }
+            switch (Issue.Status)
+            {
+                case IssueStatus.Unresolved:
+                    StatusUnresolvedOpacity = 1;
+                    StatusInProgressOpacity = 0.5;
+                    StatusDoneOpacity = 0.5;
+                    StatusText = "Unresolved";
+                    break;
+                case IssueStatus.InProgress:
+                    StatusUnresolvedOpacity = 0.5;
+                    StatusInProgressOpacity = 1;
+                    StatusDoneOpacity = 0.5;
+                    StatusText = "In Progress";
+                    break;
+                case IssueStatus.Done:
+                    StatusUnresolvedOpacity = 0.5;
+                    StatusInProgressOpacity = 0.5;
+                    statusDoneOpacity = 1;
+                    StatusText = "Done";
+                    break;
+            }
         }
-        public ICommand OnGoToListCommand
+
+        public void OnStatusTapped(string fileName)
         {
-            get { return onGoToListCommand ?? new Command(OnGoToList); }
+            foreach (IssueStatusModel item in StatusValues)
+            {
+                if (item.Name != fileName) continue;
+                Issue.Status = item.Status;
+                StatusChecker();
+                return;
+            }
         }
 
-        public ICommand SubmitCommand
+        public void ResetOpacities()
         {
-            get { return submitCommand ?? new Command(OnSubmit); }
+            StatusUnresolvedOpacity = 0.5;
+            StatusInProgressOpacity = 0.5;
+            statusDoneOpacity = 0.5;
         }
-
-
 
         private async void OnSubmit()
         {
@@ -300,11 +398,12 @@ namespace ASFT.PageModels
 
                 ObservableCollection<ImageModel> uiIssues = imageGalleryViewModel.Images;
 
-                foreach (var image in uiIssues)
+                foreach (ImageModel image in uiIssues)
                 {
 
                     image.LocalImagePath = image.ImageId.ToString();
-                    bool bDone = await App.Client.PhotoUpload(Issue.Id, OnCallback_UploadImage, image.OrgImage, image.LocalImagePath);
+                    bool bDone = await App.Client.PhotoUpload(Issue.Id, OnCallback_UploadImage, image.OrgImage,
+                        image.LocalImagePath);
                 }
 
             }
@@ -314,42 +413,35 @@ namespace ASFT.PageModels
             }
         }
 
+        #region Save
 
         protected async Task<bool> SaveChanges()
         {
-            IsProcessing = true;
+            IsBusy = true;
             try
             {
                 // Add or update issue..
-                await Task.Run(async () =>
-                {
-                    await App.Client.SaveIssue(Issue);
-                });
+                await Task.Run(async () => { await App.Client.SaveIssue(Issue); });
 
-                IsProcessing = false;
+                IsBusy = false;
                 return true;
             }
             catch
             {
-                IsProcessing = false;
+                IsBusy = false;
                 return false;
             }
         }
+
         protected void OnCallback_UploadImage(UploadImageEvent eventId, int ImageId)
         {
             switch (eventId)
             {
                 case UploadImageEvent.ImageUploading:
-                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
-                    {
-                        ImageText = "Uploading Image...";
-                    });
+                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() => { ImageText = "Uploading Image..."; });
                     break;
                 case UploadImageEvent.ImageUploadFailed:
-                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
-                    {
-                        ImageText = "Failed to upload image";
-                    });
+                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() => { ImageText = "Failed to upload image"; });
                     break;
                 case UploadImageEvent.ImageUploadSucess:
                     ImageModel newimage = App.Client.GetImageInfo(ImageId);
@@ -362,62 +454,30 @@ namespace ASFT.PageModels
                     break;
             }
         }
-        public ObservableCollection<ImageModel> Items = new ObservableCollection<ImageModel>();
+
+        #endregion
 
 
-
-        protected void RefreshImageList(int issueId)
-        {
-            try
-            {
-                imageGalleryViewModel.Images.Clear();
-
-                var ImageList = App.Client.GetImages(issueId);
-                foreach (var image in ImageList)
-                {
-                    string localOriginalFilePath = App.Client.GetImageFilePath(image.Id, image.IssueId);
-                    var FileHelper = DependencyService.Get<IFileHelper>();
-                    if (FileHelper.Exists(localOriginalFilePath))
-                    {
-                        var imageAsBytes = FileHelper.ReadAll(localOriginalFilePath).Result;
-
-                        var resizer = DependencyService.Get<IImageResize>();
-                        imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
-
-                        var imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
-                        Items.Add(new ImageModel() { Source = imageSource, OrgImage = imageAsBytes });
-                        imageGalleryViewModel.LoadImages(Items);
-
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                int x = 0;
-                x++;
-            }
-        }
-
-
+        #region Images
 
         private void RefreshImages()
         {
 
-            if (IsGettingsImages)
+            if (IsBusy)
                 return;
 
-            IsGettingsImages = true;
+            IsBusy = true;
 
             int MaxImageSize = ImageLoadSize;
 
             if (Items.Count == 0)
                 return;
 
-            IsGettingsImages = true;
+            IsBusy = true;
 
             foreach (ImageModel item in Items)
             {
-                if (AbortGettingImages)
+                if (IsBusy)
                 {
                     break;
                 }
@@ -445,14 +505,45 @@ namespace ASFT.PageModels
                 }
             }
 
-            IsGettingsImages = false;
+            IsBusy = false;
 
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                imageText = "";
-            });
+            Device.BeginInvokeOnMainThread(() => { imageText = ""; });
 
         }
+
+        protected void RefreshImageList(int issueId)
+        {
+            try
+            {
+                imageGalleryViewModel.Images.Clear();
+
+                var ImageList = App.Client.GetImages(issueId);
+                foreach (ImageModel image in ImageList)
+                {
+                    string localOriginalFilePath = App.Client.GetImageFilePath(image.Id, image.IssueId);
+                    IFileHelper FileHelper = DependencyService.Get<IFileHelper>();
+                    if (FileHelper.Exists(localOriginalFilePath))
+                    {
+                        var imageAsBytes = FileHelper.ReadAll(localOriginalFilePath).Result;
+
+                        IImageResizer resizer = DependencyService.Get<IImageResizer>();
+                        imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
+
+                        ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
+                        Items.Add(new ImageModel() { Source = imageSource, OrgImage = imageAsBytes });
+                        imageGalleryViewModel.LoadImages(Items);
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                int x = 0;
+                x++;
+            }
+        }
+
+        #endregion
 
 
         private void OnGoToList()
@@ -465,7 +556,6 @@ namespace ASFT.PageModels
             });
             //await Navigation.PushModalAsync(new LoginPage());
         }
-
-
     }
 }
+

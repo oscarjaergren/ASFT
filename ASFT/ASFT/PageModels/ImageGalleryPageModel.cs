@@ -219,7 +219,7 @@ namespace ASFT.PageModels
 
             if (imageAsBytes.Length > 0)
             {
-                IImageResize resizer = DependencyService.Get<IImageResize>();
+                IImageResizer resizer = DependencyService.Get<IImageResizer>();
                 imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
 
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
@@ -247,7 +247,7 @@ namespace ASFT.PageModels
 
             if (imageAsBytes.Length > 0)
             {
-                IImageResize resizer = DependencyService.Get<IImageResize>();
+                IImageResizer resizer = DependencyService.Get<IImageResizer>();
                 imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
 
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));

@@ -12,7 +12,7 @@ namespace ASFT.Droid
         {
             base.OnCreate(bundle);
 
-            var intent = new Intent(this, typeof(MainActivity));
+            Intent intent = new Intent(this, typeof(MainActivity));
             StartActivity(intent);
             Finish();
         }

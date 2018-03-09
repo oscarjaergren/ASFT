@@ -252,14 +252,12 @@ namespace ASFT.PageModels
                 locationName = locationName.Trim();
 
                 if (id <= 0) return;
-                foreach (var loc in locations)
+                foreach (LocationModel loc in locations)
                 {
-                    if (loc.Id == id)
-                    {
-                        App.Client.SetCurrentLocation(loc);
-                        UpdateUi();
-                        break;
-                    }
+                    if (loc.Id != id) continue;
+                    App.Client.SetCurrentLocation(loc);
+                    UpdateUi();
+                    break;
                 }
             }
             catch (Exception)

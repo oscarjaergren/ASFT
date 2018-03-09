@@ -17,12 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IssueManagerApiClient", "Ba
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IssueBase", "Backend\ViewModels\IssueBase.csproj", "{253D1EAA-0028-43F3-A78D-D6657B614DFA}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "ASFT.IssueManager.Shared", "ASFT\ASFT.Shared\ASFT.IssueManager.Shared.shproj", "{17DD705A-117D-417C-85BB-86859A2870A1}"
-EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		ASFT\ASFT.Shared\ASFT.IssueManager.Shared.projitems*{17dd705a-117d-417c-85bb-86859a2870a1}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Ad-Hoc|Any CPU = Ad-Hoc|Any CPU
 		Ad-Hoc|ARM = Ad-Hoc|ARM

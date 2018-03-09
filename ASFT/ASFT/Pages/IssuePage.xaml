@@ -190,26 +190,26 @@
                     <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" FontSize="Micro" Text="STATUS" HorizontalTextAlignment="End" VerticalTextAlignment="Center" TextColor="White"
                            Style="{StaticResource Labelfont}" IsVisible="True" />
                     <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="0">
-                        <Image Source="statusUnresolved.png" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="0.6">
+                        <Image Source="{Binding StatusUnresolved}" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusUnresolvedOpacity}">
                             <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
+                                <!--<TapGestureRecognizer Command="{Binding Source={x:Reference this}, Path=OnStatusTappedCommand}" CommandParameter="{Binding StatusUnresolved}" />-->
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                        <Image Source="statusInProgress.png" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="0.6">
+                        <Image Source="{Binding StatusInProgress}" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusInProgressOpacity}">
                             <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
+                                <!--<TapGestureRecognizer --><!--Command="{Binding Source={x:Reference this}, Path=OnStatusTappedCommand}" CommandParameter="{Binding StatusInProgress}"--><!-- />-->
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="3" Orientation="Horizontal" Spacing="4">
-                        <Image Source="statusDone.png" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="1">
+                        <Image Source="{Binding StatusDone}" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusDoneOpacity}">
                             <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OnStatusTappedCommand}" NumberOfTapsRequired="1" />
+                                <!--<TapGestureRecognizer Command="{Binding Source={x:Reference this}, Path=OnStatusTappedCommand}" CommandParameter="{Binding StatusDone}" />-->
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
@@ -241,7 +241,6 @@
                     </StackLayout>
                 </Frame>
 
-
                 <!--Map View-->
                 <Grid>
                     <Grid.RowDefinitions>
@@ -259,10 +258,7 @@
                     <Label Grid.Column="1" Grid.Row="0" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
                            Text="Tap and hold on map to set/move pin" Font="Large" />
                     <StackLayout Grid.Column="1" Grid.Row="1" VerticalOptions="FillAndExpand">
-                        <maps:Map WidthRequest="960" HeightRequest="300"
-                                  x:Name="Map"
-                                  IsShowingUser="true"
-                                  MapType="Hybrid" />
+                        <RelativeLayout x:Name="MapRelativeLayout" VerticalOptions="FillAndExpand" HeightRequest="920" WidthRequest="300" />
                     </StackLayout>
                     <StackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Vertical" Spacing="0">
                         <Label Text="" VerticalOptions="Center" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" TextColor="White" />
