@@ -302,7 +302,6 @@ namespace ASFT.PageModels
 
         public IssuePageModel()
         {
-            if (App.Client.Initilized == false) App.Client.Init();
 
             Issue = CreateIssueModel();
 
@@ -329,6 +328,8 @@ namespace ASFT.PageModels
 
         protected override async void ViewIsAppearing(object sender, EventArgs e)
         {
+            if (App.Client.Initilized == false) await App.Client.Init();
+
             if (App.Client.LoggedIn != true)
             {
                 await ShowLoginPage();

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Plugin.Geolocator;
 using Plugin.Geolocator.Abstractions;
 using TK.CustomMap;
 using TK.CustomMap.Api;
@@ -57,7 +58,7 @@ namespace ASFT.PageModels
 
         public IRendererFunctions MapFunctions { get; set; }
 
-      
+
 
         public bool IsClusteringEnabled
         {
@@ -69,7 +70,7 @@ namespace ASFT.PageModels
             }
         }
 
-      
+
 
         public MapSpan MapRegion
         {
@@ -169,6 +170,23 @@ namespace ASFT.PageModels
             }
         }
 
+        private string mapText;
+
+        public string MapText
+        {
+            get { return mapText; }
+
+            set
+            {
+                if (mapText != value)
+                {
+                    mapText = value;
+                    OnPropertyChanged("MapText");
+                }
+            }
+        }
+
+
         #endregion
         public Command<Position> MapLongPressCommand
         {
@@ -176,53 +194,20 @@ namespace ASFT.PageModels
             {
                 return new Command<Position>(async position =>
                 {
-                    string action = await Application.Current.MainPage.DisplayActionSheet(
-                        "Long Press",
-                        "Cancel",
-                        null,
-                        "Add Pin",
-                        "Add Circle");
 
-                    if (action == "Add Pin")
+                    TKCustomMapPin pin = new TKCustomMapPin
                     {
-                        TKCustomMapPin pin = new TKCustomMapPin
-                        {
-                            Position = position,
-                            Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
-                            ShowCallout = true,
-                            IsDraggable = true
-                        };
-                        pins.Add(pin);
-                    }
-                    else if (action == "Add Circle")
-                    {
-                        TKCircle circle = new TKCircle
-                        {
-                            Center = position,
-                            Radius = 10000,
-                            Color = Color.FromRgba(100, 0, 0, 80)
-                        };
-                        circles.Add(circle);
-                    }
+                        Position = position,
+                        Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
+                        ShowCallout = true,
+                        IsDraggable = true
+                    };
+                    pins.Clear();
+                    pins.Add(pin);
                 });
             }
         }
-        public Command<Position> MapClickedCommand
-        {
-            get
-            {
-                return new Command<Position>((positon) =>
-                {
-                    SelectedPin = null;
 
-                    // Determine if a point was inside a circle
-                    if ((from c in circles let distanceInMeters = c.Center.DistanceTo(positon) * 1000 where distanceInMeters <= c.Radius select c).Any())
-                    {
-                        Application.Current.MainPage.DisplayAlert("Circle tap", "Circle was tapped", "OK");
-                    }
-                });
-            }
-        }
         public Command<IPlaceResult> PlaceSelectedCommand
         {
             get
@@ -243,21 +228,21 @@ namespace ASFT.PageModels
                     switch (Device.RuntimePlatform)
                     {
                         case Device.Android:
-                        {
-                            TKNativeAndroidPlaceResult prediction = (TKNativeAndroidPlaceResult)p;
+                            {
+                                TKNativeAndroidPlaceResult prediction = (TKNativeAndroidPlaceResult)p;
 
-                            TKPlaceDetails details = await TKNativePlacesApi.Instance.GetDetails(prediction.PlaceId);
+                                TKPlaceDetails details = await TKNativePlacesApi.Instance.GetDetails(prediction.PlaceId);
 
-                            MapCenter = details.Coordinate;
-                            break;
-                        }
+                                MapCenter = details.Coordinate;
+                                break;
+                            }
                         case Device.iOS:
-                        {
-                            TKNativeiOSPlaceResult prediction = (TKNativeiOSPlaceResult)p;
+                            {
+                                TKNativeiOSPlaceResult prediction = (TKNativeiOSPlaceResult)p;
 
-                            MapCenter = prediction.Details.Coordinate;
-                            break;
-                        }
+                                MapCenter = prediction.Details.Coordinate;
+                                break;
+                            }
                     }
                 });
             }
@@ -273,7 +258,7 @@ namespace ASFT.PageModels
                 });
             }
         }
-        
+
         public Command ClearMapCommand
         {
             get
@@ -288,18 +273,17 @@ namespace ASFT.PageModels
             }
         }
 
-        private IGeolocator geolocator;
-        
+
         private readonly ICommand initMapCommand = null;
 
-        public string MapText { get; set; }
+
 
 
         public ICommand InitMapCommand
         {
-            get { return initMapCommand ?? new Command(  (async () => await GetCurrentLocationAsync())); }
+            get { return initMapCommand ?? new Command((async () => await GetCurrentLocationAsync())); }
         }
-      
+
         private void AddPin(Position position)
         {
             TKCustomMapPin pin = new TKCustomMapPin
@@ -316,10 +300,11 @@ namespace ASFT.PageModels
         {
             try
             {
+                IGeolocator geolocator = CrossGeolocator.Current;
+
                 MapText = "Searching for GPS location...";
 
-                TimeSpan timeSpan = TimeSpan.FromTicks(120 * 1000);
-                Plugin.Geolocator.Abstractions.Position position = await geolocator.GetPositionAsync(timeSpan);
+                Plugin.Geolocator.Abstractions.Position position = await geolocator.GetPositionAsync(TimeSpan.FromSeconds(10));
                 if (position != null)
                 {
                     MapCenter = new Position(position.Latitude, position.Longitude);
@@ -342,9 +327,9 @@ namespace ASFT.PageModels
             {
                 MapText = "Unable to find position!";
             }
-          
+
         }
-       
+
         private void UpdateGpsLocationText(Position position)
         {
             string text = string.Format("{0} x {1}", position.Longitude, position.Latitude);
@@ -364,7 +349,7 @@ namespace ASFT.PageModels
 
         private async void GetLocation()
         {
-           await GetCurrentLocationAsync();
+            await GetCurrentLocationAsync();
         }
 
         protected virtual void OnPropertyChanged(string propertyName)

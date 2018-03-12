@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
              xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
-             xmlns:maps="clr-namespace:Xamarin.Forms.Maps;assembly=Xamarin.Forms.Maps"
+             xmlns:maps="clr-namespace:ASFT.PageModels;assembly=ASFT"
              xmlns:controls="clr-namespace:ASFT.Controls;assembly=ASFT"
              xmlns:pageModels="clr-namespace:ASFT.PageModels;assembly=ASFT"
              x:Class="ASFT.Pages.IssuePage" Padding="4,25,4,4" x:Name="IssuePages">
@@ -243,6 +243,9 @@
 
                 <!--Map View-->
                 <Grid>
+                    <Grid.BindingContext>
+                        <maps:TkMapPageModel/>
+                    </Grid.BindingContext>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30" />
                         <RowDefinition Height="*" />
@@ -261,7 +264,7 @@
                         <RelativeLayout x:Name="MapRelativeLayout" VerticalOptions="FillAndExpand" HeightRequest="920" WidthRequest="300" />
                     </StackLayout>
                     <StackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Vertical" Spacing="0">
-                        <Label Text="" VerticalOptions="Center" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" TextColor="White" />
+                        <Label Text="{Binding MapText}" VerticalOptions="Center" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" TextColor="White" />
                         <ActivityIndicator IsRunning="{Binding IsProcessing}" WidthRequest="40"
                                            IsVisible="{Binding IsProcessing}" VerticalOptions="FillAndExpand"
                                            HorizontalOptions="FillAndExpand" />
