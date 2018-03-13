@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<freshMvvm:FreshBaseContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
+             xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
+             x:Class="ASFT.Pages.IssueListPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:StatusTextConverter x:Key="IntStatusToTextConverter" />
+            <converters:DateTextConverter x:Key="DateToTextConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <!--ItemTapped="OnEventSelected"--> <!--Clicked="OnDelete"-->
+<ListView ItemsSource="{Binding Issues}" SeparatorColor="#444444" RowHeight="90" IsPullToRefreshEnabled="True" IsRefreshing="{Binding IsBusy}" RefreshCommand="{Binding PullRefreshCommand}" >
+        <ListView.ItemTemplate>
+            <DataTemplate>
+                <ViewCell >
+                    <ViewCell.ContextActions>
+                        <MenuItem Text="Delete" IsDestructive="True" />
+                    </ViewCell.ContextActions>
+
+                    <ViewCell.View>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="Auto"></RowDefinition>
+                                <RowDefinition Height="*"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"></ColumnDefinition>
+                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="50"></ColumnDefinition>
+                            </Grid.ColumnDefinitions>
+
+                            <Image Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Source="{Binding SeverityImagePath}" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="70"/>
+                            <Image Grid.Row="0" Grid.RowSpan="3" Grid.Column="2" Source="{Binding StatusImagePath}" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="60"/>
+
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Title}" LineBreakMode="TailTruncation" YAlign="Center" VerticalOptions="Start" Font="Bold, Medium"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding Created, Converter={StaticResource DateToTextConverter}}" YAlign="Center" VerticalOptions="Start" Font="Medium"/>
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding Description}" LineBreakMode="WordWrap" YAlign="Start" VerticalOptions="Start" Font="Small"/>
+                        </Grid>
+
+                    </ViewCell.View>
+                </ViewCell>
+            </DataTemplate>
+        </ListView.ItemTemplate>
+    </ListView>
+
+</freshMvvm:FreshBaseContentPage>

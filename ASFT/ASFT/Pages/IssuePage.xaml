@@ -198,7 +198,7 @@
                         </Image>
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                        <Image Source="{Binding StatusInProgress}" HorizontalOptions="Center"
+                        <Image Source="{converters:ImageResource ASFT.Images.statusDone.png}" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusInProgressOpacity}">
                             <Image.GestureRecognizers>
                                 <!--<TapGestureRecognizer --><!--Command="{Binding Source={x:Reference this}, Path=OnStatusTappedCommand}" CommandParameter="{Binding StatusInProgress}"--><!-- />-->
@@ -214,6 +214,12 @@
                         </Image>
                     </StackLayout>
                 </Grid>
+
+                <Image>
+                    <Image.Source>
+                        <FileImageSource File="{Binding Img}" />
+                    </Image.Source>
+                </Image> 
 
                 <!--Date Created-->
                 <Label Text="TIME AND DATE: " Style="{StaticResource Labelfont}" TextColor="White" />

@@ -4,9 +4,9 @@ using Xamarin.Forms.Xaml;
 namespace ASFT.Pages
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class LoginPage : FreshBaseContentPage
+	public partial class IssueListPage : FreshBaseContentPage
 	{
-		public LoginPage ()
+		public IssueListPage ()
 		{
 			InitializeComponent ();
 		}

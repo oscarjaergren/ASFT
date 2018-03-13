@@ -15,7 +15,7 @@ namespace IssueManagerApiClient
 
     public class IssueManagerClientBase
     {
-        private const int _apiVersionUsed = 1;
+        private const int apiVersionUsed = 1;
 
         internal readonly WebRequestHelper WebRequestHelper;
 
@@ -26,7 +26,7 @@ namespace IssueManagerApiClient
 
         public int ApiVersionUsed
         {
-            get { return _apiVersionUsed; }
+            get { return apiVersionUsed; }
         }
 
         public string AccessToken

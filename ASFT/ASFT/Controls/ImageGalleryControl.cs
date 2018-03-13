@@ -97,12 +97,12 @@ namespace ASFT.Controls
                     else
                     {
                         imageStack.Children.Clear();
-                        foreach (object Item in ItemsSource)
+                        foreach (object item in ItemsSource)
                         {
                             View view = (View)ItemTemplate.CreateContent();
                             BindableObject bindableObject = (BindableObject) view;
                             if (bindableObject != null)
-                                bindableObject.BindingContext = Item;
+                                bindableObject.BindingContext = item;
                             imageStack.Children.Add(view);
                         }
                     }

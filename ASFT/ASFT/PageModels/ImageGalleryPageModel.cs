@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ASFT.IServices;
-using ASFT.Models;
 using IssueBase.Issue;
 using Plugin.Media;
 using Plugin.Media.Abstractions;
@@ -118,7 +117,7 @@ namespace ASFT.PageModels
        
         #endregion
 
-        public  void LoadImages( int ItemId)
+        public  void LoadImages( int itemId)
         {
             //IsBusy = true;
 

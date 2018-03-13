@@ -12,8 +12,6 @@ using ASFT.Pages;
 using DataTypes.Enums;
 using FreshMvvm;
 using IssueBase.Issue;
-using Plugin.Geolocator;
-using Plugin.Geolocator.Abstractions;
 using Xamarin.Forms;
 
 namespace ASFT.PageModels
@@ -39,8 +37,6 @@ namespace ASFT.PageModels
 
         public new event PropertyChangedEventHandler PropertyChanged;
 
-
-
         public bool IsBusy
         {
             get { return isBusy; }
@@ -49,7 +45,6 @@ namespace ASFT.PageModels
                 if (isBusy == value) return;
                 isBusy = value;
                 NotifyPropertyChanged();
-                Changed = true;
             }
         }
 
@@ -190,9 +185,6 @@ namespace ASFT.PageModels
                 NotifyPropertyChanged();
             }
         }
-
-
-
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             // System.Diagnostics.Debug.WriteLine("Update!"); //ok
@@ -238,7 +230,6 @@ namespace ASFT.PageModels
                 }
             }
         }
-
         public string StatusDone
         {
             get { return "statusDone.png"; }
@@ -302,29 +293,27 @@ namespace ASFT.PageModels
 
         public IssuePageModel()
         {
-
             Issue = CreateIssueModel();
-
-            IGeolocator locator = CrossGeolocator.Current;
-            if (locator.DesiredAccuracy != 100)
-                locator.DesiredAccuracy = 100;
-
-            GeoLocation location = App.Client.GetCurrentGeoLocation();
             StatusValues = Issue.PossibleStatusValues;
             SeverityValues = Issue.PossibleSeverityValues;
+
             if (!Issue.IsNewIssue) return;
             TitleEx = "New Event";
             SeverityEx = IssueSeverity.Medium;
             StatusEx = IssueStatus.Done;
         }
-        //public override async void Init(object initData)
-        //{
-        //    if (App.Client.LoggedIn != true)
-        //    {
-        //        await ShowLoginPage();
-        //    }
-        //}
 
+        public IssuePageModel(string butssezImageText)
+        {
+            Issue = CreateIssueModel();
+            StatusValues = Issue.PossibleStatusValues;
+            SeverityValues = Issue.PossibleSeverityValues;
+
+            if (!Issue.IsNewIssue) return;
+            TitleEx = "New Event";
+            SeverityEx = IssueSeverity.Medium;
+            StatusEx = IssueStatus.Done;
+        }
 
         protected override async void ViewIsAppearing(object sender, EventArgs e)
         {
@@ -340,7 +329,6 @@ namespace ASFT.PageModels
 
         private async Task ShowLoginPage()
         {
-            //if (App.Client.LoggedIn == false) Issues.Clear();
             await CoreMethods.PushPageModel<LoginPageModel>();
         }
 
@@ -434,7 +422,7 @@ namespace ASFT.PageModels
             }
         }
 
-        protected void OnCallback_UploadImage(UploadImageEvent eventId, int ImageId)
+        protected void OnCallback_UploadImage(UploadImageEvent eventId, int imageId)
         {
             switch (eventId)
             {
@@ -445,7 +433,7 @@ namespace ASFT.PageModels
                     Xamarin.Forms.Device.BeginInvokeOnMainThread(() => { ImageText = "Failed to upload image"; });
                     break;
                 case UploadImageEvent.ImageUploadSucess:
-                    ImageModel newimage = App.Client.GetImageInfo(ImageId);
+                    ImageModel newimage = App.Client.GetImageInfo(imageId);
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         ImageText = "Image Uploaded successful";
@@ -469,7 +457,7 @@ namespace ASFT.PageModels
 
             IsBusy = true;
 
-            int MaxImageSize = ImageLoadSize;
+            int maxImageSize = ImageLoadSize;
 
             if (Items.Count == 0)
                 return;
@@ -486,7 +474,7 @@ namespace ASFT.PageModels
                 if (item.IsImageUpdate == false)
                 {
 
-                    String imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, MaxImageSize, false).Result;
+                    string imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, maxImageSize, false).Result;
                     if (imgPath.Length == 0)
                     {
                         Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
@@ -494,7 +482,7 @@ namespace ASFT.PageModels
                             imageText = "Downloading picture (image id: " + item.Id.ToString() + ")";
                         });
 
-                        imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, MaxImageSize, true).Result;
+                        imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, maxImageSize, true).Result;
                         GC.Collect();
                     }
 
@@ -518,14 +506,14 @@ namespace ASFT.PageModels
             {
                 imageGalleryViewModel.Images.Clear();
 
-                var ImageList = App.Client.GetImages(issueId);
-                foreach (ImageModel image in ImageList)
+                var imageList = App.Client.GetImages(issueId);
+                foreach (ImageModel image in imageList)
                 {
                     string localOriginalFilePath = App.Client.GetImageFilePath(image.Id, image.IssueId);
-                    IFileHelper FileHelper = DependencyService.Get<IFileHelper>();
-                    if (FileHelper.Exists(localOriginalFilePath))
+                    IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
+                    if (fileHelper.Exists(localOriginalFilePath))
                     {
-                        var imageAsBytes = FileHelper.ReadAll(localOriginalFilePath).Result;
+                        var imageAsBytes = fileHelper.ReadAll(localOriginalFilePath).Result;
 
                         IImageResizer resizer = DependencyService.Get<IImageResizer>();
                         imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
@@ -547,15 +535,11 @@ namespace ASFT.PageModels
         #endregion
 
 
-        private void OnGoToList()
+        private async void OnGoToList()
         {
-            MessagingCenter.Subscribe<LoginPage>(this, "OnLoginPageClosed", sender =>
-            {
-                MessagingCenter.Unsubscribe<LoginPage>(this, "OnLoggedIn");
-
-                if (App.Client.LoggedIn == false) Issues.Clear();
-            });
-            //await Navigation.PushModalAsync(new LoginPage());
+            
+             int locationID = App.Client.GetCurrentLocationId();
+            await CoreMethods.PushPageModel<IssueListPageModel>(locationID);
         }
     }
 }

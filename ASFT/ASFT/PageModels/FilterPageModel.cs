@@ -1,11 +1,13 @@
-﻿using System.Windows.Input;
+﻿using System;
+using System.Windows.Input;
 using Acr.UserDialogs;
 using ASFT.Client;
+using FreshMvvm;
 using Xamarin.Forms;
 
 namespace ASFT.PageModels
 {
-    public class FilterPageModel : FilteringAndSorting
+    public class FilterPageModel : FreshBasePageModel
     {
         private new const string SortAscending = "Ascending (A-Z)";
         private const string SortDescending = "Descending (Z-A)";
@@ -13,7 +15,6 @@ namespace ASFT.PageModels
         public FilterPageModel()
         {
             Filtering = new FilteringAndSorting(App.Client.GetFilteringAndSorting());
-            BindingContext = Filtering;
 
             UpdateSortByButton();
             UpdateSortOrderButton();
@@ -69,8 +70,8 @@ namespace ASFT.PageModels
 
             UpdateSortOrderButton();
         }
-
-        protected override void OnDisappearing()
+        
+        protected override void ViewIsDisappearing (object sender, EventArgs e)
         {
             if (Filtering != App.Client.GetFilteringAndSorting())
             {
@@ -85,7 +86,6 @@ namespace ASFT.PageModels
                 App.Client.FilteringChanged = false;
             }
             MessagingCenter.Send(this, "OnFilterPageReturned");
-            base.OnDisappearing();
         }
 
     }

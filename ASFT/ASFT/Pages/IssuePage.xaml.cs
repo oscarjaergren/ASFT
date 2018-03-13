@@ -21,16 +21,12 @@ namespace ASFT.Pages
             var newYork = new Position(40.7142700, -74.0059700);
             var mapView = new TKCustomMap(MapSpan.FromCenterAndRadius(newYork, Distance.FromKilometers(2)));
             mapView.SetBinding(TKCustomMap.PinsProperty, "Pins");
-            mapView.SetBinding(TKCustomMap.MapClickedCommandProperty, "MapClickedCommand");
             mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand");
 
             mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
             mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
             mapView.SetBinding(TKCustomMap.PinDragEndCommandProperty, "DragEndCommand");
-            mapView.SetBinding(TKCustomMap.CirclesProperty, "Circles");
-            mapView.SetBinding(TKCustomMap.CalloutClickedCommandProperty, "CalloutClickedCommand");
             mapView.SetBinding(TKCustomMap.MapRegionProperty, "MapRegion");
-            mapView.SetBinding(TKCustomMap.RouteClickedCommandProperty, "RouteClickedCommand");
             mapView.SetBinding(TKCustomMap.TilesUrlOptionsProperty, "TilesUrlOptions");
             mapView.SetBinding(TKCustomMap.MapFunctionsProperty, "MapFunctions");
             mapView.IsRegionChangeAnimated = true;

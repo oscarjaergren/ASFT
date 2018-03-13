@@ -8,7 +8,7 @@
             Username = "";
             AccessToken = "";
             LocationName = "";
-            LocationID = -1;
+            LocationId = -1;
             LocationLatitude = 0;
             LocationLongitude = 0;
         }
@@ -20,6 +20,6 @@
         public string LocationName { get; set; }
         public double LocationLongitude { get; set; }
         public double LocationLatitude { get; set; }
-        public int LocationID { get; set; }
+        public int LocationId { get; set; }
     }
 }

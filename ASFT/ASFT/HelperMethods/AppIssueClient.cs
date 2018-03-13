@@ -86,7 +86,7 @@ namespace ASFT.HelperMethods
 
         public int GetCurrentLocationId()
         {
-            return State.LocationID;
+            return State.LocationId;
         }
 
         public string GetCurrentLocationName()
@@ -133,7 +133,7 @@ namespace ASFT.HelperMethods
 
         public void SetCurrentLocation(LocationModel location)
         {
-            State.LocationID = location.Id;
+            State.LocationId = location.Id;
             State.LocationName = location.Name;
             State.LocationLatitude = location.Latitude;
             State.LocationLongitude = location.Longitude;
@@ -254,7 +254,7 @@ namespace ASFT.HelperMethods
         public void AddIssue(IssueModel uiIssue)
         {
             if (uiIssue.LocationId == 0)
-                uiIssue.LocationId = State.LocationID;
+                uiIssue.LocationId = State.LocationId;
 
             NewIssueModel issue = uiIssue.CreateNewIssueModel();
             int issueId = ApiClient.CreateIssue(issue);
@@ -268,7 +268,7 @@ namespace ASFT.HelperMethods
         public void UpdateIssue(IssueModel uiIssue)
         {
             if (uiIssue.LocationId == 0)
-                uiIssue.LocationId = State.LocationID;
+                uiIssue.LocationId = State.LocationId;
 
             IssueModel issue = uiIssue.CreateUpdatedIssueViewModel();
             ApiClient.UpdateIssue(issue);

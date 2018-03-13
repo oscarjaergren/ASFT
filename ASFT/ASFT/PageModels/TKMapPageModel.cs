@@ -30,10 +30,8 @@ namespace ASFT.PageModels
         private TKCustomMapPin selectedPin;
         private bool isClusteringEnabled;
         private ObservableCollection<TKCustomMapPin> pins;
-        private ObservableCollection<TKRoute> routes;
         private ObservableCollection<TKCircle> circles;
         private ObservableCollection<TKPolyline> lines;
-        private ObservableCollection<TKPolygon> polygons;
         private readonly Random random = new Random(1984);
 
         public TKTileUrlOptions TilesUrlOptions
@@ -97,18 +95,7 @@ namespace ASFT.PageModels
                 }
             }
         }
-        public ObservableCollection<TKRoute> Routes
-        {
-            get { return routes; }
-            set
-            {
-                if (routes != value)
-                {
-                    routes = value;
-                    OnPropertyChanged("Routes");
-                }
-            }
-        }
+        
         public ObservableCollection<TKCircle> Circles
         {
             get { return circles; }
@@ -133,18 +120,7 @@ namespace ASFT.PageModels
                 }
             }
         }
-        public ObservableCollection<TKPolygon> Polygons
-        {
-            get { return polygons; }
-            set
-            {
-                if (polygons != value)
-                {
-                    polygons = value;
-                    OnPropertyChanged("Polygons");
-                }
-            }
-        }
+      
         public Position MapCenter
         {
             get { return mapCenter; }
@@ -192,7 +168,7 @@ namespace ASFT.PageModels
         {
             get
             {
-                return new Command<Position>(async position =>
+                return new Command<Position>(position =>
                 {
 
                     TKCustomMapPin pin = new TKCustomMapPin
@@ -266,9 +242,6 @@ namespace ASFT.PageModels
                 return new Command(() =>
                 {
                     pins.Clear();
-                    circles.Clear();
-                    if (routes != null)
-                        routes.Clear();
                 });
             }
         }
