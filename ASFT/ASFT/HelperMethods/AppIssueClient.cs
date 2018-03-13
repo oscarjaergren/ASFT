@@ -204,7 +204,7 @@ namespace ASFT.HelperMethods
                 if (bUseFilter)
                     if (Filtering.IncludeItem(item) == false)
                         continue;
-                uiIssues.Add(new IssueModel());
+                uiIssues.Add(new IssueModel(item));
             }
 
             if (!bUseFilter) return uiIssues;

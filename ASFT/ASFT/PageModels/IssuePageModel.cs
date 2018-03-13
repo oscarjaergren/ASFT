@@ -135,46 +135,7 @@ namespace ASFT.PageModels
         }
 
 
-        public string SeverityImagePath
-        {
-            get { return GetSeverityImage(Issue.Severity); }
-        }
-
-        public string StatusImagePath
-        {
-            get { return GetStatusImage(Issue.Status); }
-        }
-
-        public string GetSeverityImage(IssueSeverity severity)
-        {
-            switch (severity)
-            {
-                case IssueSeverity.Lowest:
-                    return "severity_1.png";
-                case IssueSeverity.Low:
-                    return "severity_2.png";
-                case IssueSeverity.Medium:
-                    return "severity_3.png";
-                case IssueSeverity.High:
-                    return "severity_4.png";
-                case IssueSeverity.Highest:
-                    return "severity_5.png";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(severity), severity, null);
-            }
-        }
-
-        public string GetStatusImage(IssueStatus status)
-        {
-            switch (status)
-            {
-                case IssueStatus.Unresolved: return "statusUnresolved.png";
-                case IssueStatus.InProgress: return "statusInProgress.png";
-                case IssueStatus.Done: return "statusDone.png";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(status), status, null);
-            }
-        }
+      
 
         public bool Changed
         {

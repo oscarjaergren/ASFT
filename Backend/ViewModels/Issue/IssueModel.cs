@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using DataTypes;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using DataTypes.Enums;
 
 namespace IssueBase.Issue
 {
-    public class IssueModel
+    public class IssueModel : INotifyPropertyChanged
     {
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public int LocationId { get; set; }
         public int Id { get; set; }
         public string Title { get; set; }
@@ -27,11 +31,11 @@ namespace IssueBase.Issue
 
         public IssueModel()
         {
-            //Id = 0;
-            //Description = "";
-            //Created = DateTime.Now;
-            //Edited = DateTime.Now;
-            //RefreshImageList(Issue.Id);
+            Id = 0;
+            Title = "";
+            Description = "";
+            Created = DateTime.Now;
+            Edited = DateTime.Now;
         }
 
         public IssueModel(IssueModel issue)
@@ -94,38 +98,173 @@ namespace IssueBase.Issue
         }
 
 
+        public IssueSeverity SeverityEx
+        {
+            get
+            {
+                return this.Severity;
+            }
+            set
+            {
+                Severity = value;
+                NotifyPropertyChanged("SeverityImagePath");
+                Changed = true;
+            }
+        }
+
+        public IssueStatus StatusEx
+        {
+            get
+            {
+                return this.Status;
+            }
+            set
+            {
+                Status = value;
+                NotifyPropertyChanged("StatusImagePath");
+                Changed = true;
+            }
+        }
+
+        public string TitleEx
+        {
+            get
+            {
+                return this.Title;
+            }
+            set
+            {
+                if (this.Title != value)
+                {
+                    this.Title = value;
+                    NotifyPropertyChanged();
+                    Changed = true;
+                }
+            }
+        }
+
+        public string CreatedByEx
+        {
+            get
+            {
+                return this.CreatedBy;
+            }
+            set
+            {
+                if (this.CreatedBy != value)
+                {
+                    this.CreatedBy = value;
+                    NotifyPropertyChanged();
+                    Changed = true;
+                }
+            }
+        }
+
+        public string DescriptionEx
+        {
+            get
+            {
+                return this.Description;
+            }
+            set
+            {
+                if (this.Description != value)
+                {
+                    this.Description = value;
+                    NotifyPropertyChanged();
+                    Changed = true;
+                }
+            }
+        }
+
+
+        public string SeverityImagePath
+        {
+            get
+            {
+                return GetSeverityImage(Severity);
+            }
+        }
+        public string StatusImagePath
+        {
+            get
+            {
+                return GetStatusImage(Status);
+            }
+        }
+        public string GetSeverityImage(IssueSeverity severity)
+        {
+            switch (severity)
+            {
+                case IssueSeverity.Lowest: return "severity_1.png";
+                case IssueSeverity.Low: return "severity_2.png";
+                case IssueSeverity.Medium: return "severity_3.png";
+                case IssueSeverity.High: return "severity_4.png";
+                case IssueSeverity.Highest: return "severity_5.png";
+            }
+
+            return "";
+        }
+        public string GetStatusImage(IssueStatus status)
+        {
+            switch (status)
+            {
+                case IssueStatus.Unresolved: return "statusUnresolved.png";
+                case IssueStatus.InProgress: return "statusInProgress.png";
+                case IssueStatus.Done: return "statusDone.png";
+            }
+
+            return "";
+        }
+
+        public bool Changed
+        {
+            get
+            {
+                return this.IssueChanged;
+            }
+            set
+            {
+                IssueChanged = value;
+                NotifyPropertyChanged();
+            }
+        }
+
         public List<IssueStatusModel> PossibleStatusValues
         {
             get
             {
-                var items = new List<IssueStatusModel>
-                {
-                    new IssueStatusModel("statusUnresolved.png", IssueStatus.Unresolved),
-                    new IssueStatusModel("statusInProgress.png", IssueStatus.InProgress),
-                    new IssueStatusModel("statusDone.png", IssueStatus.Done)
-                };
+                List<IssueStatusModel> items = new List<IssueStatusModel>()
+            {
+              new IssueStatusModel("statusUnresolved.png",IssueStatus.Unresolved),
+              new IssueStatusModel("statusInProgress.png",IssueStatus.InProgress),
+              new IssueStatusModel("statusDone.png",IssueStatus.Done)
+            };
 
                 return items;
             }
         }
-
         public List<IssueSeverityModel> PossibleSeverityValues
         {
             get
             {
-                var items = new List<IssueSeverityModel>
-                {
-                    new IssueSeverityModel("severity_5.png", IssueSeverity.Highest),
-                    new IssueSeverityModel("severity_4.png", IssueSeverity.High),
-                    new IssueSeverityModel("severity_3.png", IssueSeverity.Medium),
-                    new IssueSeverityModel("severity_2.png", IssueSeverity.Low),
-                    new IssueSeverityModel("severity_1.png", IssueSeverity.Lowest)
-                };
+                List<IssueSeverityModel> items = new List<IssueSeverityModel>()
+            {
+              new IssueSeverityModel("severity_5.png",IssueSeverity.Highest),
+              new IssueSeverityModel("severity_4.png",IssueSeverity.High),
+              new IssueSeverityModel("severity_3.png",IssueSeverity.Medium),
+              new IssueSeverityModel("severity_2.png",IssueSeverity.Low),
+              new IssueSeverityModel("severity_1.png",IssueSeverity.Lowest),
+            };
+
                 return items;
             }
         }
 
-
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public override string ToString()
         {
             return Name;

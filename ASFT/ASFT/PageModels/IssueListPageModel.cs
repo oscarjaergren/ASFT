@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.UserDialogs;
+using DataTypes.Enums;
 using FreshMvvm;
 using IssueBase.Issue;
 using IssueBase.Location;
@@ -13,66 +14,30 @@ namespace ASFT.PageModels
 {
     public class IssueListPageModel : FreshBasePageModel
     {
-        private bool FirstTimeShown { get; set; }
         public ObservableCollection<IssueModel> Issues { get; set; }
-        int LocationID { get; set; }
-        bool BRefeshNeeded { get; set; }
+        private int LocationId { get; set; }
+        private bool RefeshNeeded { get; set; }
         public bool IsBusy { get; set; }
 
-        public IssueListPageModel(int LocationID)
+        public IssueModel Issue { get; set; }
+
+        public IssueListPageModel()
         {
-            FirstTimeShown = true;
-            this.LocationID = LocationID;
             //Title = "Events";
-            BRefeshNeeded = true;
+            RefeshNeeded = true;
             Issues = new ObservableCollection<IssueModel>();
-
-
-
-
-            var home = new ToolbarItem
-            {
-                Text = "Add New",
-                Icon = "Add.png",
-                Order = ToolbarItemOrder.Primary,
-                Priority = 0,
-            };
-            home.Clicked += this.OnClickNewIssue;
-            this.ToolbarItems.Add(home);
-
-            //var map = new ToolbarItem
-            //{
-            //    Text = "Map",
-            //    Icon = "map.png",
-            //    Order = ToolbarItemOrder.Primary,
-            //    Priority = 0,
-            //};
-            //map.Clicked += this.OnClickShowMap;
-            //this.ToolbarItems.Add(map);
-
-
-            var loginLocation = new ToolbarItem
-            {
-                Text = "Login and Location",
-                Icon = "menu.png",
-                Order = ToolbarItemOrder.Secondary,
-                Priority = 0,
-            };
-            loginLocation.Clicked += this.OnClickLoginLocation;
-            this.ToolbarItems.Add(loginLocation);
-
-            var filter = new ToolbarItem
-            {
-                Text = "Filter and Sorting",
-                Icon = "filter.png",
-                Order = ToolbarItemOrder.Secondary,
-                Priority = 1,
-            };
-            filter.Clicked += this.OnClickSetFilter;
-            this.ToolbarItems.Add(filter);
         }
 
-      
+        public override void Init(object initData)
+        {
+            if(initData is int i)
+            {
+                LocationId =  i;
+                initData = LocationId;
+
+            }
+            base.Init(initData);
+        }
 
         public ICommand PullRefreshCommand
         {
@@ -91,7 +56,7 @@ namespace ASFT.PageModels
         async Task<bool> OnRefreshContent(bool bShowLoading = true)
         {
             Issues.Clear();
-            if (LocationID == -1 || App.Client.LoggedIn == false)
+            if (LocationId == -1 || App.Client.LoggedIn == false)
             {
                 return false;
             }
@@ -103,12 +68,12 @@ namespace ASFT.PageModels
                     if (bShowLoading)
                         UserDialogs.Instance.ShowLoading("Loading events...", maskType: MaskType.Clear);
 
-                    var Items = App.Client.GetIssues(LocationID);
+                    var Items = App.Client.GetIssues(LocationId);
                     foreach (var Item in Items)
                     {
                         Issues.Add(Item);
                     }
-                    BRefeshNeeded = false;
+                    RefeshNeeded = false;
 
                     if (bShowLoading)
                         UserDialogs.Instance.HideLoading();
@@ -117,7 +82,7 @@ namespace ASFT.PageModels
                 }
                 catch (IssueManagerApiClient.UnauthorizedException)
                 {
-                    BRefeshNeeded = false;
+                    RefeshNeeded = false;
                     if (bShowLoading)
                         UserDialogs.Instance.HideLoading();
 
@@ -126,7 +91,7 @@ namespace ASFT.PageModels
                 }
                 catch (Exception)
                 {
-                    BRefeshNeeded = false;
+                    RefeshNeeded = false;
                     UserDialogs.Instance.Alert("Failed. Unknown error while getting issues..");
                     return false;
                 }
@@ -141,16 +106,16 @@ namespace ASFT.PageModels
 
         protected async void ShowIssuesFromCurrentLocation()
         {
-            if (LocationID == -1)
+            if (LocationId == -1)
             {
                 // Check 
-                LocationID = App.Client.GetCurrentLocationId();
-                if (LocationID == -1)
+                LocationId = App.Client.GetCurrentLocationId();
+                if (LocationId == -1)
                 {
                     bool bChanged = await ShowSelectLocation();
                 }
             }
-            if (BRefeshNeeded)
+            if (RefeshNeeded)
             {
                 await OnRefreshContent();
             }
@@ -161,8 +126,8 @@ namespace ASFT.PageModels
             MessagingCenter.Subscribe<HomePageModel>(this, "LocationChanged", (sender) =>
             {
                 MessagingCenter.Unsubscribe<HomePageModel>(this, "LocationChanged");
-                LocationID = -1;
-                BRefeshNeeded = true;
+                LocationId = -1;
+                RefeshNeeded = true;
                 ShowIssuesFromCurrentLocation();
             });
 
@@ -342,9 +307,9 @@ namespace ASFT.PageModels
                     {
                         if (loc.Id == id)
                         {
-                            LocationID = id;
+                            LocationId = id;
                             App.Client.SetCurrentLocation(loc);
-                            BRefeshNeeded = true;
+                            RefeshNeeded = true;
                             return true;
                         }
                     }

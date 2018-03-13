@@ -10,7 +10,6 @@
             <converters:DateTextConverter x:Key="DateToTextConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <!--ItemTapped="OnEventSelected"--> <!--Clicked="OnDelete"-->
 <ListView ItemsSource="{Binding Issues}" SeparatorColor="#444444" RowHeight="90" IsPullToRefreshEnabled="True" IsRefreshing="{Binding IsBusy}" RefreshCommand="{Binding PullRefreshCommand}" >
         <ListView.ItemTemplate>
             <DataTemplate>
