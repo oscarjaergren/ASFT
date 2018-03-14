@@ -209,16 +209,16 @@ namespace ASFT.PageModels
 
         private readonly ICommand onGoToListCommand = null;
         private readonly ICommand submitCommand = null;
-        private readonly ICommand onStatusTappedCommand = null;
+        private readonly ICommand onStatusClickedCommand = null;
         private double statusDoneOpacity;
         private double statusInProgressOpacity;
         private bool isBusy;
 
         public bool IsStatusUnresolvedActive { get; set; }
 
-        public ICommand OnStatusTappedCommand
+        public ICommand OnStatusClickedCommand
         {
-            get { return onStatusTappedCommand ?? new Command<string>(OnStatusTapped); }
+            get { return onStatusClickedCommand ?? new Command<string>(OnStatusTappeds); }
         }
 
         public ICommand OnGoToListCommand
@@ -264,18 +264,15 @@ namespace ASFT.PageModels
             StatusEx = IssueStatus.Done;
         }
 
-        public IssuePageModel(string butssezImageText)
+        public override void Init(object initData)
         {
-            Issue = CreateIssueModel();
-            StatusValues = Issue.PossibleStatusValues;
-            SeverityValues = Issue.PossibleSeverityValues;
-
-            if (!Issue.IsNewIssue) return;
-            TitleEx = "New Event";
-            SeverityEx = IssueSeverity.Medium;
-            StatusEx = IssueStatus.Done;
+            base.Init(initData);
+            if (initData is IssueModel issue)
+            {
+                Issue = issue;
+            }
         }
-
+       
         protected override async void ViewIsAppearing(object sender, EventArgs e)
         {
             if (App.Client.Initilized == false) await App.Client.Init();
@@ -328,6 +325,36 @@ namespace ASFT.PageModels
                 Issue.Status = item.Status;
                 StatusChecker();
                 return;
+            }
+        }
+
+        public void OnStatusTappeds(object sender)
+        {
+            StatusUnresolvedOpacity = 0.5;
+            StatusInProgressOpacity = 0.5;
+            statusDoneOpacity = 0.5;
+
+            var image = (Image)sender;
+            image.Opacity = 1;
+
+            String[] buttons = new String[StatusValues.Count];
+            for (int n = 0; n < StatusValues.Count; ++n)
+            {
+                buttons[n] = StatusValues[n].Name;
+            }
+            if (image.Source is FileImageSource)
+            {
+                FileImageSource fileImageSource = (FileImageSource)image.Source;
+                string fileName = fileImageSource.File;
+                foreach (var item in StatusValues)
+                {
+                    if (item.Name == fileName)
+                    {
+                        Issue.StatusEx = item.Status;
+                        StatusChecker();
+                        return;
+                    }
+                }
             }
         }
 

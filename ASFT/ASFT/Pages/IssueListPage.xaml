@@ -3,14 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
              xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
+             xmlns:helperMethods="clr-namespace:ASFT.HelperMethods;assembly=ASFT"
              x:Class="ASFT.Pages.IssueListPage">
     <ContentPage.Resources>
         <ResourceDictionary>
-            <converters:StatusTextConverter x:Key="IntStatusToTextConverter" />
+            <converters:SelectedItemEventArgsToSelectedItemConverter x:Key="SelectedItemConverter" />
             <converters:DateTextConverter x:Key="DateToTextConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 <ListView ItemsSource="{Binding Issues}" SeparatorColor="#444444" RowHeight="90" IsPullToRefreshEnabled="True" IsRefreshing="{Binding IsBusy}" RefreshCommand="{Binding PullRefreshCommand}" >
+    <ListView.Behaviors>
+        <helperMethods:EventToCommandBehavior EventName="ItemSelected" 
+                                          Command="{Binding OnSelectedIssueCommand}" 
+                                          Converter="{StaticResource SelectedItemConverter}" />
+    </ListView.Behaviors>
         <ListView.ItemTemplate>
             <DataTemplate>
                 <ViewCell >

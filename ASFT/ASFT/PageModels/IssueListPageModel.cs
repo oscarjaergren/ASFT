@@ -19,8 +19,6 @@ namespace ASFT.PageModels
         private bool RefeshNeeded { get; set; }
         public bool IsBusy { get; set; }
 
-        public IssueModel Issue { get; set; }
-
         public IssueListPageModel()
         {
             //Title = "Events";
@@ -37,6 +35,7 @@ namespace ASFT.PageModels
 
             }
             base.Init(initData);
+
         }
 
         public ICommand PullRefreshCommand
@@ -53,7 +52,7 @@ namespace ASFT.PageModels
             IsBusy = false;
         }
 
-        async Task<bool> OnRefreshContent(bool bShowLoading = true)
+        private async Task<bool> OnRefreshContent(bool bShowLoading = true)
         {
             Issues.Clear();
             if (LocationId == -1 || App.Client.LoggedIn == false)
@@ -121,7 +120,7 @@ namespace ASFT.PageModels
             }
         }
 
-        async void OnClickLoginLocation(object s, EventArgs e)
+        private async void OnClickLoginLocation(object s, EventArgs e)
         {
             MessagingCenter.Subscribe<HomePageModel>(this, "LocationChanged", (sender) =>
             {
@@ -135,12 +134,12 @@ namespace ASFT.PageModels
 
         }
 
-        void OnClickNewIssue(object s, EventArgs e)
+        private void OnClickNewIssue(object s, EventArgs e)
         {
             OnAddNewIssue();
         }
 
-        async void OnAddNewIssue()
+        private async void OnAddNewIssue()
         {
             if (IsBusy)
                 return;
@@ -149,7 +148,7 @@ namespace ASFT.PageModels
             await CoreMethods.PushPageModel<IssuePageModel>();
         }
 
-        async void OnClickSetFilter(object s, EventArgs e)
+        private async void OnClickSetFilter(object s, EventArgs e)
         {
             MessagingCenter.Subscribe<FilterPageModel>(this, "OnFilterPageReturned", async (sender) =>
             {
@@ -170,22 +169,25 @@ namespace ASFT.PageModels
         //    await CoreMethods.PushPageModel(page, true);
         //}
 
-        
-        //public ICommand OnSelectedIssueCommand
-        //{
-        //    //get
-        //    //{
-        //    //    OnEventSelected(object o, ItemTappedEventArgs e);
-        //    //}
-        //}
 
-        public async void OnEventSelected(object o, ItemTappedEventArgs e)
+      
+
+        public ICommand OnSelectedIssueCommand
         {
-            if (IsBusy)
-                return;
+            get { return onSelectIssueCommand ?? new Command<object >(OnEventSelected); }
 
 
-            if (e.Item is IssueModel item)
+        }
+
+        private ICommand onSelectIssueCommand = null;
+
+
+        public async void OnEventSelected(object eventArgs)
+        {
+            var selectedItem = eventArgs as IssueModel;
+            if (selectedItem != null)
+
+            if (selectedItem is IssueModel item)
             {
                 MessagingCenter.Subscribe<IssuePageModel>(this, "refresh", async (sender) =>
                 {
@@ -201,8 +203,6 @@ namespace ASFT.PageModels
 
                     UserDialogs.Instance.HideLoading();
                 });
-
-                if (e.Item != null)
                     await CoreMethods.PushPageModel<IssuePageModel>(item);
             }
 

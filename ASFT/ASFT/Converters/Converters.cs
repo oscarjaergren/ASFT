@@ -8,7 +8,7 @@ namespace ASFT.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            int numValue = (int) value;
+            int numValue = (int)value;
             string x = numValue.ToString();
             return x;
         }
@@ -26,7 +26,7 @@ namespace ASFT.Converters
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
-            DateTime dt = (DateTime) value;
+            DateTime dt = (DateTime)value;
             return dt.ToString(CultureInfo.CurrentUICulture);
         }
 
@@ -41,6 +41,24 @@ namespace ASFT.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return (bool)value ? 1.0 : 0.5;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class SelectedItemEventArgsToSelectedItemConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var eventArgs = value as SelectedItemChangedEventArgs;
+            if (eventArgs.SelectedItem != null) 
+            {
+            return eventArgs.SelectedItem;
+
+            }
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

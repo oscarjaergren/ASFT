@@ -1,5 +1,4 @@
-﻿using DataTypes;
-using DataTypes.Enums;
+﻿using DataTypes.Enums;
 
 namespace IssueBase.Issue
 {

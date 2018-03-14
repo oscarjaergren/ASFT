@@ -6,12 +6,14 @@
              xmlns:maps="clr-namespace:ASFT.PageModels;assembly=ASFT"
              xmlns:controls="clr-namespace:ASFT.Controls;assembly=ASFT"
              xmlns:pageModels="clr-namespace:ASFT.PageModels;assembly=ASFT"
+             xmlns:helperMethods="clr-namespace:ASFT.HelperMethods;assembly=ASFT"
              x:Class="ASFT.Pages.IssuePage" Padding="4,25,4,4" x:Name="IssuePages">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="Labelfont" TargetType="Label">
                 <Setter Property="FontSize" Value="Medium" />
             </Style>
+            <converters:SelectedItemEventArgsToSelectedItemConverter x:Key="SelectedItemConverter" />
             <converters:DateTextConverter x:Key="DateToTextConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
@@ -102,9 +104,8 @@
                     </controls:ImageGalleryControl>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Text="Add photo" Command="{Binding CameraCommand}" />
                         <Button Grid.Column="1" Text="Pick photo" Command="{Binding PickCommand}" />
@@ -192,9 +193,12 @@
                     <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="0">
                         <Image Source="{Binding StatusUnresolved}" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusUnresolvedOpacity}">
-                            <Image.GestureRecognizers>
+                            <Image.Behaviors>
+                                <helperMethods:EventToCommandBehavior EventName="ItemTapped" 
+                                                                      Command="{Binding OnStatusClickedCommand}" 
+                                                                      Converter="{StaticResource SelectedItemConverter}" />
+                            </Image.Behaviors>
                                 <!--<TapGestureRecognizer Command="{Binding Source={x:Reference this}, Path=OnStatusTappedCommand}" CommandParameter="{Binding StatusUnresolved}" />-->
-                            </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Spacing="4">

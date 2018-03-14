@@ -56,7 +56,6 @@ namespace ASFT.Controls
         }
 
         #region Events
-        public delegate void LoadingImagesHandler(object sender, LoadingEventArgs e);
         #endregion
 
         private void ItemsSourceChanging()
@@ -142,7 +141,7 @@ namespace ASFT.Controls
             }
         }
 
-        void UpdateSelectedIndex()
+        private void UpdateSelectedIndex()
         {
             if (SelectedItem == BindingContext)
                 return;
@@ -176,7 +175,7 @@ namespace ASFT.Controls
             }
         }
 
-        void UpdateSelectedItem()
+        private void UpdateSelectedItem()
         {
             SelectedItem = SelectedIndex > -1 ? Children[SelectedIndex].BindingContext : null;
         }
