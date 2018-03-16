@@ -49,16 +49,6 @@
     <Compile Include="WebRequestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DataTypes\DataTypes.csproj">
-      <Project>{A164BFF2-DD9A-494A-B1BE-0E221C6EAAA7}</Project>
-      <Name>DataTypes</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ViewModels\IssueBase.csproj">
-      <Project>{253D1EAA-0028-43F3-A78D-D6657B614DFA}</Project>
-      <Name>IssueBase</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="FreshIOC, Version=1.0.6606.27413, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\FreshMvvm.2.2.4\lib\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+MonoTouch10+Xamarin.iOS10\FreshIOC.dll</HintPath>
     </Reference>
@@ -104,6 +94,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ViewModels\IssueBase.csproj">
+      <Project>{253d1eaa-0028-43f3-a78d-d6657b614dfa}</Project>
+      <Name>IssueBase</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

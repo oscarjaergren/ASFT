@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ASFT.Models
+﻿namespace ASFT.Models
 {
     public class LoginModel
     {

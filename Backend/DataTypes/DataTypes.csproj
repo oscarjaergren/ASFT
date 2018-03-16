@@ -37,7 +37,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Enums\UploadImageEvent.cs" />
-    <Compile Include="Exceptions.cs" />
     <Compile Include="Enums\IssueSeverity.cs" />
     <Compile Include="Enums\IssueStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

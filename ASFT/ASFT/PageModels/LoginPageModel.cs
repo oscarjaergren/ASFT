@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using ASFT.Models;
-using DataTypes;
 using FreshMvvm;
+using IssueManagerApiClient;
 using Xamarin.Forms;
 
 namespace ASFT.PageModels

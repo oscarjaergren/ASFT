@@ -233,7 +233,7 @@ namespace ASFT.PageModels
         {
             try
             {
-                string[] buttons = new string[locations.Count];
+                var buttons = new string[locations.Count];
                 for (int n = 0; n < locations.Count; ++n)
                 {
                     buttons[n] = locations[n].Id + " - " + locations[n].Name;

@@ -1,5 +1,4 @@
-﻿using System;
-using ASFT.Client;
+﻿using ASFT.Client;
 using ASFT.IServices;
 
 #if __IOS__

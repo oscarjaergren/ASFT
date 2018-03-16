@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Acr.UserDialogs;
-using DataTypes.Enums;
 using FreshMvvm;
 using IssueBase.Issue;
 using IssueBase.Location;
@@ -28,9 +28,9 @@ namespace ASFT.PageModels
 
         public override void Init(object initData)
         {
-            if(initData is int i)
+            if (initData is int i)
             {
-                LocationId =  i;
+                LocationId = i;
                 initData = LocationId;
 
             }
@@ -38,21 +38,15 @@ namespace ASFT.PageModels
 
         }
 
-        public ICommand PullRefreshCommand
-        {
-            get
-            {
-                return new Command(OnPullRefresh, () => IsBusy == false);
-            }
-        }
+       
         public async void OnPullRefresh()
         {
             IsBusy = true;
-            await OnRefreshContent(false);
+            await OnRefreshContent();
             IsBusy = false;
         }
 
-        private async Task<bool> OnRefreshContent(bool bShowLoading = true)
+        private async Task<bool> OnRefreshContent()
         {
             Issues.Clear();
             if (LocationId == -1 || App.Client.LoggedIn == false)
@@ -64,26 +58,23 @@ namespace ASFT.PageModels
             {
                 try
                 {
-                    if (bShowLoading)
-                        UserDialogs.Instance.ShowLoading("Loading events...", maskType: MaskType.Clear);
+                    UserDialogs.Instance.ShowLoading("Loading events...", maskType: MaskType.Clear);
 
-                    var Items = App.Client.GetIssues(LocationId);
-                    foreach (var Item in Items)
+                    var items = App.Client.GetIssues(LocationId);
+                    foreach (IssueModel Item in items)
                     {
                         Issues.Add(Item);
                     }
                     RefeshNeeded = false;
 
-                    if (bShowLoading)
-                        UserDialogs.Instance.HideLoading();
+                    UserDialogs.Instance.HideLoading();
 
                     return true;
                 }
                 catch (IssueManagerApiClient.UnauthorizedException)
                 {
                     RefeshNeeded = false;
-                    if (bShowLoading)
-                        UserDialogs.Instance.HideLoading();
+                    UserDialogs.Instance.HideLoading();
 
                     UserDialogs.Instance.Alert("Not Unauthorized\nLogin with another account or change location");
                     return false;
@@ -100,18 +91,17 @@ namespace ASFT.PageModels
         {
             if (App.Client.Initilized == false) await App.Client.Init();
             await OnRefreshContent();
-            ShowIssuesFromCurrentLocation();
+            App.Client.RunInBackground(ShowIssuesFromCurrentLocation);
         }
 
         protected async void ShowIssuesFromCurrentLocation()
         {
             if (LocationId == -1)
             {
-                // Check 
                 LocationId = App.Client.GetCurrentLocationId();
                 if (LocationId == -1)
                 {
-                    bool bChanged = await ShowSelectLocation();
+                    await ShowSelectLocation();
                 }
             }
             if (RefeshNeeded)
@@ -169,48 +159,42 @@ namespace ASFT.PageModels
         //    await CoreMethods.PushPageModel(page, true);
         //}
 
+        public ICommand PullRefreshCommand
+        {
+            get
+            {
+                return new Command(OnPullRefresh, () => IsBusy == false);
+            }
+        }
 
-      
 
         public ICommand OnSelectedIssueCommand
         {
-            get { return onSelectIssueCommand ?? new Command<object >(OnEventSelected); }
+            get { return onSelectIssueCommand ?? new Command<object>(OnEventSelected); }
 
 
         }
 
-        private ICommand onSelectIssueCommand = null;
+        private readonly ICommand onSelectIssueCommand = null;
 
 
         public async void OnEventSelected(object eventArgs)
         {
-            var selectedItem = eventArgs as IssueModel;
-            if (selectedItem != null)
-
+            if (!(eventArgs is IssueModel selectedItem)) return;
             if (selectedItem is IssueModel item)
             {
-                MessagingCenter.Subscribe<IssuePageModel>(this, "refresh", async (sender) =>
-                {
-                    MessagingCenter.Unsubscribe<IssueListPageModel>(this, "refresh");
-                    await OnRefreshContent();
-                });
-
                 await Task.Run(() =>
                 {
-                    UserDialogs.Instance.ShowLoading("Loading event...", maskType: MaskType.Clear);
 
-                    // Does lost of stuff, So show loading message
-
-                    UserDialogs.Instance.HideLoading();
                 });
-                    await CoreMethods.PushPageModel<IssuePageModel>(item);
+                await CoreMethods.PushPageModel<IssuePageModel>(item);
             }
 
         }
 
         public async void OnDelete(object sender, EventArgs e)
         {
-            var mi = ((MenuItem)sender);
+            MenuItem mi = ((MenuItem)sender);
             if (mi.BindingContext is IssueModel issue)
             {
                 IsBusy = true;
@@ -219,7 +203,7 @@ namespace ASFT.PageModels
                 {
                     try
                     {
-                        App.Client.DeleteIssue(issue.Id);
+                        App.Client.DeleteIssue(issue.ServerId);
                         return Issues.Remove(issue);
                     }
                     catch (Exception /*ex*/)
@@ -235,8 +219,7 @@ namespace ASFT.PageModels
 
             }
         }
-
-
+        #region Map
 
         private async Task<bool> ShowSelectLocation()
         {
@@ -283,13 +266,13 @@ namespace ASFT.PageModels
         {
             try
             {
-                string[] buttons = new string[locations.Count];
+                var buttons = new string[locations.Count];
                 for (int n = 0; n < locations.Count; ++n)
                 {
                     buttons[n] = locations[n].Id + " - " + locations[n].Name;
                 }
 
-                var res = await CoreMethods.DisplayActionSheet("Pick Location", "Cancel", "", buttons);
+                string res = await CoreMethods.DisplayActionSheet("Pick Location", "Cancel", "", buttons);
                 if (res == "Cancel")
                     return false;
 
@@ -303,7 +286,7 @@ namespace ASFT.PageModels
 
                 if (id > 0)
                 {
-                    foreach (var loc in locations)
+                    foreach (LocationModel loc in locations)
                     {
                         if (loc.Id == id)
                         {
@@ -316,13 +299,14 @@ namespace ASFT.PageModels
                 }
                 return false;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                int x = 0;
-                x++;
+                Debug.WriteLine(exception);
                 return false;
             }
         }
+        #endregion
+
     }
 }
 

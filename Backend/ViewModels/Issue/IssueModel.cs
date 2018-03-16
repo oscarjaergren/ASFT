@@ -12,7 +12,7 @@ namespace IssueBase.Issue
         public event PropertyChangedEventHandler PropertyChanged;
 
         public int LocationId { get; set; }
-        public int Id { get; set; }
+        public int ServerId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public double Longitude { get; set; }
@@ -22,7 +22,6 @@ namespace IssueBase.Issue
         public DateTime Created { get; set; }
         public DateTime Edited { get; set; }
         public string CreatedBy { get; set; }
-        public string Name { get; set; }
 
         public bool IssueNeedSync = true; // Issue is saved localy, But not sent to server. Need syncing
         public bool IsNewIssue;
@@ -31,7 +30,7 @@ namespace IssueBase.Issue
 
         public IssueModel()
         {
-            Id = 0;
+            ServerId = 0;
             Title = "";
             Description = "";
             Created = DateTime.Now;
@@ -41,7 +40,7 @@ namespace IssueBase.Issue
         public IssueModel(IssueModel issue)
         {
             LocationId = issue.LocationId;
-            Id = issue.Id;
+            ServerId = issue.ServerId;
             Title = issue.Title;
             Description = issue.Description;
             Longitude = issue.Longitude;
@@ -53,39 +52,11 @@ namespace IssueBase.Issue
             CreatedBy = issue.CreatedBy;
         }
 
-        public IssueModel(int locationId, int id, string title, string desc, double longitude, double latitude,
-            IssueStatus status, IssueSeverity severity)
-        {
-            LocationId = locationId;
-            Id = id;
-            Title = title;
-            Description = desc;
-            Longitude = longitude;
-            Latitude = latitude;
-            Status = status;
-            Severity = severity;
-        }
-
-        public NewIssueModel CreateNewIssueModel()
-        {
-            NewIssueModel issue = new NewIssueModel
-            {
-                LocationId = LocationId,
-                Title = Title,
-                Description = Description,
-                Longitude = Longitude,
-                Latitude = Latitude,
-                Status = Status,
-                Severity = Severity
-            };
-            return issue;
-        }
-
         public IssueModel CreateUpdatedIssueViewModel()
         {
             IssueModel issue = new IssueModel
             {
-                Id = Id,
+                ServerId = ServerId,
                 LocationId = LocationId,
                 Description = Description,
                 Longitude = Longitude,
@@ -177,6 +148,20 @@ namespace IssueBase.Issue
             }
         }
 
+      
+
+        public DateTime CreatedEx
+        {
+            get { return this.Created; }
+            set
+            {
+                if (this.Created == value) return;
+                this.Created = value;
+                NotifyPropertyChanged();
+                Changed = true;
+
+            }
+        }
 
         public string SeverityImagePath
         {
@@ -264,10 +249,6 @@ namespace IssueBase.Issue
         private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-        public override string ToString()
-        {
-            return Name;
         }
     }
 }

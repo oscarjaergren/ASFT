@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
-using ASFT.HelperMethods;
 using Xamarin.Forms;
 
 namespace ASFT.Controls

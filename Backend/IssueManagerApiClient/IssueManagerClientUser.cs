@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using DataTypes;
 using IssueBase;
 using IssueBase.Issue;
 using IssueBase.Location;
@@ -98,7 +97,7 @@ namespace IssueManagerApiClient
         /// <exception cref="UnauthorizedAccessException">The current user doesn't have access rights to this location.</exception>
         /// <exception cref="InvalidIssueSeverityException">The severity enum value is invalid.</exception>
         /// <exception cref="InvalidIssueStatusException">The status enum value is invalid.</exception>
-        public int CreateIssue(NewIssueModel model)
+        public int CreateIssue(IssueModel model)
         {
             return CreateResource("api/Issue/v1/CreateIssue", model);
         }
@@ -171,7 +170,7 @@ namespace IssueManagerApiClient
                 ApiResponse res = WebRequestHelper.DecodeJsonTyped<ApiResponse>(json);
 
                 ImageModel image = JsonConvert.DeserializeObject<ImageModel>(res.JsonContent);
-                return image.Id;
+                return image.ImageIssueId;
             }
         }
 

@@ -193,37 +193,29 @@
                     <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="0">
                         <Image Source="{Binding StatusUnresolved}" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusUnresolvedOpacity}">
-                            <Image.Behaviors>
-                                <helperMethods:EventToCommandBehavior EventName="ItemTapped" 
-                                                                      Command="{Binding OnStatusClickedCommand}" 
-                                                                      Converter="{StaticResource SelectedItemConverter}" />
-                            </Image.Behaviors>
-                                <!--<TapGestureRecognizer Command="{Binding Source={x:Reference this}, Path=OnStatusTappedCommand}" CommandParameter="{Binding StatusUnresolved}" />-->
+                                <Image.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" CommandParameter="{Binding StatusUnresolved}"/>
+                                </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                        <Image Source="{converters:ImageResource ASFT.Images.statusDone.png}" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusInProgressOpacity}">
-                            <Image.GestureRecognizers>
-                                <!--<TapGestureRecognizer --><!--Command="{Binding Source={x:Reference this}, Path=OnStatusTappedCommand}" CommandParameter="{Binding StatusInProgress}"--><!-- />-->
-                            </Image.GestureRecognizers>
+                        <Image Source="statusInProgress.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="0.6" >
+                            <!--<Image.GestureRecognizers>
+                                <Image.Behaviors>
+                                    <helperMethods:EventToCommandBehavior EventName="Tapped" 
+                                                                      Command="{Binding OnStatusClickedCommand}" 
+                                                                      Converter="{StaticResource SelectedItemConverter}" />
+                                </Image.Behaviors>
+                            </Image.GestureRecognizers>-->
                         </Image>
+                        
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="3" Orientation="Horizontal" Spacing="4">
-                        <Image Source="{Binding StatusDone}" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusDoneOpacity}">
-                            <Image.GestureRecognizers>
-                                <!--<TapGestureRecognizer Command="{Binding Source={x:Reference this}, Path=OnStatusTappedCommand}" CommandParameter="{Binding StatusDone}" />-->
-                            </Image.GestureRecognizers>
+                        <Image Source="statusDone.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="1">
+                           
                         </Image>
                     </StackLayout>
                 </Grid>
-
-                <Image>
-                    <Image.Source>
-                        <FileImageSource File="{Binding Img}" />
-                    </Image.Source>
-                </Image> 
 
                 <!--Date Created-->
                 <Label Text="TIME AND DATE: " Style="{StaticResource Labelfont}" TextColor="White" />

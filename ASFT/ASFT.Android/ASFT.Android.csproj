@@ -40,6 +40,9 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Acr.UserDialogs">
+      <HintPath>C:\Users\Consulence\.nuget\packages\acr.userdialogs\7.0.1\lib\netstandard2.0\Acr.UserDialogs.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Android" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,6 +50,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Acr.UserDialogs">
+      <Version>7.0.1</Version>
+    </PackageReference>
     <PackageReference Include="FreshMvvm">
       <Version>2.2.4</Version>
     </PackageReference>
@@ -92,17 +98,9 @@
     <None Include="Properties\AndroidManifest.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Backend\DataTypes\DataTypes.csproj">
-      <Project>{a164bff2-dd9a-494a-b1be-0e221c6eaaa7}</Project>
-      <Name>DataTypes</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Backend\IssueManagerApiClient\IssueManagerApiClient.csproj">
       <Project>{e910beba-0887-42e2-9147-e276e52cc847}</Project>
       <Name>IssueManagerApiClient</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Backend\ViewModels\IssueBase.csproj">
-      <Project>{253d1eaa-0028-43f3-a78d-d6657b614dfa}</Project>
-      <Name>IssueBase</Name>
     </ProjectReference>
     <ProjectReference Include="..\ASFT\ASFT.csproj">
       <Project>{4FD0ED9B-AAFC-407F-AF99-72B1E78619F1}</Project>

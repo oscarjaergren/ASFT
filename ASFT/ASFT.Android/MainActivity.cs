@@ -14,7 +14,6 @@ namespace ASFT.Droid
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
-
             UserDialogs.Init(this);
             TKGoogleMaps.Init(this, bundle); 
             Xamarin.FormsMaps.Init(this, bundle);

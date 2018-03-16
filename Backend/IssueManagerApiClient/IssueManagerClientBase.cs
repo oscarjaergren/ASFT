@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
-using DataTypes;
 using IssueBase;
 using Newtonsoft.Json;
 

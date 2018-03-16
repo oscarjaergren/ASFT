@@ -1,5 +1,4 @@
 ﻿using System;
-using DataTypes;
 using DataTypes.Enums;
 using IssueBase.Issue;
 using Xamarin.Forms;

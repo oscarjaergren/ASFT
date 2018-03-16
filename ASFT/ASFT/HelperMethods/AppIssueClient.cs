@@ -8,8 +8,6 @@ using Acr.UserDialogs;
 using ASFT.Client;
 using ASFT.IServices;
 using ASFT.Models;
-using ASFT.PageModels;
-using ASFT.Pages;
 using DataTypes.Enums;
 using IssueBase.Issue;
 using IssueBase.Location;
@@ -44,7 +42,6 @@ namespace ASFT.HelperMethods
         public bool LoggedIn { get; set; }
         public string StateFilename { get; set; }
         public bool Initilized { get; set; }
-
         public string LastErrorText { get; set; }
 
 
@@ -127,10 +124,6 @@ namespace ASFT.HelperMethods
             }
         }
 
-        public void LoadState()
-        {
-        }
-
         public void SetCurrentLocation(LocationModel location)
         {
             State.LocationId = location.Id;
@@ -178,7 +171,7 @@ namespace ASFT.HelperMethods
             LoggedIn = false;
 
             ApiClient = new IssueManagerClientUser(host);
-            ApiClient.Login(username, password); // exception is throw if failed.
+            ApiClient.Login(username, password); 
 
             //if successsfull no excpetion was throw so we can store new state variables
             State.Host = host;
@@ -251,18 +244,15 @@ namespace ASFT.HelperMethods
             return ApiClient.GetImage(imageId);
         }
 
-        public void AddIssue(IssueModel uiIssue)
+        public void AddIssue(IssueModel issue)
         {
-            if (uiIssue.LocationId == 0)
-                uiIssue.LocationId = State.LocationId;
+            if (issue.LocationId == 0)  issue.LocationId = State.LocationId;
 
-            NewIssueModel issue = uiIssue.CreateNewIssueModel();
-            int issueId = ApiClient.CreateIssue(issue);
-            if (issueId > 0)
-                uiIssue.Id = issueId;
+            int issueServerId = ApiClient.CreateIssue(issue);
 
-            if (uiIssue.IsNewIssue)
-                uiIssue.IsNewIssue = false;
+            if (issueServerId > 0) issue.ServerId = issueServerId;
+                
+            if (issue.IsNewIssue) issue.IsNewIssue = false;
         }
 
         public void UpdateIssue(IssueModel uiIssue)
@@ -274,37 +264,36 @@ namespace ASFT.HelperMethods
             ApiClient.UpdateIssue(issue);
         }
 
-        public Task<bool> SaveIssue(IssueModel uiIssue)
+        public Task<bool> SaveIssue(IssueModel issue)
         {
             return Task.Run(() =>
             {
                 try
                 {
-                    uiIssue.IssueNeedSync = true;
+                    issue.IssueNeedSync = true;
                     const ConnectionType wifi = ConnectionType.WiFi;
                     var connectionTypes = CrossConnectivity.Current.ConnectionTypes;
                     if (connectionTypes.Contains(wifi))
                     {
-                        //Save Issue to cache..
                         UserDialogs.Instance.ShowLoading("Saving...", MaskType.Clear);
 
-                        if (uiIssue.IsNewIssue)
-                            App.Client.AddIssue(uiIssue);
+                        if (issue.IsNewIssue)
+                            App.Client.AddIssue(issue);
                         else
-                            App.Client.UpdateIssue(uiIssue);
+                            App.Client.UpdateIssue(issue);
 
 
                         UserDialogs.Instance.HideLoading();
 
-                        uiIssue.IssueNeedSync = false;
+                        issue.IssueNeedSync = false;
+
                     }
                     else
                     {
                         if (CrossConnectivity.Current.IsConnected)
-                            App.Client.AddIssue(uiIssue);
+                            App.Client.AddIssue(issue);
                         return false;
                     }
-
                     return true;
                 }
                 catch (Exception ex)
@@ -313,40 +302,10 @@ namespace ASFT.HelperMethods
                     return false;
                 }
             });
-            // Re-Save Issue to cache
         }
-
-
         public void DeleteIssue(int issueId)
         {
             ApiClient.DeleteIssue(issueId);
-        }
-
-
-        public Task<string> TakePhoto()
-        {
-            try
-            {
-                ICameraHelper c = DependencyService.Get<ICameraHelper>();
-                return c.TakePhoto();
-            }
-            catch (Exception)
-            {
-                return Task.Run(() => "");
-            }
-        }
-
-        public Task<string> PickPhoto()
-        {
-            try
-            {
-                ICameraHelper c = DependencyService.Get<ICameraHelper>();
-                return c.PickExistingPicture();
-            }
-            catch (Exception)
-            {
-                return Task.Run(() => "");
-            }
         }
 
         private static string GetFileType(string file)
@@ -359,8 +318,7 @@ namespace ASFT.HelperMethods
             return filetype;
         }
 
-        public async Task<bool> PhotoUpload(int issueId, Action<UploadImageEvent, int> onCallback, byte[] bytes,
-            string file)
+        public async Task<bool> PhotoUpload(int issueId, Action<UploadImageEvent, int> onCallback, byte[] bytes, string file)
         {
             if (file.Length == 0)
                 return false;
@@ -369,27 +327,27 @@ namespace ASFT.HelperMethods
 
             onCallback?.Invoke(UploadImageEvent.ImageUploading, 0);
 
-            int imageId = await UploadPhoto(issueId, bytes, file, false);
+            int imageResult = await UploadPhoto(issueId, bytes, file, false);
 
 
             if (onCallback == null) return true;
-            if (imageId == 0)
+            if (imageResult == 0)
                 onCallback(UploadImageEvent.ImageUploadFailed, 0);
             else
-                onCallback(UploadImageEvent.ImageUploadSucess, imageId);
+                onCallback(UploadImageEvent.ImageUploadSucess, imageResult);
             return true;
         }
 
         public async Task<int> UploadPhoto(int issueId, byte[] bytes, string file, bool bMove)
         {
             string filetype = GetFileType(file);
-            int imageId = await UploadImage(issueId, bytes, filetype);
-            if (imageId <= 0) return imageId;
+            int imageResult = await UploadImage(issueId, bytes, filetype);
+            if (imageResult <= 0) return imageResult;
             if (bMove)
-                MoveFileToImageCache(file, issueId, imageId);
+                MoveFileToImageCache(file, issueId, imageResult);
             else
-                CopyFileToImageCache(file, issueId, imageId);
-            return imageId;
+                CopyFileToImageCache(file, issueId, imageResult);
+            return imageResult;
         }
 
         // Move to background thread
@@ -407,7 +365,6 @@ namespace ASFT.HelperMethods
                 }
             });
         }
-
         public void MoveFileToImageCache(string filename, int issueId, int imageId)
         {
             IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
