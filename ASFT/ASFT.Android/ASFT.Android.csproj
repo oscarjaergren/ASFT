@@ -40,9 +40,6 @@
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Acr.UserDialogs">
-      <HintPath>C:\Users\Consulence\.nuget\packages\acr.userdialogs\7.0.1\lib\netstandard2.0\Acr.UserDialogs.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Android" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -103,7 +100,7 @@
       <Name>IssueManagerApiClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\ASFT\ASFT.csproj">
-      <Project>{4FD0ED9B-AAFC-407F-AF99-72B1E78619F1}</Project>
+      <Project>{c3017821-cd3f-4a30-9fce-7d6634ab562f}</Project>
       <Name>ASFT</Name>
     </ProjectReference>
   </ItemGroup>

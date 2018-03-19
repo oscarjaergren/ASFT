@@ -101,7 +101,7 @@ namespace ASFT.PageModels
                 LocationId = App.Client.GetCurrentLocationId();
                 if (LocationId == -1)
                 {
-                    await ShowSelectLocation();
+                    await App.Client.ShowSelectLocation();
                 }
             }
             if (RefeshNeeded)
@@ -170,15 +170,19 @@ namespace ASFT.PageModels
 
         public ICommand OnSelectedIssueCommand
         {
-            get { return onSelectIssueCommand ?? new Command<object>(OnEventSelected); }
+            get { return onSelectIssueCommand ?? new Command<object>(OnIssueSelected); }
 
 
         }
+        public ICommand DeleteIssueCommand
+        {
+            get { return deleteIssueCommand ?? new Command<object>(OnDelete); }
+        }
 
         private readonly ICommand onSelectIssueCommand = null;
+        private readonly ICommand deleteIssueCommand = null;
 
-
-        public async void OnEventSelected(object eventArgs)
+        public async void OnIssueSelected(object eventArgs)
         {
             if (!(eventArgs is IssueModel selectedItem)) return;
             if (selectedItem is IssueModel item)
@@ -192,7 +196,7 @@ namespace ASFT.PageModels
 
         }
 
-        public async void OnDelete(object sender, EventArgs e)
+        public async void OnDelete(object sender)
         {
             MenuItem mi = ((MenuItem)sender);
             if (mi.BindingContext is IssueModel issue)
@@ -221,90 +225,9 @@ namespace ASFT.PageModels
         }
         #region Map
 
-        private async Task<bool> ShowSelectLocation()
-        {
-            var locations = GetLocations();
-            if (locations != null)
-                return await OnShowSelectLocationSheet(locations);
+        
 
-            return false;
-        }
-        private List<LocationModel> GetLocations()
-        {
-            List<LocationModel> locations = null;
-            try
-            {
-                IsBusy = true;
-                locations = App.Client.GetLocations();
-                IsBusy = false;
-            }
-            catch (IssueManagerApiClient.ServerNotFoundException)
-            {
-                IsBusy = false;
-                CoreMethods.DisplayAlert("Failed", "Failed to connect to server", "Continue");
-            }
-            catch (IssueManagerApiClient.NotLoggedInException /*ex*/)
-            {
-                IsBusy = false;
-                MessagingCenter.Subscribe<LoginPageModel>(this, "OnLoggedIn", (sender) =>
-                {
-                    MessagingCenter.Unsubscribe<LoginPageModel>(this, "OnLoggedIn");
-                });
-            }
-            catch (Exception /*ex*/)
-            {
-                IsBusy = false;
-                CoreMethods.DisplayAlert("Failed", "Unknown error", "Quit");
-                throw;
-            }
-            return locations;
-
-        }
-
-
-        private async Task<bool> OnShowSelectLocationSheet(List<LocationModel> locations)
-        {
-            try
-            {
-                var buttons = new string[locations.Count];
-                for (int n = 0; n < locations.Count; ++n)
-                {
-                    buttons[n] = locations[n].Id + " - " + locations[n].Name;
-                }
-
-                string res = await CoreMethods.DisplayActionSheet("Pick Location", "Cancel", "", buttons);
-                if (res == "Cancel")
-                    return false;
-
-                string locationName = "";
-                int id = Convert.ToInt32(res.Substring(0, 2));
-                int pos = res.IndexOf('-');
-                if (pos > 0)
-                    locationName = res.Substring(pos + 1);
-
-                locationName = locationName.Trim();
-
-                if (id > 0)
-                {
-                    foreach (LocationModel loc in locations)
-                    {
-                        if (loc.Id == id)
-                        {
-                            LocationId = id;
-                            App.Client.SetCurrentLocation(loc);
-                            RefeshNeeded = true;
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception);
-                return false;
-            }
-        }
+       
         #endregion
 
     }

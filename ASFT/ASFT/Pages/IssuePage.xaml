@@ -42,6 +42,7 @@
                         <TapGestureRecognizer Command="{Binding OnGoToListCommand}" NumberOfTapsRequired="1" />
                     </Label.GestureRecognizers>
                 </Label>
+                <Label Text="{Binding LocationText}"/>
             </StackLayout>
         </Grid>
 
@@ -102,7 +103,7 @@
                             </DataTemplate>
                         </controls:ImageGalleryControl.ItemTemplate>
                     </controls:ImageGalleryControl>
-                    <Grid Grid.Row="1">
+                    <Grid Grid.Row="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="*" />
@@ -191,24 +192,18 @@
                     <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" FontSize="Micro" Text="STATUS" HorizontalTextAlignment="End" VerticalTextAlignment="Center" TextColor="White"
                            Style="{StaticResource Labelfont}" IsVisible="True" />
                     <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="0">
-                        <Image Source="{Binding StatusUnresolved}" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusUnresolvedOpacity}">
+                        <Image Source="statusUnresolved.png" HorizontalOptions="Center"
+                               VerticalOptions="Center" HeightRequest="40" Opacity="1">
                                 <Image.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" CommandParameter="{Binding StatusUnresolved}"/>
+                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" CommandParameter="statusUnresolved.png"/>
                                 </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="2" Orientation="Horizontal" Spacing="4">
-                        <Image Source="statusInProgress.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="0.6" >
-                            <!--<Image.GestureRecognizers>
-                                <Image.Behaviors>
-                                    <helperMethods:EventToCommandBehavior EventName="Tapped" 
-                                                                      Command="{Binding OnStatusClickedCommand}" 
-                                                                      Converter="{StaticResource SelectedItemConverter}" />
-                                </Image.Behaviors>
-                            </Image.GestureRecognizers>-->
-                        </Image>
-                        
+                        <Image Source="statusInProgress.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="0.6" />
+
+
+
                     </StackLayout>
                     <StackLayout Grid.Row="3" Grid.Column="3" Orientation="Horizontal" Spacing="4">
                         <Image Source="statusDone.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="1">

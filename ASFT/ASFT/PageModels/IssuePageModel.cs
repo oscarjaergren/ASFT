@@ -12,6 +12,8 @@ using ASFT.IServices;
 using DataTypes.Enums;
 using FreshMvvm;
 using IssueBase.Issue;
+using Plugin.Geolocator;
+using Plugin.Geolocator.Abstractions;
 using Xamarin.Forms;
 
 namespace ASFT.PageModels
@@ -78,6 +80,17 @@ namespace ASFT.PageModels
                 NotifyPropertyChanged($"StatusImagePath");
                 Issue.Changed = true;
 
+            }
+        }
+        private string locationText;
+
+        public string LocationText
+        {
+            get { return App.Client.GetCurrentLocationName(); }
+            set
+            {
+                locationText = value;
+                NotifyPropertyChanged();
             }
         }
 
@@ -194,9 +207,9 @@ namespace ASFT.PageModels
         #region Command
 
 
-        private readonly ICommand onGoToListCommand = null;
-        private readonly ICommand submitCommand = null;
-        private readonly ICommand onStatusClickedCommand = null;
+        private ICommand onGoToListCommand = null;
+        private ICommand submitCommand = null;
+        private ICommand onStatusClickedCommand = null;
         private double statusDoneOpacity;
         private double statusInProgressOpacity;
         private bool isBusy;
@@ -205,18 +218,34 @@ namespace ASFT.PageModels
 
         public ICommand OnStatusClickedCommand
         {
-            get { return onStatusClickedCommand ?? new Command<string>(OnStatusTappeds); }
+            get
+            {
+                if (onStatusClickedCommand == null)
+                    onStatusClickedCommand = new Command<object>(OnStatusTappeds);
+                return onStatusClickedCommand;
+            }
         }
-
         public ICommand OnGoToListCommand
         {
-            get { return onGoToListCommand ?? new Command(OnGoToList); }
+            get
+            {
+                if (onGoToListCommand == null)
+                    onGoToListCommand = new Command(OnGoToList);
+                return onGoToListCommand;
+            }
         }
 
         public ICommand SubmitCommand
         {
-            get { return submitCommand ?? new Command(OnSubmit); }
+            get
+            {
+                if (submitCommand == null)
+                    submitCommand = new Command(OnSubmit);
+                return submitCommand;
+            }
         }
+
+
 
 
         #endregion
@@ -234,23 +263,47 @@ namespace ASFT.PageModels
                 ServerId = 0,
                 Title = "",
                 Description = "",
-                CreatedBy = App.Client.GetCurrentUsername(),
+                Longitude = 0,
+                Latitude = 0,
+                CreatedBy = "",
                 IsNewIssue = true,
                 Created = DateTime.Now,
                 Edited = DateTime.Now,
             };
         }
 
+        private IGeolocator Locator;
         public IssuePageModel()
         {
             Issue = CreateIssueModel();
             StatusValues = Issue.PossibleStatusValues;
             SeverityValues = Issue.PossibleSeverityValues;
-
+            Locator = CrossGeolocator.Current;
             if (!Issue.IsNewIssue) return;
             TitleEx = "New Event";
+            GetLocation();
+            CreatedByEx = App.Client.GetCurrentUsername();
             SeverityEx = IssueSeverity.Medium;
             StatusEx = IssueStatus.Done;
+        }
+
+        private async void GetLocation()
+        {
+            if (isBusy == true) return;
+            isBusy = true;
+            try
+            {
+                TimeSpan timeSpan = TimeSpan.FromTicks(120 * 1000);
+                Position position = await Locator.GetPositionAsync(timeSpan);
+                Issue.Latitude = position.Latitude;
+                Issue.Longitude = position.Longitude;
+            }
+            catch (Exception exception)
+            {
+                isBusy = false;
+                Debug.Write(exception);
+            }
+            isBusy = false;
         }
 
         public override void Init(object initData)
@@ -261,6 +314,7 @@ namespace ASFT.PageModels
             {
                 Issue = issue;
                 if (Issue.ServerId != 0) GetImages(issue.ServerId);
+                Issue.LocationId = App.Client.GetCurrentLocationId();
             }
             UserDialogs.Instance.HideLoading();
         }
@@ -355,14 +409,16 @@ namespace ASFT.PageModels
             statusDoneOpacity = 0.5;
         }
 
-       
+
 
         #region Save
 
-        private  async void OnSubmit()
+        private async void OnSubmit()
         {
-            IsBusy = true;
+
             if (isBusy) return;
+            IsBusy = true;
+
 
             bool saved = await SaveChanges();
 
@@ -380,8 +436,10 @@ namespace ASFT.PageModels
             }
             else
             {
-                 CoreMethods.DisplayAlert("Save Failed", "Save failed", "OK");
+                UserDialogs.Instance.Toast("Issue has been failed");
+                UserDialogs.Instance.Alert("Save Failed", "Save failed", "OK");
             }
+            UserDialogs.Instance.Toast("Issue has been failed");
             IsBusy = false;
         }
 

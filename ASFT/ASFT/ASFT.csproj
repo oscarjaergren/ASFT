@@ -5,14 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\statusDone.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Images\statusDone.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Acr.UserDialogs" Version="7.0.1" />
     <PackageReference Include="FreshMvvm" Version="2.2.4" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
