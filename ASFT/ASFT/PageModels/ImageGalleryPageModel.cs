@@ -1,26 +1,31 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using ASFT.IServices;
-using IssueBase.Issue;
-using Plugin.Media;
-using Plugin.Media.Abstractions;
-using Xamarin.Forms;
-
-namespace ASFT.PageModels
+﻿namespace ASFT.PageModels
 {
-    public class ImageGalleryPageModel 
+    using System;
+    using System.Collections.ObjectModel;
+    using System.IO;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+
+    using ASFT.IServices;
+
+    using IssueBase.Issue;
+
+    using Plugin.Media;
+    using Plugin.Media.Abstractions;
+
+    using Xamarin.Forms;
+
+    public class ImageGalleryPageModel
     {
         private readonly ICommand cameraCommand = null;
         private readonly ICommand pickCommand = null;
         private readonly ICommand previewImageCommand = null;
 
-        private readonly ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel>();
         private string checkForImagesText;
         private ImageSource previewImage;
+
+       ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel> ();
 
         public ImageGalleryPageModel(ObservableCollection<IssuePageModel> issueImage, int imageLoadSize)
         {
@@ -48,6 +53,7 @@ namespace ASFT.PageModels
         public ImageGalleryPageModel()
         {
         }
+
         #region Model
 
 
@@ -69,7 +75,7 @@ namespace ASFT.PageModels
             get { return images; }
         }
 
-        
+
         public ImageSource PreviewImage
         {
             get { return previewImage; }
@@ -100,7 +106,7 @@ namespace ASFT.PageModels
         {
             get
             {
-                return previewImageCommand ?? new Command<Guid>((img) =>
+                return previewImageCommand ?? new Command<Guid>(img =>
                 {
                     if (images.Count > 0)
                     {
@@ -114,32 +120,32 @@ namespace ASFT.PageModels
                 });
             }
         }
-       
+
         #endregion
 
-        public  void LoadImages( int itemId)
+        public void LoadImages(int itemId)
         {
-            //IsBusy = true;
+            // IsBusy = true;
 
-            //List<GalleryImage> list = await FileHelper.LoadImages(Section, ItemId);
-            //foreach (GalleryImage imageGallery in list)
-            //{
-            //    Images.Add(imageGallery);
-            //    OnPropertyChanged("Images");
-            //}
+            // List<GalleryImage> list = await FileHelper.LoadImages(Section, ItemId);
+            // foreach (GalleryImage imageGallery in list)
+            // {
+            // Images.Add(imageGallery);
+            // OnPropertyChanged("Images");
+            // }
 
-            //if (Images.Count == 0)
-            //{
-            //    ShowEmpty = true;
-            //    ShowContent = false;
-            //}
-            //else
-            //{
-            //    ShowEmpty = false;
-            //    ShowContent = true;
-            //}
+            // if (Images.Count == 0)
+            // {
+            // ShowEmpty = true;
+            // ShowContent = false;
+            // }
+            // else
+            // {
+            // ShowEmpty = false;
+            // ShowContent = true;
+            // }
 
-            //IsBusy = false;
+            // IsBusy = false;
         }
 
         private void RefreshImages()
@@ -157,31 +163,30 @@ namespace ASFT.PageModels
 
             int maxImageSize = ImageLoadSize;
 
-            //foreach (ImagePageModel item in Items)
-            //{
-            //    if (AbortGettingImages) break;
+            // foreach (ImagePageModel item in Items)
+            // {
+            // if (AbortGettingImages) break;
 
-            //    if (item.IsImageUpdate == false)
-            //    {
-            //        string imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, maxImageSize, false).Result;
-            //        if (imgPath.Length == 0)
-            //        {
-            //            Device.BeginInvokeOnMainThread(() =>
-            //            {
-            //                CheckForImagesText = "Downloading picture (image id: " + item.Id + ")";
-            //            });
+            // if (item.IsImageUpdate == false)
+            // {
+            // string imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, maxImageSize, false).Result;
+            // if (imgPath.Length == 0)
+            // {
+            // Device.BeginInvokeOnMainThread(() =>
+            // {
+            // CheckForImagesText = "Downloading picture (image id: " + item.Id + ")";
+            // });
 
-            //            imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, maxImageSize, true).Result;
-            //            GC.Collect();
-            //        }
+            // imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, maxImageSize, true).Result;
+            // GC.Collect();
+            // }
 
-            //        if (imgPath.Length > 0) item.LocalImagePath = imgPath;
-            //    }
-            //}
-
+            // if (imgPath.Length > 0) item.LocalImagePath = imgPath;
+            // }
+            // }
             IsGettingsImages = false;
 
-            Device.BeginInvokeOnMainThread(() => { CheckForImagesText = ""; });
+            Device.BeginInvokeOnMainThread(() => { CheckForImagesText = string.Empty; });
         }
 
         public bool CanExecuteCameraCommand()
@@ -197,7 +202,7 @@ namespace ASFT.PageModels
         public void LoadImages(ObservableCollection<ImageModel> issueImage)
         {
             foreach (ImageModel item in issueImage)
-                Images.Add(new ImageModel { Source = item.Source, OrgImage = item.OrgImage});
+                Images.Add(new ImageModel { Source = item.Source, OrgImage = item.OrgImage });
         }
 
 
@@ -222,7 +227,7 @@ namespace ASFT.PageModels
                 imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
 
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
-                Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes});
+                Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
             }
         }
 
@@ -230,7 +235,7 @@ namespace ASFT.PageModels
         public async Task ExecuteCameraCommand()
         {
             MediaFile file = await CrossMedia.Current.TakePhotoAsync(
-                new StoreCameraMediaOptions {PhotoSize = PhotoSize.Small});
+                new StoreCameraMediaOptions { PhotoSize = PhotoSize.Small });
 
             if (file == null)
                 return;
@@ -250,7 +255,7 @@ namespace ASFT.PageModels
                 imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
 
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
-                Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes});
+                Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
             }
         }
     }

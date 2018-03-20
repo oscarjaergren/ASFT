@@ -1,40 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Acr.UserDialogs;
-using ASFT.IServices;
-using DataTypes.Enums;
-using FreshMvvm;
-using IssueBase.Issue;
-using Plugin.Geolocator;
-using Plugin.Geolocator.Abstractions;
-using Xamarin.Forms;
-
-namespace ASFT.PageModels
+﻿namespace ASFT.PageModels
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
+    using System.IO;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+    using Acr.UserDialogs;
+    using ASFT.IServices;
+    using DataTypes.Enums;
+    using FreshMvvm;
+    using IssueBase.Issue;
+    using Plugin.Geolocator;
+    using Plugin.Geolocator.Abstractions;
+    using Xamarin.Forms;
+
+    [SuppressMessage("ReSharper", "InvertIf")]
+    [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
     public class IssuePageModel : FreshBasePageModel, INotifyPropertyChanged
     {
         #region Model
 
-        public ObservableCollection<ImageModel> Images = new ObservableCollection<ImageModel>();
-        public static INavigation Navigation;
+        private readonly ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel>();
+        private readonly IGeolocator locator;
+
+        private bool isBusy;
+        private string imageText;
+        private string locationText;
+        private double statusUnresolvedOpacity;
+        private double statusInProgressOpacity;
+        private double statusDoneOpacity;
+
+        private ICommand onGoToListCommand;
+        private ICommand submitCommand;
+        private ICommand onStatusClickedCommand;
+
+
+        public event PropertyChangedEventHandler PropertyChanged;  
 
         public IssueModel Issue { get; set; }
 
-        private List<IssueStatusModel> StatusValues { get; set; }
-        private List<IssueSeverityModel> SeverityValues { get; set; }
-        public string StatusText { get; set; }
-        private string imageText;
-        private double statusUnresolvedOpacity;
-        public int Opacity { get; set; }
+        public List<IssueSeverityModel> SeverityValues { get; set; }
 
-        public new event PropertyChangedEventHandler PropertyChanged;
+        public List<IssueStatusModel> StatusValues { get; set; }
+
+        public string StatusText { get; set; }
+
+
+        #region Properties
+
 
         public bool IsBusy
         {
@@ -55,7 +73,6 @@ namespace ASFT.PageModels
                 if (imageText == value) return;
                 imageText = value;
                 NotifyPropertyChanged();
-
             }
         }
 
@@ -65,9 +82,8 @@ namespace ASFT.PageModels
             set
             {
                 Issue.Severity = value;
-                NotifyPropertyChanged("SeverityImagePath");
+                NotifyPropertyChanged($"SeverityImagePath");
                 Issue.Changed = true;
-
             }
         }
 
@@ -79,10 +95,8 @@ namespace ASFT.PageModels
                 Issue.Status = value;
                 NotifyPropertyChanged($"StatusImagePath");
                 Issue.Changed = true;
-
             }
         }
-        private string locationText;
 
         public string LocationText
         {
@@ -103,7 +117,6 @@ namespace ASFT.PageModels
                 Issue.Title = value;
                 NotifyPropertyChanged();
                 Issue.Changed = true;
-
             }
         }
 
@@ -116,7 +129,6 @@ namespace ASFT.PageModels
                 Issue.CreatedBy = value;
                 NotifyPropertyChanged();
                 Issue.Changed = true;
-
             }
         }
 
@@ -129,7 +141,6 @@ namespace ASFT.PageModels
                 Issue.Created = value;
                 NotifyPropertyChanged();
                 Issue.Changed = true;
-
             }
         }
 
@@ -143,11 +154,6 @@ namespace ASFT.PageModels
                 NotifyPropertyChanged();
                 Issue.Changed = true;
             }
-        }
-
-        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public double StatusUnresolvedOpacity
@@ -171,7 +177,7 @@ namespace ASFT.PageModels
                 if (statusInProgressOpacity != value)
                 {
                     statusInProgressOpacity = value;
-                    NotifyPropertyChanged(nameof(StatusUnresolvedOpacity));
+                    NotifyPropertyChanged(nameof(StatusInProgressOpacity));
                 }
             }
         }
@@ -184,54 +190,29 @@ namespace ASFT.PageModels
                 if (statusDoneOpacity != value)
                 {
                     statusDoneOpacity = value;
-                    NotifyPropertyChanged(nameof(StatusUnresolvedOpacity));
+                    NotifyPropertyChanged(nameof(StatusDoneOpacity));
                 }
             }
         }
-        public string StatusDone
-        {
-            get { return "statusDone.png"; }
-        }
-
-        public string StatusInProgress
-        {
-            get { return "statusInProgress.png"; }
-        }
-
-        public string StatusUnresolved
-        {
-            get { return "statusUnresolved.png"; }
-        }
+        #endregion
 
 
         #region Command
 
 
-        private ICommand onGoToListCommand = null;
-        private ICommand submitCommand = null;
-        private ICommand onStatusClickedCommand = null;
-        private double statusDoneOpacity;
-        private double statusInProgressOpacity;
-        private bool isBusy;
-
-        public bool IsStatusUnresolvedActive { get; set; }
-
         public ICommand OnStatusClickedCommand
         {
             get
             {
-                if (onStatusClickedCommand == null)
-                    onStatusClickedCommand = new Command<object>(OnStatusTappeds);
-                return onStatusClickedCommand;
+                return onStatusClickedCommand ?? (onStatusClickedCommand = new Command<object>(OnStatusTapped));
             }
         }
+
         public ICommand OnGoToListCommand
         {
             get
             {
-                if (onGoToListCommand == null)
-                    onGoToListCommand = new Command(OnGoToList);
-                return onGoToListCommand;
+                return onGoToListCommand ?? (onGoToListCommand = new Command(OnGoToList));
             }
         }
 
@@ -239,76 +220,34 @@ namespace ASFT.PageModels
         {
             get
             {
-                if (submitCommand == null)
-                    submitCommand = new Command(OnSubmit);
-                return submitCommand;
+                return submitCommand ?? (submitCommand = new Command(OnSubmit));
             }
         }
 
-
-
-
         #endregion
-
 
         #endregion
 
         #region Onstart
 
-        public IssueModel CreateIssueModel()
-        {
-            return new IssueModel()
-            {
-                LocationId = 0,
-                ServerId = 0,
-                Title = "",
-                Description = "",
-                Longitude = 0,
-                Latitude = 0,
-                CreatedBy = "",
-                IsNewIssue = true,
-                Created = DateTime.Now,
-                Edited = DateTime.Now,
-            };
-        }
-
-        private IGeolocator Locator;
         public IssuePageModel()
         {
             Issue = CreateIssueModel();
             StatusValues = Issue.PossibleStatusValues;
             SeverityValues = Issue.PossibleSeverityValues;
-            Locator = CrossGeolocator.Current;
+            locator = CrossGeolocator.Current;
             if (!Issue.IsNewIssue) return;
             TitleEx = "New Event";
             GetLocation();
-            CreatedByEx = App.Client.GetCurrentUsername();
             SeverityEx = IssueSeverity.Medium;
-            StatusEx = IssueStatus.Done;
-        }
+            StatusEx = IssueStatus.InProgress;
 
-        private async void GetLocation()
-        {
-            if (isBusy == true) return;
-            isBusy = true;
-            try
-            {
-                TimeSpan timeSpan = TimeSpan.FromTicks(120 * 1000);
-                Position position = await Locator.GetPositionAsync(timeSpan);
-                Issue.Latitude = position.Latitude;
-                Issue.Longitude = position.Longitude;
-            }
-            catch (Exception exception)
-            {
-                isBusy = false;
-                Debug.Write(exception);
-            }
-            isBusy = false;
+            StatusChecker();
         }
 
         public override void Init(object initData)
         {
-            UserDialogs.Instance.ShowLoading("Loading event...", maskType: MaskType.Clear);
+            UserDialogs.Instance.ShowLoading("Loading event...", MaskType.Clear);
             base.Init(initData);
             if (initData is IssueModel issue)
             {
@@ -316,7 +255,25 @@ namespace ASFT.PageModels
                 if (Issue.ServerId != 0) GetImages(issue.ServerId);
                 Issue.LocationId = App.Client.GetCurrentLocationId();
             }
+
             UserDialogs.Instance.HideLoading();
+        }
+
+        public IssueModel CreateIssueModel()
+        {
+            return new IssueModel
+            {
+                LocationId = 0,
+                ServerId = 0,
+                Title = string.Empty,
+                Description = string.Empty,
+                Longitude = 0,
+                Latitude = 0,
+                CreatedBy = string.Empty,
+                IsNewIssue = true,
+                Created = DateTime.Now,
+                Edited = DateTime.Now
+            };
         }
 
         protected override async void ViewIsAppearing(object sender, EventArgs e)
@@ -331,9 +288,40 @@ namespace ASFT.PageModels
             CreatedByEx = App.Client.GetCurrentUsername();
         }
 
+        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")  
+        {  
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));  
+        }  
+
+        private async void GetLocation()
+        {
+            if (isBusy) return;
+            isBusy = true;
+            try
+            {
+                TimeSpan timeSpan = TimeSpan.FromTicks(120 * 1000);
+                Position position = await this.locator.GetPositionAsync(timeSpan);
+                Issue.Latitude = position.Latitude;
+                Issue.Longitude = position.Longitude;
+            }
+            catch (Exception exception)
+            {
+                isBusy = false;
+                Debug.WriteLine(exception);
+            }
+
+            isBusy = false;
+        }
+
         private async Task ShowLoginPage()
         {
             await CoreMethods.PushPageModel<LoginPageModel>();
+        }
+
+        private async void OnGoToList()
+        {
+            int locationId = App.Client.GetCurrentLocationId();
+            await CoreMethods.PushPageModel<IssueListPageModel>(locationId);
         }
 
         #endregion
@@ -357,65 +345,32 @@ namespace ASFT.PageModels
                 case IssueStatus.Done:
                     StatusUnresolvedOpacity = 0.5;
                     StatusInProgressOpacity = 0.5;
-                    statusDoneOpacity = 1;
+                    StatusDoneOpacity = 1;
                     StatusText = "Done";
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
-        public void OnStatusTapped(string fileName)
+        private void OnStatusTapped(object fileName)
         {
             foreach (IssueStatusModel item in StatusValues)
             {
-                if (item.Name != fileName) continue;
-                Issue.Status = item.Status;
-                StatusChecker();
-                return;
-            }
-        }
-
-        public void OnStatusTappeds(object sender)
-        {
-            StatusUnresolvedOpacity = 0.5;
-            StatusInProgressOpacity = 0.5;
-            statusDoneOpacity = 0.5;
-
-            Image image = (Image)sender;
-            image.Opacity = 1;
-
-            var buttons = new string[StatusValues.Count];
-            for (int n = 0; n < StatusValues.Count; ++n)
-            {
-                buttons[n] = StatusValues[n].Name;
-            }
-
-            if (!(image.Source is FileImageSource fileImageSource)) return;
-            string fileName = fileImageSource.File;
-            foreach (IssueStatusModel item in StatusValues)
-            {
-                if (item.Name == fileName)
+                if (item.Name == (string)fileName)
                 {
-                    Issue.StatusEx = item.Status;
+                    Issue.Status = item.Status;
                     StatusChecker();
                     return;
                 }
+
             }
         }
-
-        public void ResetOpacities()
-        {
-            StatusUnresolvedOpacity = 0.5;
-            StatusInProgressOpacity = 0.5;
-            statusDoneOpacity = 0.5;
-        }
-
-
 
         #region Save
 
         private async void OnSubmit()
         {
-
             if (isBusy) return;
             IsBusy = true;
 
@@ -425,13 +380,13 @@ namespace ASFT.PageModels
             if (saved)
             {
                 UserDialogs.Instance.Toast("Issue has been uploaded");
-                var imagesinCollection = Images;
+                var imagesinCollection = this.images;
 
                 foreach (ImageModel image in imagesinCollection)
                 {
-                    UserDialogs.Instance.Toast("Uploading" + image.ImageId.ToString());
+                    UserDialogs.Instance.Toast("Uploading" + image.ImageId);
                     image.FileName = image.ImageId.ToString();
-                    await App.Client.PhotoUpload(Issue.ServerId, OnCallback_UploadImage, image.OrgImage, image.FileName);
+                    await App.Client.PhotoUpload(Issue.ServerId, this.OnCallbackUploadImage, image.OrgImage, image.FileName);
                 }
             }
             else
@@ -439,14 +394,12 @@ namespace ASFT.PageModels
                 UserDialogs.Instance.Toast("Issue has been failed");
                 UserDialogs.Instance.Alert("Save Failed", "Save failed", "OK");
             }
+
             UserDialogs.Instance.Toast("Issue has been failed");
             IsBusy = false;
         }
 
-
-
-
-        protected async Task<bool> SaveChanges()
+        private async Task<bool> SaveChanges()
         {
             try
             {
@@ -458,69 +411,75 @@ namespace ASFT.PageModels
                 return false;
             }
         }
+
         #endregion
 
 
         #region Images
 
-        protected void OnCallback_UploadImage(UploadImageEvent eventId, int imageId)
+        private void OnCallbackUploadImage(UploadImageEvent eventId, int imageId)
         {
             switch (eventId)
             {
                 case UploadImageEvent.ImageUploading:
-                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() => { ImageText = "Uploading Image..."; });
+                    Device.BeginInvokeOnMainThread(() => { ImageText = "Uploading Image..."; });
                     break;
                 case UploadImageEvent.ImageUploadFailed:
-                    Xamarin.Forms.Device.BeginInvokeOnMainThread(() => { ImageText = "Failed to upload image"; });
+                    Device.BeginInvokeOnMainThread(() => { ImageText = "Failed to upload image"; });
                     break;
                 case UploadImageEvent.ImageUploadSucess:
                     ImageModel newimage = App.Client.GetImageInfo(imageId);
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         ImageText = "Image Uploaded successful";
-                        Images.Add(newimage);
+                        this.images.Add(newimage);
                         App.Client.RunInBackground(RefreshImages);
                     });
+                    break;
+                case UploadImageEvent.ImageCaptured:
                     break;
             }
         }
 
         private void RefreshImages()
         {
-            int maxImageSize = Int32.MaxValue;
-            if (Images.Count == 0) return;
+            const int MaxImageSize = int.MaxValue;
+            if (images.Count == 0) return;
 
-            foreach (ImageModel item in Images)
+            foreach (ImageModel item in this.images)
             {
                 if (IsBusy) return;
 
-                if (item.IsImageUpdate != false) continue;
-                string imgPath = App.Client.GetThumbnail(item.ImageIssueId, item.ImageIssueId, maxImageSize, false).Result;
+                if (item.IsImageUpdate) continue;
+                string imgPath = App.Client.GetThumbnail(item.ImageIssueId, item.ImageIssueId, MaxImageSize, false)
+                    .Result;
                 if (imgPath.Length == 0)
                 {
-                    Xamarin.Forms.Device.BeginInvokeOnMainThread((Action)(() =>
-                    {
-                        ImageText = "Downloading picture (image id: " + item.ImageId.ToString() + ")";
-                    }));
+                    Device.BeginInvokeOnMainThread(() =>
+                        {
+                            this.ImageText = "Downloading picture (image id: " + item.ImageId + ")";
+                        });
 
-                    imgPath = App.Client.GetThumbnail(item.ImageIssueId, item.ImageIssueId, maxImageSize, true).Result;
+                    imgPath = App.Client.GetThumbnail(item.ImageIssueId, item.ImageIssueId, MaxImageSize, true).Result;
                     GC.Collect();
                 }
+
                 if (imgPath.Length <= 0) continue;
                 item.FileName = imgPath;
             }
+
             IsBusy = false;
-            Device.BeginInvokeOnMainThread(() => { ImageText = ""; });
+            Device.BeginInvokeOnMainThread(() => { ImageText = string.Empty; });
         }
 
-        protected void GetImages(int issueId)
+        private void GetImages(int issueId)
         {
             if (IsBusy) return;
             IsBusy = true;
 
             try
             {
-                Images.Clear();
+                this.images.Clear();
 
                 var imageList = App.Client.GetImages(issueId);
                 foreach (ImageModel image in imageList)
@@ -535,9 +494,9 @@ namespace ASFT.PageModels
                         imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
 
                         ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
-                        Images.Add(new ImageModel() { Source = imageSource, OrgImage = imageAsBytes });
-                        //imageGalleryViewModel.LoadImages(Images);
+                        this.images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
 
+                        // imageGalleryViewModel.LoadImages(Images);
                     }
                 }
             }
@@ -546,14 +505,8 @@ namespace ASFT.PageModels
                 Debug.WriteLine(exception);
             }
         }
+
         #endregion
-
-
-        private async void OnGoToList()
-        {
-            int locationId = App.Client.GetCurrentLocationId();
-            await CoreMethods.PushPageModel<IssueListPageModel>(locationId);
-        }
     }
 }
 

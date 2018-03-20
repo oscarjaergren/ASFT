@@ -1,17 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Acr.UserDialogs;
-using FreshMvvm;
-using IssueBase.Location;
-using IssueManagerApiClient;
-using Xamarin.Forms;
-using LoginPage = ASFT.Pages.LoginPage;
-
-namespace ASFT.PageModels
+﻿namespace ASFT.PageModels
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+
+    using Acr.UserDialogs;
+
+    using ASFT.Pages;
+
+    using FreshMvvm;
+
+    using IssueBase.Location;
+
+    using IssueManagerApiClient;
+
+    using Xamarin.Forms;
+
     public class HomePageModel : FreshBasePageModel, INotifyPropertyChanged
     {
         private readonly int nCurrentLocation = -1;
@@ -19,16 +25,17 @@ namespace ASFT.PageModels
         {
             nCurrentLocation = App.Client.GetCurrentLocationId();
         }
+
         private void UpdateUi()
         {
             string currentLocation = App.Client.GetCurrentLocationName();
             string currentUsername = App.Client.GetCurrentUsername();
 
-            currentUsername = App.Client.LoggedIn == true ? String.Format("Logged in as : {0}", currentUsername) : String.Format("Logged in as : (Not logged in)");
+            currentUsername = App.Client.LoggedIn ? string.Format("Logged in as : {0}", currentUsername) : "Logged in as : (Not logged in)";
 
-            currentLocation = String.Format("Current Location : {0}", currentLocation);
+            currentLocation = string.Format("Current Location : {0}", currentLocation);
 
-            loginLogOutText = App.Client.LoggedIn == true ? "Log out" : "Log in";
+            loginLogOutText = App.Client.LoggedIn ? "Log out" : "Log in";
 
         }
 
@@ -104,6 +111,7 @@ namespace ASFT.PageModels
             {
                 await App.Client.Init();
             }
+
             UpdateUi();
         }
 
@@ -123,7 +131,7 @@ namespace ASFT.PageModels
 
         private async void OnShowLoginUpdate()
         {
-            MessagingCenter.Subscribe<LoginPage>(this, "OnLoginPageClosed", (sender) =>
+            MessagingCenter.Subscribe<LoginPage>(this, "OnLoginPageClosed", sender =>
             {
                 MessagingCenter.Unsubscribe<LoginPage>(this, "OnLoginPageClosed");
                 UpdateUi();
@@ -212,8 +220,8 @@ namespace ASFT.PageModels
                 if (App.Client.GetCurrentLocationId() == -1)
                     return;
 
-                //IssuePage page = new IssueViewModel(App.Client.GetCurrentLocationId());
-                //await Navigation.PushModalAsync(page, true);
+                // IssuePage page = new IssueViewModel(App.Client.GetCurrentLocationId());
+                // await Navigation.PushModalAsync(page, true);
             }
             catch (Exception)
             {
@@ -222,10 +230,11 @@ namespace ASFT.PageModels
             }
 
         }
+
         private void SelectLocation()
         {
-            //IssueCarouselPage page = new IssueCarouselPage(new UIIssueVM(true));
-            //Navigation.PushModalAsync(page, true);
+            // IssueCarouselPage page = new IssueCarouselPage(new UIIssueVM(true));
+            // Navigation.PushModalAsync(page, true);
         }
 
 
@@ -239,11 +248,11 @@ namespace ASFT.PageModels
                     buttons[n] = locations[n].Id + " - " + locations[n].Name;
                 }
 
-                string res = await CoreMethods.DisplayActionSheet("Pick Location", "Cancel", "", buttons);
+                string res = await CoreMethods.DisplayActionSheet("Pick Location", "Cancel", string.Empty, buttons);
                 if (res == "Cancel")
                     return;
 
-                string locationName = "";
+                string locationName = string.Empty;
                 int id = Convert.ToInt32(res.Substring(0, 2));
                 int pos = res.IndexOf('-');
                 if (pos > 0)

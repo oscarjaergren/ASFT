@@ -1,15 +1,19 @@
-﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using ASFT.Models;
-using FreshMvvm;
-using IssueManagerApiClient;
-using Xamarin.Forms;
-
-namespace ASFT.PageModels
+﻿namespace ASFT.PageModels
 {
+    using System;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+
+    using ASFT.Models;
+
+    using FreshMvvm;
+
+    using IssueManagerApiClient;
+
+    using Xamarin.Forms;
+
     public class LoginPageModel : FreshBasePageModel, INotifyPropertyChanged
     {
         private readonly ICommand loginCommand = null;
@@ -69,7 +73,7 @@ namespace ASFT.PageModels
 
         private async void DoLoginAsync()
         {
-            string errorMsg = "";
+            string errorMsg = string.Empty;
             bool bSuccess = await Task.Run(() =>
             {
                 try

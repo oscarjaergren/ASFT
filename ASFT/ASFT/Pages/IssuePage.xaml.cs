@@ -25,7 +25,6 @@ namespace ASFT.Pages
 
             mapView.SetBinding(TKCustomMap.PinSelectedCommandProperty, "PinSelectedCommand");
             mapView.SetBinding(TKCustomMap.SelectedPinProperty, "SelectedPin");
-            mapView.SetBinding(TKCustomMap.PinDragEndCommandProperty, "DragEndCommand");
             mapView.SetBinding(TKCustomMap.MapRegionProperty, "MapRegion");
             mapView.SetBinding(TKCustomMap.TilesUrlOptionsProperty, "TilesUrlOptions");
             mapView.SetBinding(TKCustomMap.MapFunctionsProperty, "MapFunctions");

@@ -1,21 +1,25 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Plugin.Geolocator;
-using Plugin.Geolocator.Abstractions;
-using TK.CustomMap;
-using TK.CustomMap.Api;
-using TK.CustomMap.Api.Google;
-using TK.CustomMap.Api.OSM;
-using TK.CustomMap.Interfaces;
-using TK.CustomMap.Overlays;
-using Xamarin.Forms;
-using Position = TK.CustomMap.Position;
-
-namespace ASFT.PageModels
+﻿namespace ASFT.PageModels
 {
+    using System;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Threading.Tasks;
+    using System.Windows.Input;
+
+    using Plugin.Geolocator;
+    using Plugin.Geolocator.Abstractions;
+
+    using TK.CustomMap;
+    using TK.CustomMap.Api;
+    using TK.CustomMap.Api.Google;
+    using TK.CustomMap.Api.OSM;
+    using TK.CustomMap.Interfaces;
+    using TK.CustomMap.Overlays;
+
+    using Xamarin.Forms;
+
+    using Position = TK.CustomMap.Position;
+
     public class TkMapPageModel : INotifyPropertyChanged
     {
 
@@ -36,11 +40,13 @@ namespace ASFT.PageModels
             get
             {
                 return tileUrlOptions;
-                //return new TKTileUrlOptions(
-                //    "http://a.basemaps.cartocdn.com/dark_all/{2}/{0}/{1}.png", 256, 256, 0, 18);
-                //return new TKTileUrlOptions(
-                //    "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
+
+                // return new TKTileUrlOptions(
+                // "http://a.basemaps.cartocdn.com/dark_all/{2}/{0}/{1}.png", 256, 256, 0, 18);
+                // return new TKTileUrlOptions(
+                // "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
             }
+
             set
             {
                 if (tileUrlOptions != value)
@@ -209,6 +215,7 @@ namespace ASFT.PageModels
                                 MapCenter = details.Coordinate;
                                 break;
                             }
+
                         case Device.iOS:
                             {
                                 TKNativeiOSPlaceResult prediction = (TKNativeiOSPlaceResult)p;
@@ -225,7 +232,7 @@ namespace ASFT.PageModels
         {
             get
             {
-                return new Command<TKCustomMapPin>((TKCustomMapPin pin) =>
+                return new Command<TKCustomMapPin>(pin =>
                 {
                     MapRegion = MapSpan.FromCenterAndRadius(SelectedPin.Position, Distance.FromKilometers(1));
                 });
@@ -251,7 +258,7 @@ namespace ASFT.PageModels
 
         public ICommand InitMapCommand
         {
-            get { return initMapCommand ?? new Command((async () => await GetCurrentLocationAsync())); }
+            get { return initMapCommand ?? new Command(async () => await GetCurrentLocationAsync()); }
         }
 
         private void AddPin(Position position)
@@ -284,9 +291,9 @@ namespace ASFT.PageModels
                     AddPin(x);
 
                     // Update Issue Position
-                    //Issue.Latitude = position.Latitude;
-                    //Issue.Longitude = position.Longitude;
-                    //Changed = true;
+                    // Issue.Latitude = position.Latitude;
+                    // Issue.Longitude = position.Longitude;
+                    // Changed = true;
 
                     // Update Pin Postion
                     UpdateGpsLocationText(x);
@@ -326,6 +333,7 @@ namespace ASFT.PageModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }

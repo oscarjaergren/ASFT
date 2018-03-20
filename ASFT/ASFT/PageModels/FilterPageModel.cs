@@ -1,12 +1,17 @@
-﻿using System;
-using System.Windows.Input;
-using Acr.UserDialogs;
-using ASFT.Client;
-using FreshMvvm;
-using Xamarin.Forms;
-
-namespace ASFT.PageModels
+﻿namespace ASFT.PageModels
 {
+    using System;
+    using System.Threading;
+    using System.Windows.Input;
+
+    using Acr.UserDialogs;
+
+    using ASFT.Client;
+
+    using FreshMvvm;
+
+    using Xamarin.Forms;
+
     public class FilterPageModel : FreshBasePageModel
     {
         private const string SortAscending = "Ascending (A-Z)";
@@ -19,6 +24,7 @@ namespace ASFT.PageModels
             UpdateSortByButton();
             UpdateSortOrderButton();
         }
+
         private readonly ICommand onClickSortByCommand = null;
         private readonly ICommand onClickSortOrderCommand = null;
 
@@ -52,8 +58,8 @@ namespace ASFT.PageModels
 
         public async void OnClickSortBy()
         {
-            System.Threading.CancellationToken token = new System.Threading.CancellationToken();
-            string res = await UserDialogs.Instance.ActionSheetAsync("Sort Order", "Cancel", "", token, "Date", "Title", "Status", "Severity");
+            CancellationToken token = new CancellationToken();
+            string res = await UserDialogs.Instance.ActionSheetAsync("Sort Order", "Cancel", string.Empty, token, "Date", "Title", "Status", "Severity");
 
 
             if (res.Length > 0 && res != "Cancel")
@@ -61,10 +67,11 @@ namespace ASFT.PageModels
 
             UpdateSortByButton();
         }
+
         public async void OnClickSortOrder()
         {
-            System.Threading.CancellationToken token = new System.Threading.CancellationToken();
-            string res = await UserDialogs.Instance.ActionSheetAsync("Sort Order", "Cancel", "", token, SortAscending, SortDescending);
+            CancellationToken token = new CancellationToken();
+            string res = await UserDialogs.Instance.ActionSheetAsync("Sort Order", "Cancel", string.Empty, token, SortAscending, SortDescending);
             if (res.Length <= 0 || res == "Cancel") return;
             Filtering.SortAscending = res == SortAscending;
 
@@ -77,14 +84,15 @@ namespace ASFT.PageModels
             {
                 App.Client.GetFilteringAndSorting().SetFrom(Filtering);
                 App.Client.SaveFiltering();
+
                 // Bad solution
                 App.Client.FilteringChanged = true;
-
             }
             else
             {
                 App.Client.FilteringChanged = false;
             }
+
             MessagingCenter.Send(this, "OnFilterPageReturned");
         }
 
