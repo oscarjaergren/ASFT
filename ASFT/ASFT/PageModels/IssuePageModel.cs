@@ -324,7 +324,7 @@
             {
                 Issue = issue;
                 if (Issue.ServerId != 0) GetImages(issue.ServerId);
-                Issue.LocationId = App.Client.GetCurrentLocationId();
+                //Issue.LocationId = App.Client.GetCurrentLocationId();
             }
 
             UserDialogs.Instance.HideLoading();

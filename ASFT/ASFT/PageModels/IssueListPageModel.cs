@@ -4,43 +4,64 @@
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Windows.Input;
-
     using Acr.UserDialogs;
-
     using FreshMvvm;
-
     using IssueBase.Issue;
-
     using IssueManagerApiClient;
-
     using Xamarin.Forms;
 
     public class IssueListPageModel : FreshBasePageModel
     {
         public ObservableCollection<IssueModel> Issues { get; set; }
 
+        public ICommand PullRefreshCommand
+        {
+            get
+            {
+                return new Command(OnPullRefresh, () => IsBusy == false);
+            }
+        }
+
+        public ICommand OnSelectedIssueCommand
+        {
+            get
+            {
+                return onSelectIssueCommand ?? new Command<object>(OnIssueSelected);
+            }
+        }
+
+        public ICommand DeleteIssueCommand
+        {
+            get
+            {
+                return deleteIssueCommand ?? new Command<object>(OnDelete);
+            }
+        }
+
+        private readonly ICommand onSelectIssueCommand = null;
+        private readonly ICommand deleteIssueCommand = null;
+
+        private bool IsBusy { get; set; }
+
         private int LocationId { get; set; }
 
         private bool RefeshNeeded { get; set; }
 
-        public bool IsBusy { get; set; }
 
         public IssueListPageModel()
         {
-            // Title = "Events";
             RefeshNeeded = true;
             Issues = new ObservableCollection<IssueModel>();
         }
 
         public override void Init(object initData)
         {
+            base.Init(initData);
+
             if (initData is int i)
             {
                 LocationId = i;
-                initData = LocationId;
             }
-
-            base.Init(initData);
         }
 
         public async void OnPullRefresh()
@@ -50,12 +71,22 @@
             IsBusy = false;
         }
 
+
+
+        protected override async void ViewIsAppearing(object sender, EventArgs e)
+        {
+            if (App.Client.Initilized == false) await App.Client.Init();
+            App.Client.RunInBackground(ShowIssuesFromCurrentLocation);
+            await OnRefreshContent();
+
+        }
+
         private async Task<bool> OnRefreshContent()
         {
             Issues.Clear();
             if (LocationId == -1 || App.Client.LoggedIn == false)
             {
-                return false;
+                //await App.Client.ShowSelectLocation();
             }
 
             return await Task.Run(
@@ -63,7 +94,7 @@
                            {
                                try
                                {
-                                   UserDialogs.Instance.ShowLoading("Loading events...", maskType: MaskType.Clear);
+                                   UserDialogs.Instance.ShowLoading("Loading events...", MaskType.Clear);
 
                                    var items = App.Client.GetIssues(LocationId);
                                    foreach (IssueModel Item in items)
@@ -95,14 +126,7 @@
                            });
         }
 
-        protected override async void ViewIsAppearing(object sender, EventArgs e)
-        {
-            if (App.Client.Initilized == false) await App.Client.Init();
-            await OnRefreshContent();
-            App.Client.RunInBackground(ShowIssuesFromCurrentLocation);
-        }
-
-        protected async void ShowIssuesFromCurrentLocation()
+        private async void ShowIssuesFromCurrentLocation()
         {
             if (LocationId == -1)
             {
@@ -119,19 +143,8 @@
             }
         }
 
-        private async void OnClickLoginLocation(object s, EventArgs e)
+        private async void OnClickLoginLocation(object s)
         {
-            MessagingCenter.Subscribe<HomePageModel>(
-                this,
-                "LocationChanged",
-                sender =>
-                    {
-                        MessagingCenter.Unsubscribe<HomePageModel>(this, "LocationChanged");
-                        LocationId = -1;
-                        RefeshNeeded = true;
-                        ShowIssuesFromCurrentLocation();
-                    });
-
             await CoreMethods.PushPageModel<HomePageModel>();
         }
 
@@ -166,40 +179,7 @@
             await CoreMethods.PushPageModel<FilterPageModel>();
         }
 
-        // async void OnClickShowMap(object s, EventArgs e)
-        // {
-        // IssueMap page = new IssueMap(Issues.ToList(), App.Client.GetCurrentGeoLocation());
-        // await CoreMethods.PushPageModel(page, true);
-        // }
-        public ICommand PullRefreshCommand
-        {
-            get
-            {
-                return new Command(OnPullRefresh, () => IsBusy == false);
-            }
-        }
-
-        public ICommand OnSelectedIssueCommand
-        {
-            get
-            {
-                return onSelectIssueCommand ?? new Command<object>(OnIssueSelected);
-            }
-        }
-
-        public ICommand DeleteIssueCommand
-        {
-            get
-            {
-                return deleteIssueCommand ?? new Command<object>(OnDelete);
-            }
-        }
-
-        private readonly ICommand onSelectIssueCommand = null;
-
-        private readonly ICommand deleteIssueCommand = null;
-
-        public async void OnIssueSelected(object eventArgs)
+        private async void OnIssueSelected(object eventArgs)
         {
             if (!(eventArgs is IssueModel selectedItem)) return;
             if (selectedItem is IssueModel item)
@@ -209,7 +189,7 @@
             }
         }
 
-        public async void OnDelete(object sender)
+        private async void OnDelete(object sender)
         {
             MenuItem mi = (MenuItem)sender;
             if (mi.BindingContext is IssueModel issue)
