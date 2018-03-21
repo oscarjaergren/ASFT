@@ -16,7 +16,9 @@
     {
         private const string SortAscending = "Ascending (A-Z)";
         private const string SortDescending = "Descending (Z-A)";
+
         public FilteringAndSorting Filtering { get; set; }
+
         public FilterPageModel()
         {
             Filtering = new FilteringAndSorting(App.Client.GetFilteringAndSorting());

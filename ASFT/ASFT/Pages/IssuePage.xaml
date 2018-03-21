@@ -140,45 +140,45 @@
                            HorizontalOptions="StartAndExpand" Style="{StaticResource Labelfont}"  />
 
                     <StackLayout Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalOptions="Center">
-                        <Image Source="severity_5.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                        <Image Source="severity_5.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="{Binding Severity5Opacity}">
                             <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" />
+                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}"  CommandParameter="severity_5.png" />
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="1">
                         <Image Source="severity_4.png" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding Severity4Opacity}">
                             <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" />
+                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" CommandParameter="severity_4.png"  />
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="2">
                         <Image Source="severity_3.png" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding Severity3Opacity}">
                             <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" />
+                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" CommandParameter="severity_3.png"  />
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="3">
                         <Image Source="severity_2.png" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding Severity2Opacity}">
                             <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" />
+                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" CommandParameter="severity_2.png" />
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="4">
                         <Image Source="severity_1.png" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="0.5">
+                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding Severity1Opacity}">
                             <Image.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" />
+                                <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" CommandParameter="severity_1.png" />
                             </Image.GestureRecognizers>
                         </Image>
                     </StackLayout>

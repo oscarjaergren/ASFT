@@ -34,13 +34,18 @@
         private double statusUnresolvedOpacity;
         private double statusInProgressOpacity;
         private double statusDoneOpacity;
+        private double severity5Opacity;
+        private double severity4Opacity;
+        private double severity3Opacity;
+        private double severity2Opacity;
+        private double severity1Opacity;
 
         private ICommand onGoToListCommand;
         private ICommand submitCommand;
         private ICommand onStatusClickedCommand;
 
 
-        public event PropertyChangedEventHandler PropertyChanged;  
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public IssueModel Issue { get; set; }
 
@@ -155,6 +160,71 @@
                 Issue.Changed = true;
             }
         }
+        #region Opacity Properties
+        public double Severity5Opacity
+        {
+            get { return severity5Opacity; }
+            set
+            {
+                if (severity5Opacity != value)
+                {
+                    severity5Opacity = value;
+                    NotifyPropertyChanged(nameof(Severity5Opacity));
+                }
+            }
+        }
+
+        public double Severity4Opacity
+        {
+            get { return severity4Opacity; }
+            set
+            {
+                if (severity4Opacity != value)
+                {
+                    severity4Opacity = value;
+                    NotifyPropertyChanged(nameof(Severity4Opacity));
+                }
+            }
+        }
+
+        public double Severity3Opacity
+        {
+            get { return severity3Opacity; }
+            set
+            {
+                if (severity3Opacity != value)
+                {
+                    severity3Opacity = value;
+                    NotifyPropertyChanged(nameof(Severity3Opacity));
+                }
+            }
+        }
+
+        public double Severity2Opacity
+        {
+            get { return severity2Opacity; }
+            set
+            {
+                if (severity2Opacity != value)
+                {
+                    severity2Opacity = value;
+                    NotifyPropertyChanged(nameof(Severity2Opacity));
+                }
+            }
+        }
+
+        public double Severity1Opacity
+        {
+            get { return severity1Opacity; }
+            set
+            {
+                if (severity1Opacity != value)
+                {
+                    severity1Opacity = value;
+                    NotifyPropertyChanged(nameof(Severity1Opacity));
+                }
+            }
+        }
 
         public double StatusUnresolvedOpacity
         {
@@ -194,6 +264,7 @@
                 }
             }
         }
+        #endregion
         #endregion
 
 
@@ -288,10 +359,10 @@
             CreatedByEx = App.Client.GetCurrentUsername();
         }
 
-        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")  
-        {  
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));  
-        }  
+        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         private async void GetLocation()
         {
@@ -351,6 +422,46 @@
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            switch (Issue.Severity)
+            {
+                case IssueSeverity.Lowest:
+                    Severity1Opacity = 1;
+                    Severity2Opacity = 0.5;
+                    Severity3Opacity = 0.5;
+                    Severity4Opacity = 0.5;
+                    Severity5Opacity = 0.5;
+                    break;
+                case IssueSeverity.Low:
+                    Severity1Opacity = 0.5;
+                    Severity2Opacity = 1;
+                    Severity3Opacity = 0.5;
+                    Severity4Opacity = 0.5;
+                    Severity5Opacity = 0.5;
+                    break;
+                case IssueSeverity.Medium:
+                    Severity1Opacity = 0.5;
+                    Severity2Opacity = 0.5;
+                    Severity3Opacity = 1;
+                    Severity4Opacity = 0.5;
+                    Severity5Opacity = 0.5;
+                    break;
+                case IssueSeverity.High:
+                    Severity1Opacity = 0.5;
+                    Severity2Opacity = 0.5;
+                    Severity3Opacity = 0.5;
+                    Severity4Opacity = 1;
+                    Severity5Opacity = 0.5;
+                    break;
+                case IssueSeverity.Highest:
+                    Severity1Opacity = 0.5;
+                    Severity2Opacity = 0.5;
+                    Severity3Opacity = 0.5;
+                    Severity4Opacity = 0.5;
+                    Severity5Opacity = 1;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         private void OnStatusTapped(object fileName)
@@ -363,7 +474,16 @@
                     StatusChecker();
                     return;
                 }
+            }
 
+            foreach (IssueSeverityModel item in SeverityValues)
+            {
+                if (item.Name == (string)fileName)
+                {
+                    Issue.Severity = item.Severity;
+                    StatusChecker();
+                    return;
+                }
             }
         }
 
