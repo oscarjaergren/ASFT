@@ -3,29 +3,29 @@
     using System;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Threading.Tasks;
     using System.Windows.Input;
-
+    using IssueBase.Issue;
     using Plugin.Geolocator;
     using Plugin.Geolocator.Abstractions;
-
     using TK.CustomMap;
     using TK.CustomMap.Api;
     using TK.CustomMap.Api.Google;
     using TK.CustomMap.Api.OSM;
     using TK.CustomMap.Interfaces;
     using TK.CustomMap.Overlays;
-
     using Xamarin.Forms;
-
     using Position = TK.CustomMap.Position;
 
     public class TkMapPageModel : INotifyPropertyChanged
     {
 
         #region Model
-        private TKTileUrlOptions tileUrlOptions;
 
+        private readonly Random random = new Random(1984);
+
+        private TKTileUrlOptions tileUrlOptions;
         private MapSpan mapRegion = MapSpan.FromCenterAndRadius(new Position(56.8790, 14.8059), Distance.FromKilometers(2));
         private Position mapCenter;
         private TKCustomMapPin selectedPin;
@@ -33,7 +33,6 @@
         private ObservableCollection<TKCustomMapPin> pins;
         private ObservableCollection<TKCircle> circles;
         private ObservableCollection<TKPolyline> lines;
-        private readonly Random random = new Random(1984);
 
         public TKTileUrlOptions TilesUrlOptions
         {
@@ -98,7 +97,7 @@
                 }
             }
         }
-        
+
         public ObservableCollection<TKCircle> Circles
         {
             get { return circles; }
@@ -123,7 +122,7 @@
                 }
             }
         }
-      
+
         public Position MapCenter
         {
             get { return mapCenter; }
@@ -255,6 +254,8 @@
 
 
 
+        private IssueModel Issue;
+
 
         public ICommand InitMapCommand
         {
@@ -277,8 +278,6 @@
         {
             try
             {
-                IGeolocator geolocator = CrossGeolocator.Current;
-
                 MapText = "Searching for GPS location...";
 
                 Plugin.Geolocator.Abstractions.Position position = await geolocator.GetPositionAsync(TimeSpan.FromSeconds(10));
@@ -290,18 +289,13 @@
                     mapRegion = MapSpan.FromCenterAndRadius(new Position(x.Latitude, x.Longitude), Distance.FromKilometers(2));
                     AddPin(x);
 
-                    // Update Issue Position
-                    // Issue.Latitude = position.Latitude;
-                    // Issue.Longitude = position.Longitude;
-                    // Changed = true;
-
-                    // Update Pin Postion
                     UpdateGpsLocationText(x);
 
                 }
             }
-            catch (Exception /*ex*/)
+            catch (Exception exception)
             {
+                Debug.WriteLine(exception);
                 MapText = "Unable to find position!";
             }
 
@@ -313,13 +307,25 @@
             MapText = text;
         }
 
+        IGeolocator geolocator;
 
 
         public TkMapPageModel()
         {
-            mapCenter = new Position(40.7142700, -74.0059700);
+            geolocator = CrossGeolocator.Current;
             pins = new ObservableCollection<TKCustomMapPin>();
-            GetLocation();
+            if (!App.Client.Issue.IsNewIssue)
+            {
+                MapCenter = new Position(this.Issue.Latitude, this.Issue.Longitude);
+                MapRegion = MapSpan.FromCenterAndRadius(MapCenter, Distance.FromKilometers(2));
+                Position x = new Position(this.Issue.Latitude, this.Issue.Longitude);
+                mapRegion = MapSpan.FromCenterAndRadius(new Position(x.Latitude, x.Longitude), Distance.FromKilometers(2));
+                AddPin(x);
+            }
+            else
+            {
+                GetLocation();
+            }
             circles = new ObservableCollection<TKCircle>();
 
         }

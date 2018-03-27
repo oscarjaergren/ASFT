@@ -25,12 +25,13 @@
     {
         #region Model
 
-        private readonly ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel>();
-        private readonly IGeolocator locator;
+        private IGeolocator locator;
 
         private bool isBusy;
         private string imageText;
         private string locationText;
+        private string statusText;
+
         private double statusUnresolvedOpacity;
         private double statusInProgressOpacity;
         private double statusDoneOpacity;
@@ -47,17 +48,27 @@
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IssueModel Issue { get; set; }
-
         public List<IssueSeverityModel> SeverityValues { get; set; }
 
         public List<IssueStatusModel> StatusValues { get; set; }
 
-        public string StatusText { get; set; }
+
+
+        public string StatusText
+        {
+            get { return statusText; }
+            set
+            {
+                if (statusText == value) return;
+                statusText = value;
+                NotifyPropertyChanged();
+            }
+        }
 
 
         #region Properties
 
+        public ImageGalleryPageModel ImageGalleryViewModel { get; set; } = new ImageGalleryPageModel();
 
         public bool IsBusy
         {
@@ -83,23 +94,23 @@
 
         public IssueSeverity SeverityEx
         {
-            get { return Issue.Severity; }
+            get { return App.Client.Issue.Severity; }
             set
             {
-                Issue.Severity = value;
+                App.Client.Issue.Severity = value;
                 NotifyPropertyChanged($"SeverityImagePath");
-                Issue.Changed = true;
+                App.Client.Issue.Changed = true;
             }
         }
 
         public IssueStatus StatusEx
         {
-            get { return Issue.Status; }
+            get { return App.Client.Issue.Status; }
             set
             {
-                Issue.Status = value;
+                App.Client.Issue.Status = value;
                 NotifyPropertyChanged($"StatusImagePath");
-                Issue.Changed = true;
+                App.Client.Issue.Changed = true;
             }
         }
 
@@ -115,49 +126,49 @@
 
         public string TitleEx
         {
-            get { return Issue.Title; }
+            get { return App.Client.Issue.Title; }
             set
             {
-                if (Issue.Title == value) return;
-                Issue.Title = value;
+                if (App.Client.Issue.Title == value) return;
+                App.Client.Issue.Title = value;
                 NotifyPropertyChanged();
-                Issue.Changed = true;
+                App.Client.Issue.Changed = true;
             }
         }
 
         public string CreatedByEx
         {
-            get { return Issue.CreatedBy; }
+            get { return App.Client.Issue.CreatedBy; }
             set
             {
-                if (Issue.CreatedBy == value) return;
-                Issue.CreatedBy = value;
+                if (App.Client.Issue.CreatedBy == value) return;
+                App.Client.Issue.CreatedBy = value;
                 NotifyPropertyChanged();
-                Issue.Changed = true;
+                App.Client.Issue.Changed = true;
             }
         }
 
         public DateTime CreatedEx
         {
-            get { return Issue.Created; }
+            get { return App.Client.Issue.Created; }
             set
             {
-                if (Issue.Created == value) return;
-                Issue.Created = value;
+                if (App.Client.Issue.Created == value) return;
+                App.Client.Issue.Created = value;
                 NotifyPropertyChanged();
-                Issue.Changed = true;
+                App.Client.Issue.Changed = true;
             }
         }
 
         public string DescriptionEx
         {
-            get { return Issue.Description; }
+            get { return App.Client.Issue.Description; }
             set
             {
-                if (Issue.Description == value) return;
-                Issue.Description = value;
+                if (App.Client.Issue.Description == value) return;
+                App.Client.Issue.Description = value;
                 NotifyPropertyChanged();
-                Issue.Changed = true;
+                App.Client.Issue.Changed = true;
             }
         }
         #region Opacity Properties
@@ -303,17 +314,23 @@
 
         public IssuePageModel()
         {
-            Issue = CreateIssueModel();
-            StatusValues = Issue.PossibleStatusValues;
-            SeverityValues = Issue.PossibleSeverityValues;
+            if (App.Client.Issue == null)
+            {
+                App.Client.Issue = CreateIssueModel();
+            }
+            StatusValues = App.Client.Issue.PossibleStatusValues;
+            SeverityValues = App.Client.Issue.PossibleSeverityValues;
             locator = CrossGeolocator.Current;
-            if (!Issue.IsNewIssue) return;
+            this.GetLocationName();
+            if (App.Client.Issue == null && App.Client.Issue.IsNewIssue) return;
+
             TitleEx = "New Event";
-            GetLocation();
             SeverityEx = IssueSeverity.Medium;
             StatusEx = IssueStatus.InProgress;
-
             StatusChecker();
+            GetLocation();
+
+
         }
 
         public override void Init(object initData)
@@ -322,9 +339,8 @@
             base.Init(initData);
             if (initData is IssueModel issue)
             {
-                Issue = issue;
-                if (Issue.ServerId != 0) GetImages(issue.ServerId);
-                //Issue.LocationId = App.Client.GetCurrentLocationId();
+                App.Client.Issue = issue;
+                if (App.Client.Issue.ServerId != 0) this.GetImagesId(issue.ServerId);
             }
 
             UserDialogs.Instance.HideLoading();
@@ -371,9 +387,10 @@
             try
             {
                 TimeSpan timeSpan = TimeSpan.FromTicks(120 * 1000);
-                Position position = await this.locator.GetPositionAsync(timeSpan);
-                Issue.Latitude = position.Latitude;
-                Issue.Longitude = position.Longitude;
+                Position position = new Position();
+                position = await this.locator.GetPositionAsync(timeSpan);
+                App.Client.Issue.Latitude = position.Latitude;
+                App.Client.Issue.Longitude = position.Longitude;
             }
             catch (Exception exception)
             {
@@ -399,7 +416,7 @@
 
         private void StatusChecker()
         {
-            switch (Issue.Status)
+            switch (App.Client.Issue.Status)
             {
                 case IssueStatus.Unresolved:
                     StatusUnresolvedOpacity = 1;
@@ -422,7 +439,7 @@
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            switch (Issue.Severity)
+            switch (App.Client.Issue.Severity)
             {
                 case IssueSeverity.Lowest:
                     Severity1Opacity = 1;
@@ -470,7 +487,7 @@
             {
                 if (item.Name == (string)fileName)
                 {
-                    Issue.Status = item.Status;
+                    App.Client.Issue.Status = item.Status;
                     StatusChecker();
                     return;
                 }
@@ -480,7 +497,7 @@
             {
                 if (item.Name == (string)fileName)
                 {
-                    Issue.Severity = item.Severity;
+                    App.Client.Issue.Severity = item.Severity;
                     StatusChecker();
                     return;
                 }
@@ -488,6 +505,16 @@
         }
 
         #region Save
+
+        private void GetLocationName()
+        {
+            int LocationId = App.Client.GetCurrentLocationId();
+            if (LocationId == -1)
+            {
+                App.Client.ShowSelectLocation();
+            }
+        }
+
 
         private async void OnSubmit()
         {
@@ -500,13 +527,26 @@
             if (saved)
             {
                 UserDialogs.Instance.Toast("Issue has been uploaded");
-                var imagesinCollection = this.images;
+                var imagesinCollection = ImageGalleryViewModel.Images;
 
                 foreach (ImageModel image in imagesinCollection)
                 {
                     UserDialogs.Instance.Toast("Uploading" + image.ImageId);
-                    image.FileName = image.ImageId.ToString();
-                    await App.Client.PhotoUpload(Issue.ServerId, this.OnCallbackUploadImage, image.OrgImage, image.FileName);
+                    image.Image.FileName = image.ImageId.ToString();
+                    bool imageUploadSuccess = await App.Client.PhotoUpload(
+                                                  App.Client.Issue.ServerId,
+                                                  OnCallbackUploadImage,
+                                                  image.OrgImage,
+                                                  image.Image.FileName);
+                    if (imageUploadSuccess)
+                    {
+                        UserDialogs.Instance.Toast("Images succesfully uploaded");
+                    }
+                    else
+                    {
+                        UserDialogs.Instance.Toast("Images failed to upload");
+
+                    }
                 }
             }
             else
@@ -515,7 +555,6 @@
                 UserDialogs.Instance.Alert("Save Failed", "Save failed", "OK");
             }
 
-            UserDialogs.Instance.Toast("Issue has been failed");
             IsBusy = false;
         }
 
@@ -523,7 +562,7 @@
         {
             try
             {
-                await Task.Run(async () => { await App.Client.SaveIssue(Issue); });
+                await Task.Run(async () => { await App.Client.SaveIssue(App.Client.Issue); });
                 return true;
             }
             catch
@@ -552,7 +591,7 @@
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         ImageText = "Image Uploaded successful";
-                        this.images.Add(newimage);
+                        ImageGalleryViewModel.Images.Add(newimage);
                         App.Client.RunInBackground(RefreshImages);
                     });
                     break;
@@ -563,67 +602,58 @@
 
         private void RefreshImages()
         {
-            const int MaxImageSize = int.MaxValue;
-            if (images.Count == 0) return;
+            if (ImageGalleryViewModel.Images.Count == 0) return;
 
-            foreach (ImageModel item in this.images)
+            foreach (ImageModel item in ImageGalleryViewModel.Images)
             {
-                if (IsBusy) return;
+                AddTheImages(item.ImageIssueId);
 
-                if (item.IsImageUpdate) continue;
-                string imgPath = App.Client.GetThumbnail(item.ImageIssueId, item.ImageIssueId, MaxImageSize, false)
-                    .Result;
-                if (imgPath.Length == 0)
-                {
-                    Device.BeginInvokeOnMainThread(() =>
-                        {
-                            this.ImageText = "Downloading picture (image id: " + item.ImageId + ")";
-                        });
-
-                    imgPath = App.Client.GetThumbnail(item.ImageIssueId, item.ImageIssueId, MaxImageSize, true).Result;
-                    GC.Collect();
-                }
-
-                if (imgPath.Length <= 0) continue;
-                item.FileName = imgPath;
+                Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.ImageText = "Downloading picture (image id: " + item.ImageId + ")";
+                    });
             }
-
             IsBusy = false;
             Device.BeginInvokeOnMainThread(() => { ImageText = string.Empty; });
         }
 
-        private void GetImages(int issueId)
+        private void AddTheImages(int imageIssueId)
         {
-            if (IsBusy) return;
-            IsBusy = true;
+            var imageData = App.Client.GetImage(imageIssueId);
+
+            byte[] imageAsBytes = imageData.Item1;
+
+            if (imageAsBytes.Length > 0)
+            {
+                IImageResizer resizer = DependencyService.Get<IImageResizer>();
+                imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
+               
+                ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
+                ImageGalleryViewModel.Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
+            }
+        }
+
+
+        private void GetImagesId(int issueId)
+        {
 
             try
             {
-                this.images.Clear();
+                ImageGalleryViewModel.Images.Clear();
 
                 var imageList = App.Client.GetImages(issueId);
                 foreach (ImageModel image in imageList)
                 {
-                    string localOriginalFilePath = App.Client.GetImageFilePath(image.ImageIssueId, image.ImageIssueId);
-                    IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
-                    if (fileHelper.Exists(localOriginalFilePath))
-                    {
-                        var imageAsBytes = fileHelper.ReadAll(localOriginalFilePath).Result;
-
-                        IImageResizer resizer = DependencyService.Get<IImageResizer>();
-                        imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
-
-                        ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
-                        this.images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
-
-                        // imageGalleryViewModel.LoadImages(Images);
-                    }
+                    ImageGalleryViewModel.Images.Add(image);
                 }
+                this.RefreshImages();
             }
             catch (Exception exception)
             {
                 Debug.WriteLine(exception);
             }
+            IsBusy = false;
+
         }
 
         #endregion

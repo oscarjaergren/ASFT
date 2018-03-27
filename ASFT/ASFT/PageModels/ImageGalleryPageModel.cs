@@ -6,26 +6,64 @@
     using System.Linq;
     using System.Threading.Tasks;
     using System.Windows.Input;
-
     using ASFT.IServices;
-
     using IssueBase.Issue;
-
     using Plugin.Media;
     using Plugin.Media.Abstractions;
-
     using Xamarin.Forms;
 
     public class ImageGalleryPageModel
     {
+        public ObservableCollection<ImageModel> Images
+        {
+            get { return images; }
+        }
+
+        public ImageSource PreviewImage
+        {
+            get { return previewImage; }
+            set { previewImage = value; }
+        }
+
+        public ICommand CameraCommand
+        {
+            get
+            {
+                return cameraCommand ?? new Command(async () => await ExecuteCameraCommand(),
+                           CanExecuteCameraCommand);
+            }
+        }
+
+        public ICommand PickCommand
+        {
+            get
+            {
+                return pickCommand ??
+                       new Command(async () => await ExecutePickCommand(), CanExecutePickCommand);
+            }
+        }
+
+        public Guid PreviewId { get; set; }
+
         private readonly ICommand cameraCommand = null;
         private readonly ICommand pickCommand = null;
         private readonly ICommand previewImageCommand = null;
 
-        private string checkForImagesText;
         private ImageSource previewImage;
 
-       ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel> ();
+        private string CheckForImagesText { get; set; }
+
+        private int ImageLoadSize { get; set; }
+
+
+        private bool AbortGettingImages { get; }
+
+        private bool IsGettingsImages { get; set; }
+
+        private bool CheckForImages { get; set; }
+
+
+        private ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel>();
 
         public ImageGalleryPageModel(ObservableCollection<IssuePageModel> issueImage, int imageLoadSize)
         {
@@ -56,53 +94,7 @@
 
         #region Model
 
-
-
-        private bool AbortGettingImages { get; }
-        private bool IsGettingsImages { get; set; }
-        private bool CheckForImages { get; set; }
-
-        private string CheckForImagesText
-        {
-            get { return checkForImagesText; }
-            set { checkForImagesText = value; }
-        }
-
-        private int ImageLoadSize { get; set; }
-
-        public ObservableCollection<ImageModel> Images
-        {
-            get { return images; }
-        }
-
-
-        public ImageSource PreviewImage
-        {
-            get { return previewImage; }
-            set { previewImage = value; }
-        }
-
-        public ICommand CameraCommand
-        {
-            get
-            {
-                return cameraCommand ?? new Command(async () => await ExecuteCameraCommand(),
-                           CanExecuteCameraCommand);
-            }
-        }
-
-        public ICommand PickCommand
-        {
-            get
-            {
-                return pickCommand ??
-                       new Command(async () => await ExecutePickCommand(), CanExecutePickCommand);
-            }
-        }
-
-        public Guid PreviewId { get; set; }
-
-        public ICommand PreviewImageCommand
+        private ICommand PreviewImageCommand
         {
             get
             {
@@ -189,24 +181,23 @@
             Device.BeginInvokeOnMainThread(() => { CheckForImagesText = string.Empty; });
         }
 
-        public bool CanExecuteCameraCommand()
+        private bool CanExecuteCameraCommand()
         {
             return CrossMedia.Current.IsCameraAvailable && CrossMedia.Current.IsTakePhotoSupported;
         }
 
-        public bool CanExecutePickCommand()
+        private bool CanExecutePickCommand()
         {
             return CrossMedia.Current.IsPickPhotoSupported;
         }
 
-        public void LoadImages(ObservableCollection<ImageModel> issueImage)
+        private void LoadImages(ObservableCollection<ImageModel> issueImage)
         {
             foreach (ImageModel item in issueImage)
                 Images.Add(new ImageModel { Source = item.Source, OrgImage = item.OrgImage });
         }
 
-
-        public async Task ExecutePickCommand()
+        private async Task ExecutePickCommand()
         {
             MediaFile file = await CrossMedia.Current.PickPhotoAsync();
 
@@ -231,15 +222,13 @@
             }
         }
 
-
-        public async Task ExecuteCameraCommand()
+        private async Task ExecuteCameraCommand()
         {
             MediaFile file = await CrossMedia.Current.TakePhotoAsync(
                 new StoreCameraMediaOptions { PhotoSize = PhotoSize.Small });
 
             if (file == null)
                 return;
-
 
             byte[] imageAsBytes;
             using (MemoryStream memoryStream = new MemoryStream())

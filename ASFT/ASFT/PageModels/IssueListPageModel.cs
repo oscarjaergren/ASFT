@@ -2,6 +2,9 @@
 {
     using System;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Acr.UserDialogs;
@@ -10,7 +13,7 @@
     using IssueManagerApiClient;
     using Xamarin.Forms;
 
-    public class IssueListPageModel : FreshBasePageModel
+    public class IssueListPageModel : FreshBasePageModel, INotifyPropertyChanged
     {
         public ObservableCollection<IssueModel> Issues { get; set; }
 
@@ -41,7 +44,25 @@
         private readonly ICommand onSelectIssueCommand = null;
         private readonly ICommand deleteIssueCommand = null;
 
-        private bool IsBusy { get; set; }
+        public bool IsBusy
+        {
+            get { return isBusy; }
+            set
+            {
+                if (isBusy == value) return;
+                isBusy = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private bool isBusy;
+
 
         private int LocationId { get; set; }
 
@@ -76,17 +97,18 @@
         protected override async void ViewIsAppearing(object sender, EventArgs e)
         {
             if (App.Client.Initilized == false) await App.Client.Init();
-            App.Client.RunInBackground(ShowIssuesFromCurrentLocation);
-            await OnRefreshContent();
+            await ShowIssuesFromCurrentLocation();
 
         }
 
         private async Task<bool> OnRefreshContent()
         {
             Issues.Clear();
-            if (LocationId == -1 || App.Client.LoggedIn == false)
+            if (LocationId <= 0 || App.Client.LoggedIn == false)
             {
-                //await App.Client.ShowSelectLocation();
+                await App.Client.ShowSelectLocation();
+                LocationId = App.Client.GetCurrentLocationId();
+                return false;
             }
 
             return await Task.Run(
@@ -108,25 +130,27 @@
 
                                    return true;
                                }
-                               catch (UnauthorizedException)
+                               catch (UnauthorizedException exception)
                                {
+                                   Debug.WriteLine(exception);
                                    RefeshNeeded = false;
                                    UserDialogs.Instance.HideLoading();
-
                                    UserDialogs.Instance.Alert(
                                        "Not Unauthorized\nLogin with another account or change location");
                                    return false;
                                }
-                               catch (Exception)
+                               catch (Exception exception)
                                {
+                                   Debug.WriteLine(exception + "Unknown error while retrieving data");
                                    RefeshNeeded = false;
+                                   UserDialogs.Instance.HideLoading();
                                    UserDialogs.Instance.Alert("Failed. Unknown error while getting issues..");
                                    return false;
                                }
                            });
         }
 
-        private async void ShowIssuesFromCurrentLocation()
+        private async Task<bool> ShowIssuesFromCurrentLocation()
         {
             if (LocationId == -1)
             {
@@ -134,6 +158,7 @@
                 if (LocationId == -1)
                 {
                     await App.Client.ShowSelectLocation();
+                    return true;
                 }
             }
 
@@ -141,6 +166,7 @@
             {
                 await OnRefreshContent();
             }
+            return false;
         }
 
         private async void OnClickLoginLocation(object s)

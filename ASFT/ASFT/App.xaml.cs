@@ -9,10 +9,6 @@ namespace ASFT
     {
         public static AppIssueClient Client;
 
-        public static int ScreenWidth = 0;
-        public static int ScreenHeight = 0;
-        public static float Density = 1; //DPI Scale factor
-
         public App()
         {
             Client = new AppIssueClient();
@@ -21,7 +17,6 @@ namespace ASFT
             FreshNavigationContainer container = new FreshNavigationContainer(page);
             MainPage = container;
         }
-
 
         protected override void OnStart()
         {

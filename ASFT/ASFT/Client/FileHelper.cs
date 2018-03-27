@@ -132,8 +132,7 @@ namespace ASFT.Client
 
         public bool Exists(string filename)
         {
-            throw new NotImplementedException();
+            return File.Exists(filename);
         }
     }
-
 }

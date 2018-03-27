@@ -18,8 +18,8 @@ namespace ASFT.Pages
 
         public void CreateView()
         {
-            var newYork = new Position(40.7142700, -74.0059700);
-            var mapView = new TKCustomMap(MapSpan.FromCenterAndRadius(newYork, Distance.FromKilometers(2)));
+            var Lund = new Position(55.7047, -13.1910);
+            var mapView = new TKCustomMap(MapSpan.FromCenterAndRadius(Lund, Distance.FromKilometers(2)));
             mapView.SetBinding(TKCustomMap.PinsProperty, "Pins");
             mapView.SetBinding(TKCustomMap.MapLongPressCommandProperty, "MapLongPressCommand");
 
@@ -34,8 +34,7 @@ namespace ASFT.Pages
             MapRelativeLayout.Children.Add(
                 mapView,
                 Constraint.Constant(0),
-                Constraint.Constant(0)
-            );
+                Constraint.Constant(0));
         }
     }
 }

@@ -10,7 +10,6 @@ using Acr.UserDialogs;
 using ASFT.Client;
 using ASFT.IServices;
 using ASFT.Models;
-using ASFT.PageModels;
 using DataTypes.Enums;
 using FreshMvvm;
 using IssueBase.Issue;
@@ -25,29 +24,36 @@ namespace ASFT.HelperMethods
 {
     public class AppIssueClient : FreshBasePageModel
     {
+        public bool FilteringChanged { get; set; }
+
+        public IssueModel Issue { get; set; }
+
+        public bool LoggedIn { get; set; }
+
+        public string StateFilename { get; set; }
+
+        public bool Initilized { get; set; }
+
+        public string LastErrorText { get; set; }
+
         private const string Defaulthost = "http://api.asft.se:8080/";
 
-        protected IssueManagerClientUser ApiClient;
-        protected FilteringAndSorting Filtering;
-        protected IssueManagerState State;
+        private IssueManagerClientUser apiClient;
+
+        private FilteringAndSorting filtering;
+
+        private IssueManagerState state;
 
         public AppIssueClient()
         {
-            LastErrorText = "";
+            LastErrorText = string.Empty;
             FilteringChanged = false;
             Initilized = false;
             LoggedIn = false;
-            ApiClient = new IssueManagerClientUser(Defaulthost);
-            State = new IssueManagerState();
-            Filtering = new FilteringAndSorting();
+            apiClient = new IssueManagerClientUser(Defaulthost);
+            state = new IssueManagerState();
+            filtering = new FilteringAndSorting();
         }
-
-        public bool FilteringChanged { get; set; }
-        public bool LoggedIn { get; set; }
-        public string StateFilename { get; set; }
-        public bool Initilized { get; set; }
-        public string LastErrorText { get; set; }
-
 
         public async Task<bool> Init()
         {
@@ -57,20 +63,20 @@ namespace ASFT.HelperMethods
 
                  string content = await service.Load("Filtering.dat");
                  if (content.Length > 0)
-                     Filtering = JsonConvert.DeserializeObject<FilteringAndSorting>(content);
+                     this.filtering = JsonConvert.DeserializeObject<FilteringAndSorting>(content);
                  else
-                     Filtering.SetDefault();
+                     this.filtering.SetDefault();
 
                  content = await service.Load("AppState.dat");
                  if (content.Length > 0)
                  {
-                     State = JsonConvert.DeserializeObject<IssueManagerState>(content);
+                     this.state = JsonConvert.DeserializeObject<IssueManagerState>(content);
 
-                     if (State.Host.Length == 0)
-                         State.Host = Defaulthost;
+                     if (this.state.Host.Length == 0)
+                         this.state.Host = Defaulthost;
 
-                     ApiClient = new IssueManagerClientUser(State.Host, State.AccessToken);
-                     LoggedIn = State.AccessToken.Length > 0;
+                     this.apiClient = new IssueManagerClientUser(this.state.Host, this.state.AccessToken);
+                     LoggedIn = this.state.AccessToken.Length > 0;
                  }
 
                  Initilized = true;
@@ -80,48 +86,7 @@ namespace ASFT.HelperMethods
             return false;
         }
 
-        private async Task<bool> OnShowSelectLocationSheet(List<LocationModel> locations)
-        {
-            try
-            {
-                var buttons = new string[locations.Count];
-                for (int n = 0; n < locations.Count; ++n)
-                {
-                    buttons[n] = locations[n].Id + " - " + locations[n].Name;
-                }
-                var s = new CancellationToken();
-                string res = await UserDialogs.Instance.ActionSheetAsync("Pick Location", "Cancel", "", s, buttons);
-                if (res == "Cancel")
-                    return false;
 
-                string locationName = "";
-                int id = Convert.ToInt32(res.Substring(0, 2));
-                int pos = res.IndexOf('-');
-                if (pos > 0)
-                    locationName = res.Substring(pos + 1);
-
-                State.LocationName = locationName.Trim();
-
-                if (id > 0)
-                {
-                    foreach (LocationModel loc in locations)
-                    {
-                        if (loc.Id == id)
-                        {
-                            State.LocationId = id;
-                            App.Client.SetCurrentLocation(loc);
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception);
-                return false;
-            }
-        }
         public async Task<bool> ShowSelectLocation()
         {
             var locations = GetLocatonsOnline();
@@ -130,62 +95,33 @@ namespace ASFT.HelperMethods
 
             return false;
         }
-        private List<LocationModel> GetLocatonsOnline()
-        {
-            List<LocationModel> locations = null;
-            try
-            {
-                locations = GetLocations();
-            }
-            catch (IssueManagerApiClient.ServerNotFoundException)
-            {
-                CoreMethods.DisplayAlert("Failed", "Failed to connect to server", "Continue");
-            }
-            catch (IssueManagerApiClient.NotLoggedInException /*ex*/)
-            {
-                MessagingCenter.Subscribe<LoginPageModel>(this, "OnLoggedIn", (sender) =>
-                {
-                    MessagingCenter.Unsubscribe<LoginPageModel>(this, "OnLoggedIn");
-                });
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                CoreMethods.DisplayAlert("Failed", "Unknown error", "Quit");
-                throw;
-            }
-            return locations;
-
-        }
-
-
 
 
         public FilteringAndSorting GetFilteringAndSorting()
         {
-            return Filtering;
+            return this.filtering;
         }
 
         public int GetCurrentLocationId()
         {
-            return State.LocationId;
+            return this.state.LocationId;
         }
 
         public string GetCurrentLocationName()
         {
-            return State.LocationName;
+            return this.state.LocationName;
         }
 
         public string GetCurrentUsername()
         {
-            return State.Username;
+            return this.state.Username;
         }
 
         public void SaveState()
         {
             try
             {
-                string content = JsonConvert.SerializeObject(State);
+                string content = JsonConvert.SerializeObject(this.state);
                 IFileHelper save = DependencyService.Get<IFileHelper>();
                 save.Save("AppState.dat", content);
             }
@@ -199,7 +135,7 @@ namespace ASFT.HelperMethods
         {
             try
             {
-                string content = JsonConvert.SerializeObject(Filtering);
+                string content = JsonConvert.SerializeObject(this.filtering);
                 IFileHelper save = DependencyService.Get<IFileHelper>();
                 save.Save("Filtering.dat", content);
             }
@@ -211,43 +147,43 @@ namespace ASFT.HelperMethods
 
         public void SetCurrentLocation(LocationModel location)
         {
-            State.LocationId = location.Id;
-            State.LocationName = location.Name;
-            State.LocationLatitude = location.Latitude;
-            State.LocationLongitude = location.Longitude;
+            this.state.LocationId = location.Id;
+            this.state.LocationName = location.Name;
+            state.LocationLatitude = location.Latitude;
+            this.state.LocationLongitude = location.Longitude;
             SaveState();
         }
 
         public GeoLocation GetCurrentGeoLocation()
         {
-            return new GeoLocation(State.LocationLatitude, State.LocationLongitude);
+            return new GeoLocation(this.state.LocationLatitude, this.state.LocationLongitude);
         }
 
         public LoginModel GetCurrentLoginModel()
         {
             // DEBUG
-            if (State.Username.Length == 0)
-                State.Username = "mudemo";
-            if (State.Host.Length == 0)
-                State.Host = "http://api.asft.se:8080/";
+            if (this.state.Username.Length == 0)
+                this.state.Username = "mudemo";
+            if (this.state.Host.Length == 0)
+                this.state.Host = "http://api.asft.se:8080/";
 
             // VERY DEBUG. - REMOVE 
-            const string password = "mudemo";
+            const string Password = "mudemo";
 
             return new LoginModel()
             {
                 // default debug account
-                Host = State.Host,
-                Username = State.Username,
-                Password = password
+                Host = this.state.Host,
+                Username = this.state.Username,
+                Password = Password
             };
         }
 
         public void Logout()
         {
             LoggedIn = false;
-            ApiClient = new IssueManagerClientUser(State.Host);
-            State.AccessToken = "";
+            this.apiClient = new IssueManagerClientUser(this.state.Host);
+            this.state.AccessToken = string.Empty;
             SaveState();
         }
 
@@ -255,13 +191,13 @@ namespace ASFT.HelperMethods
         {
             LoggedIn = false;
 
-            ApiClient = new IssueManagerClientUser(host);
-            ApiClient.Login(username, password);
+            this.apiClient = new IssueManagerClientUser(host);
+            this.apiClient.Login(username, password);
 
-            //if successsfull no excpetion was throw so we can store new state variables
-            State.Host = host;
-            State.Username = username;
-            State.AccessToken = ApiClient.AccessToken;
+            // Store the userinformation for next time
+            this.state.Host = host;
+            this.state.Username = username;
+            this.state.AccessToken = this.apiClient.AccessToken;
             SaveState();
             LoggedIn = true;
 
@@ -270,24 +206,24 @@ namespace ASFT.HelperMethods
 
         public List<LocationModel> GetLocations()
         {
-            return ApiClient.GetLocations();
+            return this.apiClient.GetLocations();
         }
 
-        public List<IssueModel> GetIssues(int locationId, bool bUseFilter = true)
+        public List<IssueModel> GetIssues(int locationId, bool useFilter = true)
         {
             var uiIssues = new List<IssueModel>();
-            var issues = ApiClient.GetAllIssuesAtLocation(locationId);
+            var issues = this.apiClient.GetAllIssuesAtLocation(locationId);
             foreach (IssueModel item in issues)
             {
-                if (bUseFilter)
-                    if (Filtering.IncludeItem(item) == false)
+                if (useFilter)
+                    if (this.filtering.IncludeItem(item) == false)
                         continue;
                 uiIssues.Add(new IssueModel(item));
             }
 
-            if (!bUseFilter) return uiIssues;
-            // sort
-            switch (Filtering.SortBy)
+            if (!useFilter) return uiIssues;
+
+            switch (this.filtering.SortBy)
             {
                 case "Date":
                     uiIssues = uiIssues.OrderBy(o => o.Created).ToList();
@@ -303,7 +239,7 @@ namespace ASFT.HelperMethods
                     break;
             }
 
-            if (Filtering.SortAscending == false)
+            if (this.filtering.SortAscending == false)
                 uiIssues.Reverse();
 
             return uiIssues;
@@ -312,7 +248,7 @@ namespace ASFT.HelperMethods
         public ObservableCollection<ImageModel> GetImages(int issueId)
         {
             var uiIssues = new ObservableCollection<ImageModel>();
-            var issues = ApiClient.GetImages(issueId);
+            var issues = this.apiClient.GetImages(issueId);
             foreach (ImageModel item in issues) uiIssues.Add(new ImageModel(item));
 
             return uiIssues;
@@ -320,13 +256,13 @@ namespace ASFT.HelperMethods
 
         public ImageModel GetImageInfo(int imageId)
         {
-            ImageModel item = ApiClient.GetImageInfo(imageId);
+            ImageModel item = this.apiClient.GetImageInfo(imageId);
             return new ImageModel(item);
         }
 
         public Tuple<byte[], string> GetImage(int imageId)
         {
-            return ApiClient.GetImage(imageId);
+            return this.apiClient.GetImage(imageId);
         }
 
         public async Task AddIssue(IssueModel issue)
@@ -334,7 +270,7 @@ namespace ASFT.HelperMethods
             if (issue.LocationId == 0 || issue.LocationId == -1) await App.Client.ShowSelectLocation();
             issue.LocationId = GetCurrentLocationId();
 
-            int issueServerId = ApiClient.CreateIssue(issue);
+            int issueServerId = this.apiClient.CreateIssue(issue);
 
             if (issueServerId > 0) issue.ServerId = issueServerId;
 
@@ -344,10 +280,10 @@ namespace ASFT.HelperMethods
         public void UpdateIssue(IssueModel uiIssue)
         {
             if (uiIssue.LocationId == 0)
-                uiIssue.LocationId = State.LocationId;
+                uiIssue.LocationId = this.state.LocationId;
 
             IssueModel issue = uiIssue.CreateUpdatedIssueViewModel();
-            ApiClient.UpdateIssue(issue);
+            this.apiClient.UpdateIssue(issue);
         }
 
         public Task<bool> SaveIssue(IssueModel issue)
@@ -357,9 +293,9 @@ namespace ASFT.HelperMethods
                 try
                 {
                     issue.IssueNeedSync = true;
-                    const ConnectionType wifi = ConnectionType.WiFi;
+                    const ConnectionType Wifi = ConnectionType.WiFi;
                     var connectionTypes = CrossConnectivity.Current.ConnectionTypes;
-                    if (connectionTypes.Contains(wifi))
+                    if (connectionTypes.Contains(Wifi))
                     {
                         UserDialogs.Instance.ShowLoading("Saving...", MaskType.Clear);
 
@@ -390,20 +326,13 @@ namespace ASFT.HelperMethods
                 }
             });
         }
+
         public void DeleteIssue(int issueId)
         {
-            ApiClient.DeleteIssue(issueId);
+            this.apiClient.DeleteIssue(issueId);
         }
 
-        private static string GetFileType(string file)
-        {
-            string filetype = "jpg";
-            int fileExtPos = file.LastIndexOf('.');
-            if (fileExtPos <= 0) return filetype;
-            filetype = file.Substring(fileExtPos + 1);
-            filetype = filetype.ToLower();
-            return filetype;
-        }
+
 
         public async Task<bool> PhotoUpload(int issueId, Action<UploadImageEvent, int> onCallback, byte[] bytes, string file)
         {
@@ -425,26 +354,25 @@ namespace ASFT.HelperMethods
             return true;
         }
 
-        public async Task<int> UploadPhoto(int issueId, byte[] bytes, string file, bool bMove)
+        public async Task<int> UploadPhoto(int issueId, byte[] bytes, string file, bool move)
         {
             string filetype = GetFileType(file);
             int imageResult = await UploadImage(issueId, bytes, filetype);
             if (imageResult <= 0) return imageResult;
-            if (bMove)
+            if (move)
                 MoveFileToImageCache(file, issueId, imageResult);
             else
                 CopyFileToImageCache(file, issueId, imageResult);
             return imageResult;
         }
 
-        // Move to background thread
         public Task<int> UploadImage(int issueId, byte[] bytes, string imagetype)
         {
             return Task.Run(() =>
             {
                 try
                 {
-                    return bytes.Length > 0 ? ApiClient.UploadImage(issueId, bytes, imagetype) : 0;
+                    return bytes.Length > 0 ? this.apiClient.UploadImage(issueId, bytes, imagetype) : 0;
                 }
                 catch (Exception)
                 {
@@ -452,6 +380,7 @@ namespace ASFT.HelperMethods
                 }
             });
         }
+
         public void MoveFileToImageCache(string filename, int issueId, int imageId)
         {
             IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
@@ -482,7 +411,6 @@ namespace ASFT.HelperMethods
             threadHelper.RunInBackground(action);
         }
 
-
         public bool ClearImageCacheForIssue(int issueId)
         {
             IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
@@ -512,25 +440,19 @@ namespace ASFT.HelperMethods
             return path;
         }
 
-        private static void CreateThumbnail(string originalImageFile, string thumbnailFile, int maxSizeIn)
-        {
-            ImageSize maxSize = new ImageSize(maxSizeIn, maxSizeIn);
-            ThumbnailCreator.CreateThumbnail(originalImageFile, thumbnailFile, maxSize);
-        }
-
-        public Task<string> GetThumbnail(int imgId, int issueId, int thumbSize, bool bDownload)
+        public Task<string> GetThumbnail(int imgId, int issueId, int thumbSize, bool download)
         {
             return Task.Run(() =>
             {
                 try
                 {
                     string thumbPath = GetThumbnailFilePath(imgId, issueId, thumbSize);
-                    if (FileExists(thumbPath) != false) return thumbPath;
+                    if (this.FileExists(thumbPath)) return thumbPath;
                     string orgImagePath = GetImageFilePath(imgId, issueId);
                     if (FileExists(orgImagePath) == false)
                     {
-                        if (bDownload == false)
-                            return "";
+                        if (download == false)
+                            return string.Empty;
 
                         var imageData = App.Client.GetImage(imgId);
 
@@ -543,7 +465,7 @@ namespace ASFT.HelperMethods
                 }
                 catch (Exception)
                 {
-                    return "";
+                    return string.Empty;
                 }
             });
         }
@@ -584,6 +506,90 @@ namespace ASFT.HelperMethods
             }
             catch (Exception)
             {
+                return false;
+            }
+        }
+
+        private static string GetFileType(string file)
+        {
+            string filetype = "jpg";
+            int fileExtPos = file.LastIndexOf('.');
+            if (fileExtPos <= 0) return filetype;
+            filetype = file.Substring(fileExtPos + 1);
+            filetype = filetype.ToLower();
+            return filetype;
+        }
+
+        private static void CreateThumbnail(string originalImageFile, string thumbnailFile, int maxSizeIn)
+        {
+            ImageSize maxSize = new ImageSize(maxSizeIn, maxSizeIn);
+            ThumbnailCreator.CreateThumbnail(originalImageFile, thumbnailFile, maxSize);
+        }
+
+        private List<LocationModel> GetLocatonsOnline()
+        {
+            List<LocationModel> locations = null;
+            try
+            {
+                locations = GetLocations();
+            }
+            catch (ServerNotFoundException)
+            {
+                CoreMethods.DisplayAlert("Failed", "Failed to connect to server", "Continue");
+            }
+            catch (NotLoggedInException ex)
+            {
+                Debug.WriteLine(ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                CoreMethods.DisplayAlert("Failed", "Unknown error", "Quit");
+                throw;
+            }
+
+            return locations;
+        }
+
+        private async Task<bool> OnShowSelectLocationSheet(List<LocationModel> locations)
+        {
+            try
+            {
+                var buttons = new string[locations.Count];
+                for (int n = 0; n < locations.Count; ++n)
+                {
+                    buttons[n] = locations[n].Id + " - " + locations[n].Name;
+                }
+                CancellationToken s = new CancellationToken();
+                string res = await UserDialogs.Instance.ActionSheetAsync("Pick Location", "Cancel", string.Empty, s, buttons);
+                if (res == "Cancel")
+                    return false;
+
+                string locationName = string.Empty;
+                int id = Convert.ToInt32(res.Substring(0, 2));
+                int pos = res.IndexOf('-');
+                if (pos > 0)
+                    locationName = res.Substring(pos + 1);
+
+                this.state.LocationName = locationName.Trim();
+
+                if (id > 0)
+                {
+                    foreach (LocationModel loc in locations)
+                    {
+                        if (loc.Id == id)
+                        {
+                            state.LocationId = id;
+                            App.Client.SetCurrentLocation(loc);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
                 return false;
             }
         }

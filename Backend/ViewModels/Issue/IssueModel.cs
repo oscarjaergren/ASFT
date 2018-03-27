@@ -6,22 +6,35 @@ using DataTypes.Enums;
 
 namespace IssueBase.Issue
 {
+    using Newtonsoft.Json;
+
     public class IssueModel : INotifyPropertyChanged
     {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         public int LocationId { get; set; }
+        [JsonProperty(PropertyName = "Id")]
         public int ServerId { get; set; }
+
         public string Title { get; set; }
+
         public string Description { get; set; }
+
         public double Longitude { get; set; }
+
         public double Latitude { get; set; }
+
         public IssueStatus Status { get; set; }
+
         public IssueSeverity Severity { get; set; }
+
         public DateTime Created { get; set; }
+
         public DateTime Edited { get; set; }
+
         public string CreatedBy { get; set; }
+
 
         public bool IssueNeedSync = true; // Issue is saved localy, But not sent to server. Need syncing
         public bool IsNewIssue;
@@ -30,7 +43,7 @@ namespace IssueBase.Issue
 
         public IssueModel()
         {
-            ServerId = 0;
+            this.ServerId = 0;
             Title = "";
             Description = "";
             Created = DateTime.Now;
@@ -40,7 +53,7 @@ namespace IssueBase.Issue
         public IssueModel(IssueModel issue)
         {
             LocationId = issue.LocationId;
-            ServerId = issue.ServerId;
+            this.ServerId = issue.ServerId;
             Title = issue.Title;
             Description = issue.Description;
             Longitude = issue.Longitude;
@@ -56,7 +69,7 @@ namespace IssueBase.Issue
         {
             IssueModel issue = new IssueModel
             {
-                ServerId = ServerId,
+                ServerId = this.ServerId,
                 LocationId = LocationId,
                 Description = Description,
                 Longitude = Longitude,

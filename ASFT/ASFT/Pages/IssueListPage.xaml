@@ -4,6 +4,7 @@
              xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
              xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
              xmlns:helperMethods="clr-namespace:ASFT.HelperMethods;assembly=ASFT"
+             xmlns:pageModels="clr-namespace:ASFT.PageModels;assembly=ASFT"
              x:Class="ASFT.Pages.IssueListPage">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -12,16 +13,16 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 <ListView ItemsSource="{Binding Issues}" SeparatorColor="#444444" RowHeight="90" IsPullToRefreshEnabled="True" IsRefreshing="{Binding IsBusy}" RefreshCommand="{Binding PullRefreshCommand}" >
-    <ListView.Behaviors>
+        <ListView.Behaviors>
         <helperMethods:EventToCommandBehavior EventName="ItemSelected" 
                                           Command="{Binding OnSelectedIssueCommand}" 
                                           Converter="{StaticResource SelectedItemConverter}" />
-    </ListView.Behaviors>
+        </ListView.Behaviors>
         <ListView.ItemTemplate>
             <DataTemplate>
-                <ViewCell >
+                <ViewCell x:Name="Stalin">
                     <ViewCell.ContextActions>
-                        <MenuItem  Command="{Binding OnDelete}"  Text="Delete" IsDestructive="True" />
+                        <MenuItem x:Name="Hitler" Command="{Binding Path=BindingContext.OnDelete, Source={}}" Text="Delete" IsDestructive="True" />
                     </ViewCell.ContextActions>
 
                     <ViewCell.View>
