@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
@@ -65,10 +64,9 @@
             }
         }
 
-
         #region Properties
 
-        public ImageGalleryPageModel ImageGalleryViewModel { get; set; } = new ImageGalleryPageModel();
+        public ImageGalleryPageModel ImageGalleryViewModel;
 
         public bool IsBusy
         {
@@ -321,16 +319,18 @@
             StatusValues = App.Client.Issue.PossibleStatusValues;
             SeverityValues = App.Client.Issue.PossibleSeverityValues;
             locator = CrossGeolocator.Current;
-            this.GetLocationName();
-            if (App.Client.Issue == null && App.Client.Issue.IsNewIssue) return;
+            this.ImageGalleryViewModel = new ImageGalleryPageModel();
 
-            TitleEx = "New Event";
-            SeverityEx = IssueSeverity.Medium;
-            StatusEx = IssueStatus.InProgress;
-            StatusChecker();
-            GetLocation();
+            if (App.Client.Issue == null && App.Client.Issue.IsNewIssue)
+            {
+                App.Client.Issue = CreateIssueModel();
 
-
+                TitleEx = "New Event";
+                SeverityEx = IssueSeverity.Medium;
+                StatusEx = IssueStatus.InProgress;
+                StatusChecker();
+                GetLocation();
+            }
         }
 
         public override void Init(object initData)
@@ -341,6 +341,7 @@
             {
                 App.Client.Issue = issue;
                 if (App.Client.Issue.ServerId != 0) this.GetImagesId(issue.ServerId);
+
             }
 
             UserDialogs.Instance.HideLoading();
@@ -370,6 +371,8 @@
             if (App.Client.LoggedIn != true)
             {
                 await ShowLoginPage();
+                await GetLocationName();
+
             }
 
             CreatedByEx = App.Client.GetCurrentUsername();
@@ -506,13 +509,15 @@
 
         #region Save
 
-        private void GetLocationName()
+        private async Task<bool> GetLocationName()
         {
             int LocationId = App.Client.GetCurrentLocationId();
             if (LocationId == -1)
             {
-                App.Client.ShowSelectLocation();
+                await App.Client.ShowSelectLocation();
+                return true;
             }
+            return false;
         }
 
 
@@ -627,7 +632,7 @@
             {
                 IImageResizer resizer = DependencyService.Get<IImageResizer>();
                 imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
-               
+
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
                 ImageGalleryViewModel.Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
             }
