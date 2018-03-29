@@ -21,9 +21,8 @@
             get { return images; }
             set
             {
-                if (images == value) return;
                 images = value;
-                NotifyPropertyChanged();
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Images)));
             }
         }
 
@@ -33,6 +32,8 @@
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+       
 
 
         public ImageSource PreviewImage
@@ -67,44 +68,12 @@
 
         private ImageSource previewImage;
 
-        private string CheckForImagesText { get; set; }
+        private ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel>();
 
-        private int ImageLoadSize { get; set; }
-
-
-        private bool AbortGettingImages { get; }
-
-        private bool IsGettingsImages { get; set; }
-
-        private bool CheckForImages { get; set; }
-
-
-        private ObservableCollection<ImageModel> images;
-
-        public ImageGalleryPageModel(ObservableCollection<IssuePageModel> issueImage, int imageLoadSize)
-        {
-            ImageLoadSize = imageLoadSize;
-            AbortGettingImages = false;
-            IsGettingsImages = false;
-            CheckForImages = true;
-
-            // Get Images from Issues.
-            AbortGettingImages = false;
-            if (IsGettingsImages)
-                return;
-
-
-            if (!CheckForImages) return;
-            CheckForImages = false;
-            App.Client.RunInBackground(RefreshImages);
-        }
 
         public ImageGalleryPageModel()
         {
-            if (images == null)
-            {
-                images = new ObservableCollection<ImageModel>();
-            }
+         
         }
 
         #region Model
@@ -130,72 +99,6 @@
 
         #endregion
 
-        public void LoadImages(int itemId)
-        {
-            // IsBusy = true;
-
-            // List<GalleryImage> list = await FileHelper.LoadImages(Section, ItemId);
-            // foreach (GalleryImage imageGallery in list)
-            // {
-            // Images.Add(imageGallery);
-            // OnPropertyChanged("Images");
-            // }
-
-            // if (Images.Count == 0)
-            // {
-            // ShowEmpty = true;
-            // ShowContent = false;
-            // }
-            // else
-            // {
-            // ShowEmpty = false;
-            // ShowContent = true;
-            // }
-
-            // IsBusy = false;
-        }
-
-        private void RefreshImages()
-        {
-            //if (CheckForImages)
-            //{
-            //    CheckForImages = false;
-            //    App.Client.RunInBackground(RefreshImages);
-            //}
-
-            //if (IsGettingsImages)
-            //    return;
-
-            //IsGettingsImages = true;
-
-            //int maxImageSize = ImageLoadSize;
-
-            //// foreach (ImagePageModel item in Items)
-            //// {
-            //// if (AbortGettingImages) break;
-
-            //// if (item.IsImageUpdate == false)
-            //// {
-            //// string imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, maxImageSize, false).Result;
-            //// if (imgPath.Length == 0)
-            //// {
-            //// Device.BeginInvokeOnMainThread(() =>
-            //// {
-            //// CheckForImagesText = "Downloading picture (image id: " + item.Id + ")";
-            //// });
-
-            //// imgPath = App.Client.GetThumbnail(item.Id, item.IssueId, maxImageSize, true).Result;
-            //// GC.Collect();
-            //// }
-
-            //// if (imgPath.Length > 0) item.LocalImagePath = imgPath;
-            //// }
-            //// }
-            //IsGettingsImages = false;
-
-            //Device.BeginInvokeOnMainThread(() => { CheckForImagesText = string.Empty; });
-        }
-
         private bool CanExecuteCameraCommand()
         {
             return CrossMedia.Current.IsCameraAvailable && CrossMedia.Current.IsTakePhotoSupported;
@@ -204,12 +107,6 @@
         private bool CanExecutePickCommand()
         {
             return CrossMedia.Current.IsPickPhotoSupported;
-        }
-
-        private void LoadImages(ObservableCollection<ImageModel> issueImage)
-        {
-            foreach (ImageModel item in issueImage)
-                Images.Add(new ImageModel { Source = item.Source, OrgImage = item.OrgImage });
         }
 
         private async Task ExecutePickCommand()

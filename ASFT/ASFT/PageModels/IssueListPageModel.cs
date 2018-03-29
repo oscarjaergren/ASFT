@@ -207,6 +207,8 @@
 
         private async void OnIssueSelected(object eventArgs)
         {
+            UserDialogs.Instance.ShowLoading("Loading event...", MaskType.Clear);
+
             if (!(eventArgs is IssueModel selectedItem)) return;
             if (selectedItem is IssueModel item)
             {
@@ -230,8 +232,9 @@
                                                 App.Client.DeleteIssue(issue.ServerId);
                                                 return Issues.Remove(issue);
                                             }
-                                            catch (Exception /*ex*/)
+                                            catch (Exception ex)
                                             {
+                                                Debug.WriteLine(ex);
                                                 return false;
                                             }
                                         });

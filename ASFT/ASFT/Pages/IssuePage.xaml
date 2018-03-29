@@ -1,11 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<freshMvvm:FreshBaseContentPage NavigationPage.HasNavigationBar="false" xmlns="http://xamarin.com/schemas/2014/forms"
+<freshMvvm:FreshBaseContentPage NavigationPage.HasNavigationBar="False" xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
              xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
-             xmlns:maps="clr-namespace:ASFT.PageModels;assembly=ASFT"
              xmlns:controls="clr-namespace:ASFT.Controls;assembly=ASFT"
-             xmlns:pageModels="clr-namespace:ASFT.PageModels;assembly=ASFT"
              x:Class="ASFT.Pages.IssuePage" Padding="4,25,4,4" x:Name="IssuePages">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -235,9 +233,6 @@
 
                 <!--Map View-->
                 <Grid>
-                    <Grid.BindingContext>
-                        <maps:TkMapPageModel/>
-                    </Grid.BindingContext>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30" />
                         <RowDefinition Height="*" />
@@ -253,7 +248,7 @@
                     <Label Grid.Column="1" Grid.Row="0" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
                            Text="Tap and hold on map to set/move pin" Font="Large" />
                     <StackLayout Grid.Column="1" Grid.Row="1" VerticalOptions="FillAndExpand">
-                        <RelativeLayout x:Name="MapRelativeLayout" VerticalOptions="FillAndExpand" HeightRequest="920" WidthRequest="300" />
+                        <RelativeLayout x:Name="MapRelativeLayout" VerticalOptions="FillAndExpand" HeightRequest="520" WidthRequest="300" />
                     </StackLayout>
                     <StackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Vertical" Spacing="0">
                         <Label Text="{Binding MapText}" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White" />

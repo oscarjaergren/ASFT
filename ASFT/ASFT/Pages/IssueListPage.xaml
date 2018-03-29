@@ -4,7 +4,6 @@
              xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
              xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
              xmlns:helperMethods="clr-namespace:ASFT.HelperMethods;assembly=ASFT"
-             xmlns:pageModels="clr-namespace:ASFT.PageModels;assembly=ASFT"
              x:Class="ASFT.Pages.IssueListPage">
     <ContentPage.Resources>
         <ResourceDictionary>

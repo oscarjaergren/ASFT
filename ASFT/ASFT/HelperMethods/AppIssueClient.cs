@@ -245,7 +245,7 @@ namespace ASFT.HelperMethods
             return uiIssues;
         }
 
-        public ObservableCollection<ImageModel> GetImages(int issueId)
+        public ObservableCollection<ImageModel> GetImageInfo(int issueId)
         {
             var uiIssues = new ObservableCollection<ImageModel>();
             var issues = this.apiClient.GetImages(issueId);
@@ -254,7 +254,7 @@ namespace ASFT.HelperMethods
             return uiIssues;
         }
 
-        public ImageModel GetImageInfo(int imageId)
+        public ImageModel GetImages(int imageId)
         {
             ImageModel item = this.apiClient.GetImageInfo(imageId);
             return new ImageModel(item);

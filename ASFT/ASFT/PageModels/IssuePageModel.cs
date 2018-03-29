@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
@@ -11,12 +12,24 @@
     using System.Windows.Input;
     using Acr.UserDialogs;
     using ASFT.IServices;
+    using ASFT.Pages;
+
     using DataTypes.Enums;
     using FreshMvvm;
     using IssueBase.Issue;
     using Plugin.Geolocator;
     using Plugin.Geolocator.Abstractions;
+
+    using TK.CustomMap;
+    using TK.CustomMap.Api;
+    using TK.CustomMap.Api.Google;
+    using TK.CustomMap.Api.OSM;
+    using TK.CustomMap.Interfaces;
+    using TK.CustomMap.Overlays;
+
     using Xamarin.Forms;
+
+    using Position = Plugin.Geolocator.Abstractions.Position;
 
     [SuppressMessage("ReSharper", "InvertIf")]
     [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
@@ -24,7 +37,7 @@
     {
         #region Model
 
-        private IGeolocator locator;
+        private IGeolocator geolocator;
 
         private bool isBusy;
         private string imageText;
@@ -44,13 +57,22 @@
         private ICommand submitCommand;
         private ICommand onStatusClickedCommand;
 
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        #region Properties
 
         public List<IssueSeverityModel> SeverityValues { get; set; }
 
         public List<IssueStatusModel> StatusValues { get; set; }
 
+
+        // public ImageGalleryPageModel ImageGalleryViewModel = new ImageGalleryPageModel();
+        public ImageGalleryPageModel ImageGalleryViewModel { get; set; } = new ImageGalleryPageModel();
 
 
         public string StatusText
@@ -60,13 +82,9 @@
             {
                 if (statusText == value) return;
                 statusText = value;
-                NotifyPropertyChanged();
+                OnPropertyChanged(nameof(StatusText));
             }
         }
-
-        #region Properties
-
-        public ImageGalleryPageModel ImageGalleryViewModel;
 
         public bool IsBusy
         {
@@ -75,7 +93,7 @@
             {
                 if (isBusy == value) return;
                 isBusy = value;
-                NotifyPropertyChanged();
+                OnPropertyChanged(nameof(IsBusy));
             }
         }
 
@@ -86,7 +104,7 @@
             {
                 if (imageText == value) return;
                 imageText = value;
-                NotifyPropertyChanged();
+                OnPropertyChanged(nameof(ImageText));
             }
         }
 
@@ -96,7 +114,7 @@
             set
             {
                 App.Client.Issue.Severity = value;
-                NotifyPropertyChanged($"SeverityImagePath");
+                OnPropertyChanged(nameof(SeverityEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -107,7 +125,7 @@
             set
             {
                 App.Client.Issue.Status = value;
-                NotifyPropertyChanged($"StatusImagePath");
+                OnPropertyChanged(nameof(StatusEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -118,7 +136,7 @@
             set
             {
                 locationText = value;
-                NotifyPropertyChanged();
+                OnPropertyChanged(nameof(LocationText));
             }
         }
 
@@ -129,7 +147,7 @@
             {
                 if (App.Client.Issue.Title == value) return;
                 App.Client.Issue.Title = value;
-                NotifyPropertyChanged();
+                OnPropertyChanged(nameof(TitleEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -141,7 +159,7 @@
             {
                 if (App.Client.Issue.CreatedBy == value) return;
                 App.Client.Issue.CreatedBy = value;
-                NotifyPropertyChanged();
+                OnPropertyChanged(nameof(CreatedByEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -153,7 +171,7 @@
             {
                 if (App.Client.Issue.Created == value) return;
                 App.Client.Issue.Created = value;
-                NotifyPropertyChanged();
+                OnPropertyChanged(nameof(CreatedEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -165,7 +183,7 @@
             {
                 if (App.Client.Issue.Description == value) return;
                 App.Client.Issue.Description = value;
-                NotifyPropertyChanged();
+                OnPropertyChanged(nameof(DescriptionEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -178,7 +196,7 @@
                 if (severity5Opacity != value)
                 {
                     severity5Opacity = value;
-                    NotifyPropertyChanged(nameof(Severity5Opacity));
+                    OnPropertyChanged(nameof(Severity5Opacity));
                 }
             }
         }
@@ -191,7 +209,7 @@
                 if (severity4Opacity != value)
                 {
                     severity4Opacity = value;
-                    NotifyPropertyChanged(nameof(Severity4Opacity));
+                    OnPropertyChanged(nameof(Severity4Opacity));
                 }
             }
         }
@@ -204,7 +222,7 @@
                 if (severity3Opacity != value)
                 {
                     severity3Opacity = value;
-                    NotifyPropertyChanged(nameof(Severity3Opacity));
+                    OnPropertyChanged(nameof(Severity3Opacity));
                 }
             }
         }
@@ -217,7 +235,7 @@
                 if (severity2Opacity != value)
                 {
                     severity2Opacity = value;
-                    NotifyPropertyChanged(nameof(Severity2Opacity));
+                    OnPropertyChanged(nameof(Severity2Opacity));
                 }
             }
         }
@@ -230,7 +248,7 @@
                 if (severity1Opacity != value)
                 {
                     severity1Opacity = value;
-                    NotifyPropertyChanged(nameof(Severity1Opacity));
+                    OnPropertyChanged(nameof(Severity1Opacity));
                 }
             }
         }
@@ -243,7 +261,7 @@
                 if (statusUnresolvedOpacity != value)
                 {
                     statusUnresolvedOpacity = value;
-                    NotifyPropertyChanged(nameof(StatusUnresolvedOpacity));
+                    OnPropertyChanged(nameof(StatusUnresolvedOpacity));
                 }
             }
         }
@@ -256,7 +274,7 @@
                 if (statusInProgressOpacity != value)
                 {
                     statusInProgressOpacity = value;
-                    NotifyPropertyChanged(nameof(StatusInProgressOpacity));
+                    OnPropertyChanged(nameof(StatusInProgressOpacity));
                 }
             }
         }
@@ -269,7 +287,7 @@
                 if (statusDoneOpacity != value)
                 {
                     statusDoneOpacity = value;
-                    NotifyPropertyChanged(nameof(StatusDoneOpacity));
+                    OnPropertyChanged(nameof(StatusDoneOpacity));
                 }
             }
         }
@@ -310,41 +328,61 @@
 
         #region Onstart
 
+        #region Initilzation
         public IssuePageModel()
         {
-            if (App.Client.Issue == null)
-            {
-                App.Client.Issue = CreateIssueModel();
-            }
-            StatusValues = App.Client.Issue.PossibleStatusValues;
-            SeverityValues = App.Client.Issue.PossibleSeverityValues;
-            locator = CrossGeolocator.Current;
-            this.ImageGalleryViewModel = new ImageGalleryPageModel();
+            geolocator = CrossGeolocator.Current;
+            pins = new ObservableCollection<TKCustomMapPin>();
+            circles = new ObservableCollection<TKCircle>();
 
-            if (App.Client.Issue == null && App.Client.Issue.IsNewIssue)
+            if (App.Client.Issue == null)
             {
                 App.Client.Issue = CreateIssueModel();
 
                 TitleEx = "New Event";
                 SeverityEx = IssueSeverity.Medium;
                 StatusEx = IssueStatus.InProgress;
-                StatusChecker();
                 GetLocation();
             }
+            StatusValues = App.Client.Issue.PossibleStatusValues;
+            SeverityValues = App.Client.Issue.PossibleSeverityValues;
+            StatusChecker();
+        }
+
+        protected override async void ViewIsAppearing(object sender, EventArgs e)
+        {
+            if (App.Client.Initilized == false) await App.Client.Init();
+
+            if (App.Client.LoggedIn != true)
+            {
+                await ShowLoginPage();
+            }
+
+            await GetLocationName();
+            CreatedByEx = App.Client.GetCurrentUsername();
         }
 
         public override void Init(object initData)
         {
-            UserDialogs.Instance.ShowLoading("Loading event...", MaskType.Clear);
             base.Init(initData);
             if (initData is IssueModel issue)
             {
                 App.Client.Issue = issue;
                 if (App.Client.Issue.ServerId != 0) this.GetImagesId(issue.ServerId);
+                StatusChecker();
+                if (!App.Client.Issue.IsNewIssue)
+                {
+                    MapCenter = new TK.CustomMap.Position(App.Client.Issue.Longitude, App.Client.Issue.Latitude);
+                    MapRegion = MapSpan.FromCenterAndRadius(MapCenter, Distance.FromKilometers(2));
+                    TK.CustomMap.Position x = new TK.CustomMap.Position(App.Client.Issue.Longitude, App.Client.Issue.Latitude);
+                    mapRegion = MapSpan.FromCenterAndRadius(
+                        new TK.CustomMap.Position(x.Latitude, x.Longitude),
+                        Distance.FromKilometers(2));
+                    AddPin(x);
 
+                }
+                UserDialogs.Instance.HideLoading();
             }
-
-            UserDialogs.Instance.HideLoading();
         }
 
         public IssueModel CreateIssueModel()
@@ -364,45 +402,22 @@
             };
         }
 
-        protected override async void ViewIsAppearing(object sender, EventArgs e)
+        #endregion
+
+
+
+        private async Task<bool> GetLocationName()
         {
-            if (App.Client.Initilized == false) await App.Client.Init();
-
-            if (App.Client.LoggedIn != true)
+            int LocationId = App.Client.GetCurrentLocationId();
+            if (LocationId == -1)
             {
-                await ShowLoginPage();
-                await GetLocationName();
-
+                await App.Client.ShowSelectLocation();
+                return true;
             }
-
-            CreatedByEx = App.Client.GetCurrentUsername();
+            return false;
         }
 
-        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
 
-        private async void GetLocation()
-        {
-            if (isBusy) return;
-            isBusy = true;
-            try
-            {
-                TimeSpan timeSpan = TimeSpan.FromTicks(120 * 1000);
-                Position position = new Position();
-                position = await this.locator.GetPositionAsync(timeSpan);
-                App.Client.Issue.Latitude = position.Latitude;
-                App.Client.Issue.Longitude = position.Longitude;
-            }
-            catch (Exception exception)
-            {
-                isBusy = false;
-                Debug.WriteLine(exception);
-            }
-
-            isBusy = false;
-        }
 
         private async Task ShowLoginPage()
         {
@@ -509,23 +524,10 @@
 
         #region Save
 
-        private async Task<bool> GetLocationName()
-        {
-            int LocationId = App.Client.GetCurrentLocationId();
-            if (LocationId == -1)
-            {
-                await App.Client.ShowSelectLocation();
-                return true;
-            }
-            return false;
-        }
-
-
         private async void OnSubmit()
         {
             if (isBusy) return;
             IsBusy = true;
-
 
             bool saved = await SaveChanges();
 
@@ -550,7 +552,6 @@
                     else
                     {
                         UserDialogs.Instance.Toast("Images failed to upload");
-
                     }
                 }
             }
@@ -559,7 +560,6 @@
                 UserDialogs.Instance.Toast("Issue has been failed");
                 UserDialogs.Instance.Alert("Save Failed", "Save failed", "OK");
             }
-
             IsBusy = false;
         }
 
@@ -575,9 +575,7 @@
                 return false;
             }
         }
-
         #endregion
-
 
         #region Images
 
@@ -592,34 +590,17 @@
                     Device.BeginInvokeOnMainThread(() => { ImageText = "Failed to upload image"; });
                     break;
                 case UploadImageEvent.ImageUploadSucess:
-                    ImageModel newimage = App.Client.GetImageInfo(imageId);
+                    ImageModel newimage = App.Client.GetImages(imageId);
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         ImageText = "Image Uploaded successful";
                         ImageGalleryViewModel.Images.Add(newimage);
-                        App.Client.RunInBackground(RefreshImages);
+                        //App.Client.RunInBackground(DownloadImages);
                     });
                     break;
                 case UploadImageEvent.ImageCaptured:
                     break;
             }
-        }
-
-        private void RefreshImages()
-        {
-            if (ImageGalleryViewModel.Images.Count == 0) return;
-
-            foreach (ImageModel item in ImageGalleryViewModel.Images)
-            {
-                AddTheImages(item.ImageIssueId);
-
-                Device.BeginInvokeOnMainThread(() =>
-                    {
-                        this.ImageText = "Downloading picture (image id: " + item.ImageId + ")";
-                    });
-            }
-            IsBusy = false;
-            Device.BeginInvokeOnMainThread(() => { ImageText = string.Empty; });
         }
 
         private void AddTheImages(int imageIssueId)
@@ -638,29 +619,312 @@
             }
         }
 
-
         private void GetImagesId(int issueId)
         {
-
             try
             {
-                ImageGalleryViewModel.Images.Clear();
-
-                var imageList = App.Client.GetImages(issueId);
-                foreach (ImageModel image in imageList)
+                var imageList = App.Client.GetImageInfo(issueId);
+                foreach (var image in imageList)
                 {
-                    ImageGalleryViewModel.Images.Add(image);
+                    this.AddTheImages(image.ImageIssueId);
                 }
-                this.RefreshImages();
             }
             catch (Exception exception)
             {
                 Debug.WriteLine(exception);
             }
             IsBusy = false;
+        }
+        #endregion
 
+        #region Map
+
+
+
+        #region Model
+        private readonly Random random = new Random(1984);
+
+        private TKTileUrlOptions tileUrlOptions;
+        private MapSpan mapRegion = MapSpan.FromCenterAndRadius(new TK.CustomMap.Position(56.8790, 14.8059), Distance.FromKilometers(2));
+        private TK.CustomMap.Position mapCenter;
+        private TKCustomMapPin selectedPin;
+        private bool isClusteringEnabled;
+        private ObservableCollection<TKCustomMapPin> pins;
+        private ObservableCollection<TKCircle> circles;
+        private ObservableCollection<TKPolyline> lines;
+
+        public TKTileUrlOptions TilesUrlOptions
+        {
+            get
+            {
+                return tileUrlOptions;
+
+                // return new TKTileUrlOptions(
+                // "http://a.basemaps.cartocdn.com/dark_all/{2}/{0}/{1}.png", 256, 256, 0, 18);
+                // return new TKTileUrlOptions(
+                // "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
+            }
+
+            set
+            {
+                if (tileUrlOptions != value)
+                {
+                    tileUrlOptions = value;
+                    OnPropertyChanged("TilesUrlOptions");
+                }
+            }
         }
 
+        private async void GetLocation()
+        {
+            await GetCurrentLocationAsync();
+        }
+
+        public IRendererFunctions MapFunctions { get; set; }
+
+        public bool IsClusteringEnabled
+        {
+            get => isClusteringEnabled;
+            set
+            {
+                isClusteringEnabled = value;
+                OnPropertyChanged(nameof(IsClusteringEnabled));
+            }
+        }
+
+        public MapSpan MapRegion
+        {
+            get { return mapRegion; }
+            set
+            {
+                if (mapRegion != value)
+                {
+                    mapRegion = value;
+                    OnPropertyChanged("MapRegion");
+                }
+            }
+        }
+
+        public ObservableCollection<TKCustomMapPin> Pins
+        {
+            get { return pins; }
+            set
+            {
+                if (pins != value)
+                {
+                    pins = value;
+                    OnPropertyChanged("Pins");
+                }
+            }
+        }
+
+        public ObservableCollection<TKCircle> Circles
+        {
+            get { return circles; }
+            set
+            {
+                if (circles != value)
+                {
+                    circles = value;
+                    OnPropertyChanged("Circles");
+                }
+            }
+        }
+        public ObservableCollection<TKPolyline> Lines
+        {
+            get { return lines; }
+            set
+            {
+                if (lines != value)
+                {
+                    lines = value;
+                    OnPropertyChanged("Lines");
+                }
+            }
+        }
+
+        public TK.CustomMap.Position MapCenter
+        {
+            get { return mapCenter; }
+            set
+            {
+                if (mapCenter != value)
+                {
+                    mapCenter = value;
+                    OnPropertyChanged("MapCenter");
+                }
+            }
+        }
+        public TKCustomMapPin SelectedPin
+        {
+            get { return selectedPin; }
+            set
+            {
+                if (selectedPin != value)
+                {
+                    selectedPin = value;
+                    OnPropertyChanged("SelectedPin");
+                }
+            }
+        }
+
+        private string mapText;
+
+        public string MapText
+        {
+            get { return mapText; }
+
+            set
+            {
+                if (mapText != value)
+                {
+                    mapText = value;
+                    OnPropertyChanged("MapText");
+                }
+            }
+        }
+
+        #endregion
+        public Command<TK.CustomMap.Position> MapLongPressCommand
+        {
+            get
+            {
+                return new Command<TK.CustomMap.Position>(position =>
+                {
+
+                    TKCustomMapPin pin = new TKCustomMapPin
+                    {
+                        Position = position,
+                        Title = string.Format("Pin {0}, {1}", position.Latitude, position.Longitude),
+                        ShowCallout = true,
+                        IsDraggable = true
+                    };
+                    pins.Clear();
+                    pins.Add(pin);
+                });
+            }
+        }
+
+        public Command<IPlaceResult> PlaceSelectedCommand
+        {
+            get
+            {
+                return new Command<IPlaceResult>(async p =>
+                {
+                    switch (p)
+                    {
+                        case GmsPlacePrediction gmsResult:
+                            GmsDetailsResult details = await GmsPlace.Instance.GetDetails(gmsResult.PlaceId);
+                            MapCenter = new TK.CustomMap.Position(details.Item.Geometry.Location.Latitude, details.Item.Geometry.Location.Longitude);
+                            return;
+                        case OsmNominatimResult osmResult:
+                            MapCenter = new TK.CustomMap.Position(osmResult.Latitude, osmResult.Longitude);
+                            return;
+                    }
+
+                    switch (Device.RuntimePlatform)
+                    {
+                        case Device.Android:
+                            {
+                                TKNativeAndroidPlaceResult prediction = (TKNativeAndroidPlaceResult)p;
+
+                                TKPlaceDetails details = await TKNativePlacesApi.Instance.GetDetails(prediction.PlaceId);
+
+                                MapCenter = details.Coordinate;
+                                break;
+                            }
+
+                        case Device.iOS:
+                            {
+                                TKNativeiOSPlaceResult prediction = (TKNativeiOSPlaceResult)p;
+
+                                MapCenter = prediction.Details.Coordinate;
+                                break;
+                            }
+                    }
+                });
+            }
+        }
+
+        public Command PinSelectedCommand
+        {
+            get
+            {
+                return new Command<TKCustomMapPin>(pin =>
+                {
+                    MapRegion = MapSpan.FromCenterAndRadius(SelectedPin.Position, Distance.FromKilometers(1));
+                });
+            }
+        }
+
+        public Command ClearMapCommand
+        {
+            get
+            {
+                return new Command(() =>
+                {
+                    pins.Clear();
+                });
+            }
+        }
+
+
+        private readonly ICommand initMapCommand = null;
+
+        public ICommand InitMapCommand
+        {
+            get { return initMapCommand ?? new Command(async () => await GetCurrentLocationAsync()); }
+        }
+
+        private void AddPin(TK.CustomMap.Position position)
+        {
+            TKCustomMapPin pin = new TKCustomMapPin
+            {
+                Position = position,
+                Title = string.Empty,
+                ShowCallout = false
+            };
+            Pins.Clear();
+            Pins.Add(pin);
+        }
+
+        private async Task GetCurrentLocationAsync()
+        {
+            if (isBusy) return;
+            isBusy = true;
+
+            TimeSpan timeSpan = TimeSpan.FromTicks(120 * 1000);
+            Position position = new Position();
+            try
+            {
+                MapText = "Searching for GPS location...";
+                position = await this.geolocator.GetPositionAsync(timeSpan);
+                if (position != null)
+                {
+                    App.Client.Issue.Latitude = position.Latitude;
+                    App.Client.Issue.Longitude = position.Longitude;
+                    MapCenter = new TK.CustomMap.Position(position.Latitude, position.Longitude);
+                    MapRegion = MapSpan.FromCenterAndRadius(MapCenter, Distance.FromKilometers(2));
+                    TK.CustomMap.Position x = new TK.CustomMap.Position(position.Latitude, position.Longitude);
+                    mapRegion = MapSpan.FromCenterAndRadius(new TK.CustomMap.Position(x.Latitude, x.Longitude), Distance.FromKilometers(2));
+                    AddPin(x);
+                    UpdateGpsLocationText(x);
+                }
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception);
+                MapText = "Unable to find position!";
+            }
+
+            isBusy = false;
+        }
+
+        private void UpdateGpsLocationText(TK.CustomMap.Position position)
+        {
+            string text = string.Format("{0} x {1}", position.Longitude, position.Latitude);
+            MapText = text;
+        }
         #endregion
     }
 }

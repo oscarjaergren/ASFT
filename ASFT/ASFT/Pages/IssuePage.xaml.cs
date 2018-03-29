@@ -13,7 +13,6 @@ namespace ASFT.Pages
         {
             InitializeComponent();
             CreateView();
-            MapRelativeLayout.BindingContext = new TkMapPageModel();
         }
 
         public void CreateView()
