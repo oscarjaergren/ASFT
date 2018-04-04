@@ -1,4 +1,15 @@
-﻿namespace ASFT.PageModels
+﻿using System.Diagnostics;
+
+using ASFT;
+
+using TK.CustomMap;
+using TK.CustomMap.Api;
+using TK.CustomMap.Api.Google;
+using TK.CustomMap.Api.OSM;
+
+using Xamarin.Forms;
+
+namespace ASFT.PageModels
 {
     using System;
     using System.Collections.Generic;
@@ -7,6 +18,7 @@
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
@@ -19,6 +31,8 @@
     using IssueBase.Issue;
     using Plugin.Geolocator;
     using Plugin.Geolocator.Abstractions;
+    using Plugin.Media;
+    using Plugin.Media.Abstractions;
 
     using TK.CustomMap;
     using TK.CustomMap.Api;
@@ -57,7 +71,7 @@
         private ICommand submitCommand;
         private ICommand onStatusClickedCommand;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -72,8 +86,6 @@
 
 
         // public ImageGalleryPageModel ImageGalleryViewModel = new ImageGalleryPageModel();
-        public ImageGalleryPageModel ImageGalleryViewModel { get; set; } = new ImageGalleryPageModel();
-
 
         public string StatusText
         {
@@ -349,19 +361,6 @@
             StatusChecker();
         }
 
-        protected override async void ViewIsAppearing(object sender, EventArgs e)
-        {
-            if (App.Client.Initilized == false) await App.Client.Init();
-
-            if (App.Client.LoggedIn != true)
-            {
-                await ShowLoginPage();
-            }
-
-            await GetLocationName();
-            CreatedByEx = App.Client.GetCurrentUsername();
-        }
-
         public override void Init(object initData)
         {
             base.Init(initData);
@@ -402,14 +401,28 @@
             };
         }
 
+        protected override async void ViewIsAppearing(object sender, EventArgs e)
+        {
+            if (App.Client.Initilized == false) await App.Client.Init();
+
+            if (App.Client.LoggedIn != true)
+            {
+                await ShowLoginPage();
+            }
+
+            await GetLocationName();
+            CreatedByEx = App.Client.GetCurrentUsername();
+        }
+
+
         #endregion
 
 
 
         private async Task<bool> GetLocationName()
         {
-            int LocationId = App.Client.GetCurrentLocationId();
-            if (LocationId == -1)
+            int locationId = App.Client.GetCurrentLocationId();
+            if (locationId == -1)
             {
                 await App.Client.ShowSelectLocation();
                 return true;
@@ -534,12 +547,11 @@
             if (saved)
             {
                 UserDialogs.Instance.Toast("Issue has been uploaded");
-                var imagesinCollection = ImageGalleryViewModel.Images;
+                var imagesinCollection = Images;
 
                 foreach (ImageModel image in imagesinCollection)
                 {
                     UserDialogs.Instance.Toast("Uploading" + image.ImageId);
-                    image.Image.FileName = image.ImageId.ToString();
                     bool imageUploadSuccess = await App.Client.PhotoUpload(
                                                   App.Client.Issue.ServerId,
                                                   OnCallbackUploadImage,
@@ -594,7 +606,7 @@
                     Device.BeginInvokeOnMainThread(() =>
                     {
                         ImageText = "Image Uploaded successful";
-                        ImageGalleryViewModel.Images.Add(newimage);
+                        Images.Add(newimage);
                         //App.Client.RunInBackground(DownloadImages);
                     });
                     break;
@@ -615,7 +627,10 @@
                 imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
 
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
-                ImageGalleryViewModel.Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
+                Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
+                //Debug to check if images are valid when being download. They are NOT
+                string base64String = Convert.ToBase64String(imageAsBytes);
+                Debug.WriteLine(base64String);
             }
         }
 
@@ -635,6 +650,141 @@
             }
             IsBusy = false;
         }
+        #endregion
+
+        #region ImageGallery
+
+        public ObservableCollection<ImageModel> Images
+        {
+            get { return images; }
+            set
+            {
+                images = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Images)));
+            }
+        }
+
+        public ImageSource PreviewImage
+        {
+            get { return previewImage; }
+            set { previewImage = value; }
+        }
+
+        public ICommand CameraCommand
+        {
+            get
+            {
+                return cameraCommand ?? new Command(async () => await ExecuteCameraCommand(), CanExecuteCameraCommand);
+            }
+        }
+
+        public ICommand PickCommand
+        {
+            get
+            {
+                return pickCommand ?? new Command(async () => await ExecutePickCommand(), CanExecutePickCommand);
+            }
+        }
+
+        public Guid PreviewId { get; set; }
+
+        private readonly ICommand cameraCommand = null;
+        private readonly ICommand pickCommand = null;
+        private readonly ICommand previewImageCommand = null;
+
+        private ImageSource previewImage;
+
+        private ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel>();
+
+        private ICommand PreviewImageCommand
+        {
+            get
+            {
+                return previewImageCommand ?? new Command<Guid>(img =>
+                {
+                    if (images.Count > 0)
+                    {
+                        var image = images.Single(x => x.ImageId == img).OrgImage;
+                        if (image.Length > 0)
+                        {
+                            PreviewId = img;
+                            PreviewImage = ImageSource.FromStream(() => new MemoryStream(image));
+                        }
+                    }
+                });
+            }
+        }
+
+
+        private bool CanExecuteCameraCommand()
+        {
+            return CrossMedia.Current.IsCameraAvailable && CrossMedia.Current.IsTakePhotoSupported;
+        }
+
+        private bool CanExecutePickCommand()
+        {
+            return CrossMedia.Current.IsPickPhotoSupported;
+        }
+
+        private async Task ExecutePickCommand()
+        {
+            MediaFile file = await CrossMedia.Current.PickPhotoAsync();
+
+            if (file == null)
+                return;
+
+            byte[] imageAsBytes;
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                file.GetStream().CopyTo(memoryStream);
+                file.Dispose();
+                imageAsBytes = memoryStream.ToArray();
+            }
+
+            if (imageAsBytes.Length > 0)
+            {
+                IImageResizer resizer = DependencyService.Get<IImageResizer>();
+                imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
+
+                ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
+                Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
+
+                string base64String = Convert.ToBase64String(imageAsBytes);
+                Debug.WriteLine(base64String);
+            }
+        }
+
+        private async Task ExecuteCameraCommand()
+        {
+            MediaFile file = await CrossMedia.Current.TakePhotoAsync(
+                new StoreCameraMediaOptions { PhotoSize = PhotoSize.Small });
+
+            if (file == null)
+                return;
+
+            byte[] imageAsBytes;
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                file.GetStream().CopyTo(memoryStream);
+                file.Dispose();
+                imageAsBytes = memoryStream.ToArray();
+            }
+
+            if (imageAsBytes.Length > 0)
+            {
+                IImageResizer resizer = DependencyService.Get<IImageResizer>();
+                imageAsBytes = resizer.ResizeImage(imageAsBytes, 1080, 1080);
+
+                string base64String = Convert.ToBase64String(imageAsBytes);
+                Debug.WriteLine(base64String);
+
+                ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
+                Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
+            }
+       
+
+        }
+
         #endregion
 
         #region Map

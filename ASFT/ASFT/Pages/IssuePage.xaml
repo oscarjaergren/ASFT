@@ -73,8 +73,7 @@
                 <!--PictureGallery-->
                 <Label Text="IMAGES" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
                        Style="{StaticResource Labelfont}" TextColor="White" />
-                <Grid BindingContext="{Binding ImageGalleryViewModel}">
-
+                <Grid >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="128" />
                         <RowDefinition Height="*" />

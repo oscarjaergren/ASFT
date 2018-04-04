@@ -267,6 +267,7 @@ namespace ASFT.HelperMethods
 
         public async Task AddIssue(IssueModel issue)
         {
+            issue.LocationId = GetCurrentLocationId();
             if (issue.LocationId == 0 || issue.LocationId == -1) await App.Client.ShowSelectLocation();
             issue.LocationId = GetCurrentLocationId();
 
@@ -358,11 +359,6 @@ namespace ASFT.HelperMethods
         {
             string filetype = GetFileType(file);
             int imageResult = await UploadImage(issueId, bytes, filetype);
-            if (imageResult <= 0) return imageResult;
-            if (move)
-                MoveFileToImageCache(file, issueId, imageResult);
-            else
-                CopyFileToImageCache(file, issueId, imageResult);
             return imageResult;
         }
 

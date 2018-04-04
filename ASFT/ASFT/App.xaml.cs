@@ -9,13 +9,17 @@ namespace ASFT
     {
         public static AppIssueClient Client;
 
+        public static Page IssuePageInstance;
+
+
         public App()
         {
             Client = new AppIssueClient();
 
             Page page = FreshPageModelResolver.ResolvePageModel<IssuePageModel>();
-            FreshNavigationContainer container = new FreshNavigationContainer(page);
-            MainPage = container;
+            FreshNavigationContainer IssuePageInstance = new FreshNavigationContainer(page);
+
+            MainPage = IssuePageInstance;
         }
 
         protected override void OnStart()

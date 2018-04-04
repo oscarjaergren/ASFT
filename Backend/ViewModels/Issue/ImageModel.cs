@@ -20,7 +20,8 @@ namespace IssueBase.Issue
         public ImageModel()
         {
             ImageId = Guid.NewGuid();
-
+            var FileName = ImageId.ToString();
+            Image = new ImageInfo(FileName);
         }
 
         public ImageModel(ImageModel image)
