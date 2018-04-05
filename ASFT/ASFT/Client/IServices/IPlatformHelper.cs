@@ -38,11 +38,6 @@ namespace ASFT.IServices
         string GetImagesCacheDirectory();
     }
 
-    public interface IImageHelper
-    {
-        ImageSize GetImageSize(string path);
-    }
-
     public interface IImageResizer
     {
         byte[] ResizeImage(byte[] imageData, float width, float height);

@@ -4,11 +4,6 @@ using System.Threading.Tasks;
 using ASFT.Client;
 using ASFT.IServices;
 
-#if WINDOWS_PHONE_APP
-  using Windows.Storage;
-#endif
-
-
 [assembly: Xamarin.Forms.Dependency(typeof(FileHelper))]
 namespace ASFT.Client
 {

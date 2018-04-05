@@ -333,8 +333,6 @@ namespace ASFT.HelperMethods
             this.apiClient.DeleteIssue(issueId);
         }
 
-
-
         public async Task<bool> PhotoUpload(int issueId, Action<UploadImageEvent, int> onCallback, byte[] bytes, string file)
         {
             if (file.Length == 0)
@@ -377,42 +375,10 @@ namespace ASFT.HelperMethods
             });
         }
 
-        public void MoveFileToImageCache(string filename, int issueId, int imageId)
-        {
-            IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
-
-            string targetFile = GetImageFilePath(imageId, issueId);
-
-            if (!fileHelper.MakeSureDirectoryExists(targetFile, true)) return;
-            if (FileExists(targetFile)) DeleteFile(targetFile);
-
-            fileHelper.MoveFile(filename, targetFile);
-        }
-
-        public void CopyFileToImageCache(string filename, int issueId, int imageId)
-        {
-            IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
-
-            string targetFile = GetImageFilePath(imageId, issueId);
-
-            if (!fileHelper.MakeSureDirectoryExists(targetFile, true)) return;
-            if (FileExists(targetFile)) DeleteFile(targetFile);
-
-            fileHelper.CopyFile(filename, targetFile);
-        }
-
         public void RunInBackground(Action action)
         {
             IThreadHelper threadHelper = DependencyService.Get<IThreadHelper>();
             threadHelper.RunInBackground(action);
-        }
-
-        public bool ClearImageCacheForIssue(int issueId)
-        {
-            IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
-            string path = DependencyService.Get<IDirectoryService>().GetImagesCacheDirectory();
-            path = Path.Combine(path, issueId.ToString());
-            return fileHelper.DeleteFolder(path, true);
         }
 
         // "<CacheDir>\IssueID\<ImgID>.jpg"
@@ -426,46 +392,6 @@ namespace ASFT.HelperMethods
             return path;
         }
 
-        public string GetThumbnailFilePath(int imgId, int issueId, int thumbSize)
-        {
-            string path = DependencyService.Get<IDirectoryService>().GetImagesCacheDirectory();
-            path = Path.Combine(path, issueId.ToString());
-            path = Path.Combine(path, imgId.ToString());
-            path += "_thumb" + thumbSize;
-            path += ".jpg";
-            return path;
-        }
-
-        public Task<string> GetThumbnail(int imgId, int issueId, int thumbSize, bool download)
-        {
-            return Task.Run(() =>
-            {
-                try
-                {
-                    string thumbPath = GetThumbnailFilePath(imgId, issueId, thumbSize);
-                    if (this.FileExists(thumbPath)) return thumbPath;
-                    string orgImagePath = GetImageFilePath(imgId, issueId);
-                    if (FileExists(orgImagePath) == false)
-                    {
-                        if (download == false)
-                            return string.Empty;
-
-                        var imageData = App.Client.GetImage(imgId);
-
-                        SaveImageDataToFile(orgImagePath, imageData.Item1);
-                    }
-
-                    CreateThumbnail(orgImagePath, thumbPath, thumbSize);
-
-                    return thumbPath;
-                }
-                catch (Exception)
-                {
-                    return string.Empty;
-                }
-            });
-        }
-
         public bool FileExists(string imgFile)
         {
             return DependencyService.Get<IFileHelper>().Exists(imgFile);
@@ -476,36 +402,6 @@ namespace ASFT.HelperMethods
             DependencyService.Get<IFileHelper>().DeleteFile(filepath);
         }
 
-        public bool SaveImageDataToFile(string filename, byte[] data)
-        {
-            IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
-
-            if (fileHelper.MakeSureDirectoryExists(filename, true))
-            {
-                fileHelper.WriteFile(filename, data);
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool SaveImageDataToCache(byte[] data, int imageId, int issueId, string dataType)
-        {
-            try
-            {
-                IFileHelper fileHelper = DependencyService.Get<IFileHelper>();
-
-                string filename = GetImageFilePath(imageId, issueId);
-
-                if (fileHelper.MakeSureDirectoryExists(filename, true)) fileHelper.WriteFile(filename, data);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         private static string GetFileType(string file)
         {
             string filetype = "jpg";
@@ -514,12 +410,6 @@ namespace ASFT.HelperMethods
             filetype = file.Substring(fileExtPos + 1);
             filetype = filetype.ToLower();
             return filetype;
-        }
-
-        private static void CreateThumbnail(string originalImageFile, string thumbnailFile, int maxSizeIn)
-        {
-            ImageSize maxSize = new ImageSize(maxSizeIn, maxSizeIn);
-            ThumbnailCreator.CreateThumbnail(originalImageFile, thumbnailFile, maxSize);
         }
 
         private List<LocationModel> GetLocatonsOnline()

@@ -50,5 +50,7 @@
 	<string>LaunchScreen</string>
 	<key>CFBundleName</key>
 	<string>ASFT</string>
+	<key>UIMainStoryboardFile</key>
+	<string>LaunchScreen</string>
 </dict>
 </plist>

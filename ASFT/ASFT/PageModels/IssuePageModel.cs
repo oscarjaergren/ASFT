@@ -1,15 +1,4 @@
-﻿using System.Diagnostics;
-
-using ASFT;
-
-using TK.CustomMap;
-using TK.CustomMap.Api;
-using TK.CustomMap.Api.Google;
-using TK.CustomMap.Api.OSM;
-
-using Xamarin.Forms;
-
-namespace ASFT.PageModels
+﻿namespace ASFT.PageModels
 {
     using System;
     using System.Collections.Generic;
@@ -19,12 +8,10 @@ namespace ASFT.PageModels
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Acr.UserDialogs;
     using ASFT.IServices;
-    using ASFT.Pages;
 
     using DataTypes.Enums;
     using FreshMvvm;
@@ -47,6 +34,7 @@ namespace ASFT.PageModels
 
     [SuppressMessage("ReSharper", "InvertIf")]
     [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
+    [PropertyChanged.AddINotifyPropertyChangedInterface]
     public class IssuePageModel : FreshBasePageModel, INotifyPropertyChanged
     {
         #region Model
@@ -58,34 +46,15 @@ namespace ASFT.PageModels
         private string locationText;
         private string statusText;
 
-        private double statusUnresolvedOpacity;
-        private double statusInProgressOpacity;
-        private double statusDoneOpacity;
-        private double severity5Opacity;
-        private double severity4Opacity;
-        private double severity3Opacity;
-        private double severity2Opacity;
-        private double severity1Opacity;
-
         private ICommand onGoToListCommand;
         private ICommand submitCommand;
         private ICommand onStatusClickedCommand;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         #region Properties
 
         public List<IssueSeverityModel> SeverityValues { get; set; }
 
         public List<IssueStatusModel> StatusValues { get; set; }
-
-
-        // public ImageGalleryPageModel ImageGalleryViewModel = new ImageGalleryPageModel();
 
         public string StatusText
         {
@@ -94,7 +63,7 @@ namespace ASFT.PageModels
             {
                 if (statusText == value) return;
                 statusText = value;
-                OnPropertyChanged(nameof(StatusText));
+                this.RaisePropertyChanged(nameof(StatusText));
             }
         }
 
@@ -105,7 +74,7 @@ namespace ASFT.PageModels
             {
                 if (isBusy == value) return;
                 isBusy = value;
-                OnPropertyChanged(nameof(IsBusy));
+                this.RaisePropertyChanged(nameof(IsBusy));
             }
         }
 
@@ -116,7 +85,7 @@ namespace ASFT.PageModels
             {
                 if (imageText == value) return;
                 imageText = value;
-                OnPropertyChanged(nameof(ImageText));
+                this.RaisePropertyChanged(nameof(ImageText));
             }
         }
 
@@ -126,7 +95,7 @@ namespace ASFT.PageModels
             set
             {
                 App.Client.Issue.Severity = value;
-                OnPropertyChanged(nameof(SeverityEx));
+                this.RaisePropertyChanged(nameof(SeverityEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -137,7 +106,7 @@ namespace ASFT.PageModels
             set
             {
                 App.Client.Issue.Status = value;
-                OnPropertyChanged(nameof(StatusEx));
+                this.RaisePropertyChanged(nameof(StatusEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -148,7 +117,7 @@ namespace ASFT.PageModels
             set
             {
                 locationText = value;
-                OnPropertyChanged(nameof(LocationText));
+                this.RaisePropertyChanged(nameof(LocationText));
             }
         }
 
@@ -159,7 +128,7 @@ namespace ASFT.PageModels
             {
                 if (App.Client.Issue.Title == value) return;
                 App.Client.Issue.Title = value;
-                OnPropertyChanged(nameof(TitleEx));
+                this.RaisePropertyChanged(nameof(TitleEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -171,7 +140,7 @@ namespace ASFT.PageModels
             {
                 if (App.Client.Issue.CreatedBy == value) return;
                 App.Client.Issue.CreatedBy = value;
-                OnPropertyChanged(nameof(CreatedByEx));
+                this.RaisePropertyChanged(nameof(CreatedByEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -183,7 +152,7 @@ namespace ASFT.PageModels
             {
                 if (App.Client.Issue.Created == value) return;
                 App.Client.Issue.Created = value;
-                OnPropertyChanged(nameof(CreatedEx));
+                this.RaisePropertyChanged(nameof(CreatedEx));
                 App.Client.Issue.Changed = true;
             }
         }
@@ -195,114 +164,28 @@ namespace ASFT.PageModels
             {
                 if (App.Client.Issue.Description == value) return;
                 App.Client.Issue.Description = value;
-                OnPropertyChanged(nameof(DescriptionEx));
+                this.RaisePropertyChanged(nameof(DescriptionEx));
                 App.Client.Issue.Changed = true;
             }
         }
         #region Opacity Properties
-        public double Severity5Opacity
-        {
-            get { return severity5Opacity; }
-            set
-            {
-                if (severity5Opacity != value)
-                {
-                    severity5Opacity = value;
-                    OnPropertyChanged(nameof(Severity5Opacity));
-                }
-            }
-        }
 
-        public double Severity4Opacity
-        {
-            get { return severity4Opacity; }
-            set
-            {
-                if (severity4Opacity != value)
-                {
-                    severity4Opacity = value;
-                    OnPropertyChanged(nameof(Severity4Opacity));
-                }
-            }
-        }
+        public double Severity5Opacity { get; set; }
 
-        public double Severity3Opacity
-        {
-            get { return severity3Opacity; }
-            set
-            {
-                if (severity3Opacity != value)
-                {
-                    severity3Opacity = value;
-                    OnPropertyChanged(nameof(Severity3Opacity));
-                }
-            }
-        }
+        public double Severity4Opacity { get; set; }
 
-        public double Severity2Opacity
-        {
-            get { return severity2Opacity; }
-            set
-            {
-                if (severity2Opacity != value)
-                {
-                    severity2Opacity = value;
-                    OnPropertyChanged(nameof(Severity2Opacity));
-                }
-            }
-        }
+        public double Severity3Opacity { get; set; }
 
-        public double Severity1Opacity
-        {
-            get { return severity1Opacity; }
-            set
-            {
-                if (severity1Opacity != value)
-                {
-                    severity1Opacity = value;
-                    OnPropertyChanged(nameof(Severity1Opacity));
-                }
-            }
-        }
+        public double Severity2Opacity { get; set; }
 
-        public double StatusUnresolvedOpacity
-        {
-            get { return statusUnresolvedOpacity; }
-            set
-            {
-                if (statusUnresolvedOpacity != value)
-                {
-                    statusUnresolvedOpacity = value;
-                    OnPropertyChanged(nameof(StatusUnresolvedOpacity));
-                }
-            }
-        }
+        public double Severity1Opacity { get; set; }
 
-        public double StatusInProgressOpacity
-        {
-            get { return statusInProgressOpacity; }
-            set
-            {
-                if (statusInProgressOpacity != value)
-                {
-                    statusInProgressOpacity = value;
-                    OnPropertyChanged(nameof(StatusInProgressOpacity));
-                }
-            }
-        }
+        public double StatusUnresolvedOpacity { get; set; }
 
-        public double StatusDoneOpacity
-        {
-            get { return statusDoneOpacity; }
-            set
-            {
-                if (statusDoneOpacity != value)
-                {
-                    statusDoneOpacity = value;
-                    OnPropertyChanged(nameof(StatusDoneOpacity));
-                }
-            }
-        }
+        public double StatusInProgressOpacity { get; set; }
+
+        public double StatusDoneOpacity { get; set; }
+
         #endregion
         #endregion
 
@@ -344,8 +227,7 @@ namespace ASFT.PageModels
         public IssuePageModel()
         {
             geolocator = CrossGeolocator.Current;
-            pins = new ObservableCollection<TKCustomMapPin>();
-            circles = new ObservableCollection<TKCircle>();
+            
 
             if (App.Client.Issue == null)
             {
@@ -374,7 +256,7 @@ namespace ASFT.PageModels
                     MapCenter = new TK.CustomMap.Position(App.Client.Issue.Longitude, App.Client.Issue.Latitude);
                     MapRegion = MapSpan.FromCenterAndRadius(MapCenter, Distance.FromKilometers(2));
                     TK.CustomMap.Position x = new TK.CustomMap.Position(App.Client.Issue.Longitude, App.Client.Issue.Latitude);
-                    mapRegion = MapSpan.FromCenterAndRadius(
+                    MapRegion = MapSpan.FromCenterAndRadius(
                         new TK.CustomMap.Position(x.Latitude, x.Longitude),
                         Distance.FromKilometers(2));
                     AddPin(x);
@@ -628,7 +510,8 @@ namespace ASFT.PageModels
 
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
                 Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
-                //Debug to check if images are valid when being download. They are NOT
+
+                // Debug to check if images are valid when being download. They are 
                 string base64String = Convert.ToBase64String(imageAsBytes);
                 Debug.WriteLine(base64String);
             }
@@ -660,15 +543,10 @@ namespace ASFT.PageModels
             set
             {
                 images = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Images)));
             }
         }
 
-        public ImageSource PreviewImage
-        {
-            get { return previewImage; }
-            set { previewImage = value; }
-        }
+        public ImageSource PreviewImage { get; set; }
 
         public ICommand CameraCommand
         {
@@ -691,8 +569,6 @@ namespace ASFT.PageModels
         private readonly ICommand cameraCommand = null;
         private readonly ICommand pickCommand = null;
         private readonly ICommand previewImageCommand = null;
-
-        private ImageSource previewImage;
 
         private ObservableCollection<ImageModel> images = new ObservableCollection<ImageModel>();
 
@@ -781,7 +657,7 @@ namespace ASFT.PageModels
                 ImageSource imageSource = ImageSource.FromStream(() => new MemoryStream(imageAsBytes));
                 Images.Add(new ImageModel { Source = imageSource, OrgImage = imageAsBytes });
             }
-       
+
 
         }
 
@@ -792,45 +668,15 @@ namespace ASFT.PageModels
 
 
         #region Model
-        private readonly Random random = new Random(1984);
 
-        private TKTileUrlOptions tileUrlOptions;
-        private MapSpan mapRegion = MapSpan.FromCenterAndRadius(new TK.CustomMap.Position(56.8790, 14.8059), Distance.FromKilometers(2));
-        private TK.CustomMap.Position mapCenter;
-        private TKCustomMapPin selectedPin;
         private bool isClusteringEnabled;
-        private ObservableCollection<TKCustomMapPin> pins;
-        private ObservableCollection<TKCircle> circles;
-        private ObservableCollection<TKPolyline> lines;
 
-        public TKTileUrlOptions TilesUrlOptions
-        {
-            get
-            {
-                return tileUrlOptions;
-
-                // return new TKTileUrlOptions(
-                // "http://a.basemaps.cartocdn.com/dark_all/{2}/{0}/{1}.png", 256, 256, 0, 18);
-                // return new TKTileUrlOptions(
-                // "http://a.tile.openstreetmap.org/{2}/{0}/{1}.png", 256, 256, 0, 18);
-            }
-
-            set
-            {
-                if (tileUrlOptions != value)
-                {
-                    tileUrlOptions = value;
-                    OnPropertyChanged("TilesUrlOptions");
-                }
-            }
-        }
 
         private async void GetLocation()
         {
             await GetCurrentLocationAsync();
         }
 
-        public IRendererFunctions MapFunctions { get; set; }
 
         public bool IsClusteringEnabled
         {
@@ -838,101 +684,26 @@ namespace ASFT.PageModels
             set
             {
                 isClusteringEnabled = value;
-                OnPropertyChanged(nameof(IsClusteringEnabled));
+                RaisePropertyChanged(nameof(IsClusteringEnabled));
             }
         }
+        public IRendererFunctions MapFunctions { get; set; }
 
-        public MapSpan MapRegion
-        {
-            get { return mapRegion; }
-            set
-            {
-                if (mapRegion != value)
-                {
-                    mapRegion = value;
-                    OnPropertyChanged("MapRegion");
-                }
-            }
-        }
+        public TKTileUrlOptions TilesUrlOptions { get; set; }
 
-        public ObservableCollection<TKCustomMapPin> Pins
-        {
-            get { return pins; }
-            set
-            {
-                if (pins != value)
-                {
-                    pins = value;
-                    OnPropertyChanged("Pins");
-                }
-            }
-        }
+        public MapSpan MapRegion { get; set; } = MapSpan.FromCenterAndRadius(new TK.CustomMap.Position(56.8790, 14.8059), Distance.FromKilometers(2));
 
-        public ObservableCollection<TKCircle> Circles
-        {
-            get { return circles; }
-            set
-            {
-                if (circles != value)
-                {
-                    circles = value;
-                    OnPropertyChanged("Circles");
-                }
-            }
-        }
-        public ObservableCollection<TKPolyline> Lines
-        {
-            get { return lines; }
-            set
-            {
-                if (lines != value)
-                {
-                    lines = value;
-                    OnPropertyChanged("Lines");
-                }
-            }
-        }
+        public ObservableCollection<TKCustomMapPin> Pins { get; set; }  = new ObservableCollection<TKCustomMapPin>();
 
-        public TK.CustomMap.Position MapCenter
-        {
-            get { return mapCenter; }
-            set
-            {
-                if (mapCenter != value)
-                {
-                    mapCenter = value;
-                    OnPropertyChanged("MapCenter");
-                }
-            }
-        }
-        public TKCustomMapPin SelectedPin
-        {
-            get { return selectedPin; }
-            set
-            {
-                if (selectedPin != value)
-                {
-                    selectedPin = value;
-                    OnPropertyChanged("SelectedPin");
-                }
-            }
-        }
+        public ObservableCollection<TKCircle> Circles { get; set; }  = new ObservableCollection<TKCircle>();
 
-        private string mapText;
+        public ObservableCollection<TKPolyline> Lines { get; set; }
 
-        public string MapText
-        {
-            get { return mapText; }
+        public TK.CustomMap.Position MapCenter { get; set; }
 
-            set
-            {
-                if (mapText != value)
-                {
-                    mapText = value;
-                    OnPropertyChanged("MapText");
-                }
-            }
-        }
+        public TKCustomMapPin SelectedPin { get; set; }
+
+        public string MapText { get; set; }
 
         #endregion
         public Command<TK.CustomMap.Position> MapLongPressCommand
@@ -949,8 +720,8 @@ namespace ASFT.PageModels
                         ShowCallout = true,
                         IsDraggable = true
                     };
-                    pins.Clear();
-                    pins.Add(pin);
+                    Pins.Clear();
+                    Pins.Add(pin);
                 });
             }
         }
@@ -1013,7 +784,7 @@ namespace ASFT.PageModels
             {
                 return new Command(() =>
                 {
-                    pins.Clear();
+                    Pins.Clear();
                 });
             }
         }
@@ -1056,7 +827,7 @@ namespace ASFT.PageModels
                     MapCenter = new TK.CustomMap.Position(position.Latitude, position.Longitude);
                     MapRegion = MapSpan.FromCenterAndRadius(MapCenter, Distance.FromKilometers(2));
                     TK.CustomMap.Position x = new TK.CustomMap.Position(position.Latitude, position.Longitude);
-                    mapRegion = MapSpan.FromCenterAndRadius(new TK.CustomMap.Position(x.Latitude, x.Longitude), Distance.FromKilometers(2));
+                    MapRegion = MapSpan.FromCenterAndRadius(new TK.CustomMap.Position(x.Latitude, x.Longitude), Distance.FromKilometers(2));
                     AddPin(x);
                     UpdateGpsLocationText(x);
                 }
