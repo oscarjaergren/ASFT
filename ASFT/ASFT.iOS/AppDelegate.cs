@@ -1,8 +1,12 @@
 ﻿using Foundation;
 using UIKit;
+using Acr.UserDialogs;
+using Xamarin.Forms;
 
 namespace ASFT.iOS
 {
+    using TK.CustomMap.iOSUnified;
+
     // The UIApplicationDelegate for the application. This class is responsible for launching the 
     // User Interface of the application, as well as listening (and optionally responding) to 
     // application events from iOS.
@@ -20,7 +24,7 @@ namespace ASFT.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
-
+            var renderer = new TKCustomMapRenderer();
             return base.FinishedLaunching(app, options);
         }
     }

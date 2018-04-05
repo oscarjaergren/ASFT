@@ -4,17 +4,20 @@
              xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
              xmlns:converters="clr-namespace:ASFT.Converters;assembly=ASFT"
              xmlns:controls="clr-namespace:ASFT.Controls;assembly=ASFT"
-             x:Class="ASFT.Pages.IssuePage" Padding="4,25,4,4" x:Name="IssuePages">
+             x:Class="ASFT.Pages.IssuePage" Padding="4,25,4,4" x:Name="IssuePages" BackgroundColor="Black">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="Labelfont" TargetType="Label">
-                <Setter Property="FontSize" Value="Medium" />
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="HorizontalTextAlignment" Value="Start"/>
+                <Setter Property="VerticalTextAlignment" Value="Center"/>
+                <Setter Property="BackgroundColor" Value="Black"/>
             </Style>
             <converters:DateTextConverter x:Key="DateToTextConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <Grid BackgroundColor="Black">
+    <Grid >
         <Grid.RowDefinitions>
             <RowDefinition Height="50" />
             <RowDefinition Height="*" />
@@ -32,8 +35,7 @@
                 <ColumnDefinition Width="20" />
             </Grid.ColumnDefinitions>
             <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" BackgroundColor="#FBB040">
-                <Label Text="    &lt;   EVENTS" TextColor="White" FontSize="Large" HorizontalOptions="StartAndExpand"
-                       VerticalOptions="CenterAndExpand">
+                <Label Text="    &lt;   EVENTS" Style="{StaticResource Labelfont}" BackgroundColor="#FBB040" >
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding OnGoToListCommand}" NumberOfTapsRequired="1" />
                     </Label.GestureRecognizers>
@@ -42,37 +44,33 @@
             </StackLayout>
         </Grid>
 
-
         <ScrollView Grid.Column="0" Grid.Row="1" Orientation="Vertical" VerticalOptions="FillAndExpand">
             <StackLayout Orientation="Vertical" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" Spacing="15" Padding="0,30,0,0">
 
                 <!--Category-->
-                <Label Text="CATEGORY"  HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
-                       Style="{StaticResource Labelfont}" TextColor="White" />
+                <Label Text="CATEGORY" Style="{StaticResource Labelfont}" />
                 <Frame OutlineColor="#FBB040" Padding="2" HeightRequest="40">
                     <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="FillAndExpand"
                                  Spacing="6" HeightRequest="40">
                         <Entry Text="{Binding TitleEx}" TextColor="White" VerticalOptions="Center"
-                               HorizontalOptions="FillAndExpand" Style="{StaticResource Labelfont}" HeightRequest="40"
+                               HorizontalOptions="FillAndExpand"  HeightRequest="40"
                                BackgroundColor="Black" />
                     </StackLayout>
                 </Frame>
 
                 <!--Title-->
-                <Label Text="TITLE" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
-                       Style="{StaticResource Labelfont}" TextColor="White" />
+                <Label Text="TITLE" Style="{StaticResource Labelfont}" />
                 <Frame OutlineColor="#FBB040" Padding="2" HeightRequest="40">
                     <StackLayout Orientation="Horizontal" VerticalOptions="Center" HorizontalOptions="FillAndExpand"
                                  Spacing="6" HeightRequest="40">
                         <Entry Text="{Binding TitleEx}" TextColor="White" VerticalOptions="Center"
-                               HorizontalOptions="FillAndExpand" Style="{StaticResource Labelfont}" HeightRequest="40"
+                               HorizontalOptions="FillAndExpand"  HeightRequest="40"
                                BackgroundColor="Black" />
                     </StackLayout>
                 </Frame>
 
                 <!--PictureGallery-->
-                <Label Text="IMAGES" HorizontalTextAlignment="Start" VerticalTextAlignment="Center"
-                       Style="{StaticResource Labelfont}" TextColor="White" />
+                <Label Text="IMAGES" Style="{StaticResource Labelfont}" />
                 <Grid >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="128" />
@@ -100,10 +98,10 @@
                         <Button Grid.Column="1" Text="Pick photo" Command="{Binding PickCommand}" />
                     </Grid>
                 </Grid>
-                <Label Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="3" Text="{Binding ImageText}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White" />
+                <Label  Text="{Binding ImageText}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White" />
 
                 <!--Description-->
-                <Label Text="DESCRIPTION" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Style="{StaticResource Labelfont}" TextColor="White" />
+                <Label Text="DESCRIPTION" Style="{StaticResource Labelfont}" />
                 <Frame Padding="2" OutlineColor="#FBB040">
                     <Editor Text="{Binding DescriptionEx}" HeightRequest="100" BackgroundColor="Black" TextColor="White" />
                 </Frame>
@@ -125,9 +123,8 @@
                     </Grid.ColumnDefinitions>
 
                     <!--Severity-->
-                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="SEVERITY" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Style="{StaticResource Labelfont}" TextColor="White" />
-                    <Label Grid.Row="0" Grid.Column="1" Text="" VerticalTextAlignment="Center"
-                           HorizontalOptions="StartAndExpand" Style="{StaticResource Labelfont}"  />
+                    <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="SEVERITY" Style="{StaticResource Labelfont}" />
+                    <Label Grid.Row="0" Grid.Column="1" Text="" Style="{StaticResource Labelfont}" />
 
                     <StackLayout Grid.Row="1" Grid.Column="0" Orientation="Horizontal" HorizontalOptions="Center">
                         <Image Source="severity_5.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="{Binding Severity5Opacity}">
@@ -138,8 +135,7 @@
                     </StackLayout>
 
                     <StackLayout Grid.Row="1" Grid.Column="1">
-                        <Image Source="severity_4.png" HorizontalOptions="Center"
-                               VerticalOptions="Center" HeightRequest="40" Opacity="{Binding Severity4Opacity}">
+                        <Image Source="severity_4.png" HorizontalOptions="Center" VerticalOptions="Center" HeightRequest="40" Opacity="{Binding Severity4Opacity}">
                             <Image.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding OnStatusClickedCommand}" CommandParameter="severity_4.png"  />
                             </Image.GestureRecognizers>
@@ -175,9 +171,8 @@
 
 
                     <!--Status-->
-                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="STATUS" HorizontalTextAlignment="Start" VerticalTextAlignment="Center" TextColor="White" Style="{StaticResource Labelfont}" />
-                    <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" FontSize="Micro" Text="STATUS" HorizontalTextAlignment="End" VerticalTextAlignment="Center" TextColor="White"
-                           Style="{StaticResource Labelfont}" IsVisible="True" />
+                    <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="STATUS" Style="{StaticResource Labelfont}" />
+                    <Label Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" FontSize="Micro" Text="STATUS" HorizontalTextAlignment="End" Style="{StaticResource Labelfont}" IsVisible="True" />
                     <StackLayout Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="0">
                         <Image Source="statusUnresolved.png" HorizontalOptions="Center"
                                VerticalOptions="Center" HeightRequest="40" Opacity="{Binding StatusUnresolvedOpacity}">
@@ -205,28 +200,24 @@
                 </Grid>
 
                 <!--Date Created-->
-                <Label Text="TIME AND DATE: " Style="{StaticResource Labelfont}" TextColor="White" />
+                <Label Text="TIME AND DATE: " Style="{StaticResource Labelfont}" />
                 <Frame OutlineColor="#FBB040" BackgroundColor="Black" Padding="2">
                     <StackLayout Orientation="Horizontal" VerticalOptions="Center"
                                  HorizontalOptions="FillAndExpand" Spacing="0" Margin="0" Padding="0"
                                  BackgroundColor="Black" HeightRequest="40">
-                        <Label Text=" " Style="{StaticResource Labelfont}" TextColor="White" BackgroundColor="Black"
-                               Margin="1" />
-                        <Label Text="{Binding CreatedEx, Converter={StaticResource DateToTextConverter}}"
-                               Style="{StaticResource Labelfont}" TextColor="White" BackgroundColor="Black"
-                               VerticalOptions="Center" />
+                        <Label Text=" " Style="{StaticResource Labelfont}" Margin="1" />
+                        <Label Text="{Binding CreatedEx, Converter={StaticResource DateToTextConverter}}" Style="{StaticResource Labelfont}" />
                     </StackLayout>
                 </Frame>
 
                 <!--REPORTED BY-->
-                <Label Text="REPORTED BY: " Style="{StaticResource Labelfont}" TextColor="White" />
+                <Label Text="REPORTED BY: " Style="{StaticResource Labelfont}" />
                 <Frame OutlineColor="#FBB040" BackgroundColor="Black" Padding="2">
                     <StackLayout Orientation="Horizontal" VerticalOptions="Center"
                                  HorizontalOptions="FillAndExpand" Spacing="0" Padding="1" BackgroundColor="Black"
                                  HeightRequest="40">
                         <Label Text=" " Style="{StaticResource Labelfont}" TextColor="White" BackgroundColor="Black" />
-                        <Label Text="{Binding CreatedByEx}" Style="{StaticResource Labelfont}"
-                               TextColor="White" BackgroundColor="Black" VerticalOptions="Center" />
+                        <Label Text="{Binding CreatedByEx}" Style="{StaticResource Labelfont}" />
                     </StackLayout>
                 </Frame>
 
@@ -244,55 +235,18 @@
                         <ColumnDefinition Width="20" />
                     </Grid.ColumnDefinitions>
 
-                    <Label Grid.Column="1" Grid.Row="0" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
-                           Text="Tap and hold on map to set/move pin" Font="Large" />
+                    <Label Grid.Column="1" Grid.Row="0" Style="{StaticResource Labelfont}" Text="Tap and hold on map to move pin" />
                     <StackLayout Grid.Column="1" Grid.Row="1" VerticalOptions="FillAndExpand">
                         <RelativeLayout x:Name="MapRelativeLayout" VerticalOptions="FillAndExpand" HeightRequest="520" WidthRequest="300" />
                     </StackLayout>
                     <StackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Vertical" Spacing="0">
-                        <Label Text="{Binding MapText}" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" TextColor="White" />
+                        <Label Text="{Binding MapText}" />
                     </StackLayout>
                 </Grid>
-
-                <Button Text="Submit"
-                        HorizontalOptions="FillAndExpand" VerticalOptions="EndAndExpand" Command="{Binding SubmitCommand}"
-                        BackgroundColor="#FBB040" />
+                
+                <Button Text="Submit" HorizontalOptions="FillAndExpand" VerticalOptions="EndAndExpand" Command="{Binding SubmitCommand}" BackgroundColor="#FBB040" />
             </StackLayout>
         </ScrollView>
-
-        <!--Bottom Navigation Bar-->
-        <Grid Grid.Row="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="40" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="20" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="20" />
-            </Grid.ColumnDefinitions>
-
-            <StackLayout Grid.ColumnSpan="3" Grid.Row="1" Orientation="Horizontal"
-                         HorizontalOptions="FillAndExpand" Spacing="5" BackgroundColor="White">
-                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" BackgroundColor="#FBB040">
-                    <Image Source="photo2.png" WidthRequest="100" HeightRequest="100" HorizontalOptions="FillAndExpand"
-                           VerticalOptions="Center">
-                    </Image>
-                </StackLayout>
-
-                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" BackgroundColor="#FBB040">
-                    <Image Source="photo2.png" WidthRequest="100" HeightRequest="100" HorizontalOptions="FillAndExpand"
-                           VerticalOptions="Center">
-                    </Image>
-                </StackLayout>
-
-                <StackLayout Orientation="Horizontal" HorizontalOptions="FillAndExpand" BackgroundColor="#FBB040">
-                    <Image Source="showmap.png" WidthRequest="100" HeightRequest="60" HorizontalOptions="FillAndExpand"
-                           VerticalOptions="CenterAndExpand">
-                    </Image>
-                </StackLayout>
-
-            </StackLayout>
-        </Grid>
+       
     </Grid>
 </freshMvvm:FreshBaseContentPage>

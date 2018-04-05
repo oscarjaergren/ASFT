@@ -2,36 +2,45 @@
 <freshMvvm:FreshBaseContentPage NavigationPage.HasNavigationBar="false" xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:freshMvvm="clr-namespace:FreshMvvm;assembly=FreshMvvm"
-             x:Class="ASFT.Pages.LoginPage" Padding="4,20,4,4">
+             x:Class="ASFT.Pages.LoginPage" Padding="4,20,4,4" BackgroundColor="Black">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="Labelfont" TargetType="Label">
                 <Setter Property="FontSize" Value="Small" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="BackgroundColor" Value="Black"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+                <Setter Property="HorizontalOptions" Value="Start"/>
             </Style>
             <Style x:Key="Titlefont" TargetType="Label">
                 <Setter Property="FontSize" Value="Large" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="BackgroundColor" Value="Black"/>
+                <Setter Property="VerticalOptions" Value="Center"/>
+                <Setter Property="HorizontalOptions" Value="Start"/>
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
-    <StackLayout Orientation="Vertical" VerticalOptions="Center" HorizontalOptions="FillAndExpand" Spacing="10">
-        <StackLayout Orientation="Vertical" VerticalOptions="Start" HorizontalOptions="Center" Spacing="10"
-                     WidthRequest="350">
-            <Image Source="icon.png" HeightRequest="200" WidthRequest="200" HorizontalOptions="Center"
-                   VerticalOptions="Start" />
-            <Label Text="ASFT EVENT REPORT" VerticalOptions="Start" HorizontalOptions="Center"
-                   Style="{StaticResource Titlefont}" />
-            <Label Text="USERNAME" VerticalOptions="Center" HorizontalOptions="Start"
-                   Style="{StaticResource Labelfont}" />
+    <StackLayout Orientation="Vertical" VerticalOptions="Center" HorizontalOptions="FillAndExpand" Spacing="10" BackgroundColor="Black">
+        <StackLayout Orientation="Vertical" VerticalOptions="Start" HorizontalOptions="Center" Spacing="10" WidthRequest="350">
+            
+            <Image Source="icon.png" HeightRequest="200" WidthRequest="200" HorizontalOptions="Center" VerticalOptions="Start" />
+            
+            <Label Text="ASFT EVENT REPORT" Style="{StaticResource Titlefont}" />
+            
+            <Label Text="USERNAME" Style="{StaticResource Labelfont}" />
+            
             <Frame OutlineColor="#FBB040" Padding="1,1,1,1">
                 <Entry Placeholder="User name / Account" Text="{Binding Username}" />
             </Frame>
-            <Label Text="PASSWORD" VerticalOptions="Center" HorizontalOptions="Start"
-                   Style="{StaticResource Labelfont}" />
+            
+            <Label Text="PASSWORD" Style="{StaticResource Labelfont}" />
+            
             <Frame OutlineColor="#FBB040" Padding="1,1,1,1">
                 <Entry Placeholder="Password" IsPassword="true" Text="{Binding Password}" />
             </Frame>
-            <Button Text="SUBMIT" HorizontalOptions="FillAndExpand" Command="{Binding LoginCommand}"
-                    WidthRequest="100" BorderColor="Yellow" />
+            
+            <Button Text="SUBMIT" HorizontalOptions="FillAndExpand" Command="{Binding LoginCommand}" WidthRequest="100" BorderColor="Yellow" />
         </StackLayout>
     </StackLayout>
 </freshMvvm:FreshBaseContentPage>

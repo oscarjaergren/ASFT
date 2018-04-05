@@ -41,10 +41,7 @@
 
         private IGeolocator geolocator;
 
-        private bool isBusy;
-        private string imageText;
         private string locationText;
-        private string statusText;
 
         private ICommand onGoToListCommand;
         private ICommand submitCommand;
@@ -56,38 +53,11 @@
 
         public List<IssueStatusModel> StatusValues { get; set; }
 
-        public string StatusText
-        {
-            get { return statusText; }
-            set
-            {
-                if (statusText == value) return;
-                statusText = value;
-                this.RaisePropertyChanged(nameof(StatusText));
-            }
-        }
+        public bool IsBusy { get; set; }
 
-        public bool IsBusy
-        {
-            get { return isBusy; }
-            set
-            {
-                if (isBusy == value) return;
-                isBusy = value;
-                this.RaisePropertyChanged(nameof(IsBusy));
-            }
-        }
+        public string StatusText { get; set; }
 
-        public string ImageText
-        {
-            get { return imageText; }
-            set
-            {
-                if (imageText == value) return;
-                imageText = value;
-                this.RaisePropertyChanged(nameof(ImageText));
-            }
-        }
+        public string ImageText { get; set; }
 
         public IssueSeverity SeverityEx
         {
@@ -227,7 +197,7 @@
         public IssuePageModel()
         {
             geolocator = CrossGeolocator.Current;
-            
+
 
             if (App.Client.Issue == null)
             {
@@ -304,6 +274,8 @@
         private async Task<bool> GetLocationName()
         {
             int locationId = App.Client.GetCurrentLocationId();
+            if (App.Client.LoggedIn == false) return false;
+                
             if (locationId == -1)
             {
                 await App.Client.ShowSelectLocation();
@@ -421,7 +393,7 @@
 
         private async void OnSubmit()
         {
-            if (isBusy) return;
+            if (IsBusy) return;
             IsBusy = true;
 
             bool saved = await SaveChanges();
@@ -693,9 +665,9 @@
 
         public MapSpan MapRegion { get; set; } = MapSpan.FromCenterAndRadius(new TK.CustomMap.Position(56.8790, 14.8059), Distance.FromKilometers(2));
 
-        public ObservableCollection<TKCustomMapPin> Pins { get; set; }  = new ObservableCollection<TKCustomMapPin>();
+        public ObservableCollection<TKCustomMapPin> Pins { get; set; } = new ObservableCollection<TKCustomMapPin>();
 
-        public ObservableCollection<TKCircle> Circles { get; set; }  = new ObservableCollection<TKCircle>();
+        public ObservableCollection<TKCircle> Circles { get; set; } = new ObservableCollection<TKCircle>();
 
         public ObservableCollection<TKPolyline> Lines { get; set; }
 
@@ -811,8 +783,8 @@
 
         private async Task GetCurrentLocationAsync()
         {
-            if (isBusy) return;
-            isBusy = true;
+            if (IsBusy) return;
+            IsBusy = true;
 
             TimeSpan timeSpan = TimeSpan.FromTicks(120 * 1000);
             Position position = new Position();
@@ -838,7 +810,7 @@
                 MapText = "Unable to find position!";
             }
 
-            isBusy = false;
+            IsBusy = false;
         }
 
         private void UpdateGpsLocationText(TK.CustomMap.Position position)

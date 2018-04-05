@@ -82,13 +82,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DirectoryService.cs" />
-    <Compile Include="ImageReziser.cs" />
+    <Compile Include="Services\DirectoryService.cs" />
+    <Compile Include="Services\ImageReziser.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
-    <Compile Include="SplashScreen.cs" />
-    <Compile Include="ThreadHelper.cs" />
+    <Compile Include="Services\SplashScreen.cs" />
+    <Compile Include="Services\ThreadHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\splashscreen.axml" />
