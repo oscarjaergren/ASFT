@@ -13,7 +13,7 @@
     using IssueManagerApiClient;
     using Xamarin.Forms;
 
-    public class IssueListPageModel : FreshBasePageModel, INotifyPropertyChanged
+    public class IssueListPageModel : FreshBasePageModel
     {
         public ObservableCollection<IssueModel> Issues { get; set; }
 
@@ -44,26 +44,8 @@
         private readonly ICommand onSelectIssueCommand = null;
         private readonly ICommand deleteIssueCommand = null;
 
-        public bool IsBusy
-        {
-            get { return isBusy; }
-            set
-            {
-                if (isBusy == value) return;
-                isBusy = value;
-                NotifyPropertyChanged();
-            }
-        }
-
-        protected virtual void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        private bool isBusy;
-
-
+        public bool IsBusy { get; set; }
+       
         private int LocationId { get; set; }
 
         private bool RefeshNeeded { get; set; }

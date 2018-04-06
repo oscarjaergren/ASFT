@@ -237,7 +237,7 @@
 
                     <Label Grid.Column="1" Grid.Row="0" Style="{StaticResource Labelfont}" Text="Tap and hold on map to move pin" />
                     <StackLayout Grid.Column="1" Grid.Row="1" VerticalOptions="FillAndExpand">
-                        <RelativeLayout x:Name="MapRelativeLayout" VerticalOptions="FillAndExpand" HeightRequest="520" WidthRequest="300" />
+                        <RelativeLayout x:Name="MapRelativeLayout" VerticalOptions="FillAndExpand" HeightRequest="320" WidthRequest="300" />
                     </StackLayout>
                     <StackLayout Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="3" Orientation="Vertical" Spacing="0">
                         <Label Text="{Binding MapText}" />

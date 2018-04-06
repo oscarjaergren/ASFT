@@ -1,7 +1,5 @@
 ﻿using Foundation;
 using UIKit;
-using Acr.UserDialogs;
-using Xamarin.Forms;
 
 namespace ASFT.iOS
 {
